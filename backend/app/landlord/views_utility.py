@@ -174,8 +174,8 @@ def utility_calculation_preview(request):
                 'average_per_unit': average_per_unit,
                 'inputs': {
                     'property': get_object_or_404(Property, id=property_id),
-                    'start_date': start_date,
-                    'end_date': end_date,
+                    'start_date': date.fromisoformat(start_date),  # Convert string to date for template
+                    'end_date': date.fromisoformat(end_date),      # Convert string to date for template
                     'heating': total_heating,
                     'water': total_water,
                     'waste': total_waste,
