@@ -12,7 +12,7 @@ from django.contrib.auth import get_user_model
 from landlord.models import (
     Property, Unit, Tenant, Contract, 
     Issue, Vendor, PaymentTransaction,
-    Document, MaintenanceTask
+    Document, MaintenanceItem
 )
 
 User = get_user_model()
@@ -241,13 +241,13 @@ class Command(BaseCommand):
             unit = random.choice(units)
             vendor = random.choice(vendors)
             
-            task = MaintenanceTask.objects.create(
+            task = MaintenanceItem.objects.create(
                 unit=unit,
                 vendor=vendor,
                 title=f"Wartung {vendor.service_type}",
                 description=f"Reguläre Wartung für {unit.unit_label}",
                 scheduled_date=date.today() + timedelta(days=random.randint(7, 30)),
-                status='geplant'
+                status='planned'
             )
             tasks.append(task)
         
