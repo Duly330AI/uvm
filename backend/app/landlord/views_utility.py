@@ -161,6 +161,7 @@ def utility_calculation_preview(request):
             total_costs = sum(r['total_costs'] for r in results.values())
             total_prepayment = sum(r['prepayment'] for r in results.values())
             total_balance = sum(r['balance'] for r in results.values())
+            average_per_unit = total_costs / len(results) if results else Decimal('0')
 
             context = {
                 'results': results,
@@ -170,6 +171,7 @@ def utility_calculation_preview(request):
                     'prepayment': total_prepayment,
                     'balance': total_balance,
                 },
+                'average_per_unit': average_per_unit,
                 'inputs': {
                     'property': get_object_or_404(Property, id=property_id),
                     'start_date': start_date,

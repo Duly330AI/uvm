@@ -19,7 +19,7 @@
     </div>
     <div class="bg-white border rounded-lg p-4">
       <div class="text-sm text-slate-500 mb-1">Durchschn. NK/Einheit</div>
-      <div class="text-2xl font-bold">€{{ totals.costs|divisibleby:results|length|default:0|floatformat:2 }}</div>
+      <div class="text-2xl font-bold">€{{ average_per_unit|floatformat:2 }}</div>
     </div>
     <div class="bg-white border rounded-lg p-4">
       <div class="text-sm text-slate-500 mb-1">Abrechnungszeitraum</div>
