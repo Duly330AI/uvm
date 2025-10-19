@@ -1,0 +1,134 @@
+{% extends "portal/base.html" %}
+{% block title %}Zählerstand erfassen{% endblock %}
+
+{% block portal %}
+<div class="max-w-2xl mx-auto">
+  <div class="mb-4">
+    <a href="{% url 'portal_utility_readings' %}" class="text-sm text-blue-600 hover:underline">
+      ← Zurück zu Zählerständen
+    </a>
+  </div>
+
+  <h1 class="text-2xl font-semibold mb-6">📊 Neuen Zählerstand erfassen</h1>
+
+  <form method="post" class="bg-white border rounded-lg p-6">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+      <strong>Fehler beim Speichern:</strong>
+      <ul class="list-disc list-inside mt-2">
+        {% for field, errors in form.errors.items %}
+          {% for error in errors %}
+          <li>{{ field }}: {{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <div class="space-y-4">
+      <!-- Unit Selection -->
+      <div>
+        <label for="{{ form.unit.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+          Wohneinheit *
+        </label>
+        {{ form.unit }}
+        {% if form.unit.help_text %}
+        <p class="text-xs text-slate-500 mt-1">{{ form.unit.help_text }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Meter Type -->
+      <div>
+        <label for="{{ form.meter_type.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+          Zählertyp *
+        </label>
+        {{ form.meter_type }}
+        {% if form.meter_type.help_text %}
+        <p class="text-xs text-slate-500 mt-1">{{ form.meter_type.help_text }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Reading Date -->
+      <div>
+        <label for="{{ form.reading_date.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+          Ablesedatum *
+        </label>
+        {{ form.reading_date }}
+        {% if form.reading_date.help_text %}
+        <p class="text-xs text-slate-500 mt-1">{{ form.reading_date.help_text }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Meter Number -->
+      <div>
+        <label for="{{ form.meter_number.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+          Zählernummer
+        </label>
+        {{ form.meter_number }}
+        {% if form.meter_number.help_text %}
+        <p class="text-xs text-slate-500 mt-1">{{ form.meter_number.help_text }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Current Value -->
+      <div>
+        <label for="{{ form.current_value.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+          Aktueller Zählerstand *
+        </label>
+        {{ form.current_value }}
+        {% if form.current_value.help_text %}
+        <p class="text-xs text-slate-500 mt-1">{{ form.current_value.help_text }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Previous Value (optional) -->
+      <div>
+        <label for="{{ form.previous_value.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+          Vorheriger Zählerstand
+        </label>
+        {{ form.previous_value }}
+        <p class="text-xs text-slate-500 mt-1">
+          Optional - wird automatisch vom letzten Zählerstand übernommen
+        </p>
+      </div>
+
+      <!-- Notes -->
+      <div>
+        <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+          Notizen
+        </label>
+        {{ form.notes }}
+        {% if form.notes.help_text %}
+        <p class="text-xs text-slate-500 mt-1">{{ form.notes.help_text }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="flex gap-3 mt-6">
+      <button
+        type="submit"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        💾 Speichern
+      </button>
+      <a
+        href="{% url 'portal_utility_readings' %}"
+        class="px-4 py-2 border border-slate-300 rounded hover:bg-slate-50"
+      >
+        Abbrechen
+      </a>
+    </div>
+  </form>
+
+  <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded">
+    <h3 class="font-medium text-blue-900 mb-2">💡 Hinweise</h3>
+    <ul class="text-sm text-blue-800 space-y-1">
+      <li>• Der vorherige Zählerstand wird automatisch vom letzten Eintrag übernommen</li>
+      <li>• Der Verbrauch wird automatisch berechnet (aktuell - vorherig)</li>
+      <li>• Zählerstände können nur einmal pro Tag und Zählertyp erfasst werden</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}
