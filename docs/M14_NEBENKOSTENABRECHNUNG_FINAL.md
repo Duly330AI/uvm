@@ -1,9 +1,9 @@
 # M14: Nebenkostenabrechnung - Finale Dokumentation
 
-**Version:** 1.0 FINAL  
-**Datum:** 19.10.2025  
-**Status:** ✅ PRODUKTIONSBEREIT  
-**Autor:** AI Assistant + Matthias Buchalik  
+**Version:** 1.0 FINAL
+**Datum:** 19.10.2025
+**Status:** ✅ PRODUKTIONSBEREIT
+**Autor:** AI Assistant + Matthias Buchalik
 
 ---
 
@@ -12,6 +12,7 @@
 Das M14-Modul (Nebenkostenabrechnung) ist ein **vollständig funktionales System** zur Verwaltung von Zählerständen und automatischen Berechnung von Nebenkostenabrechnungen nach deutschem Recht (HeizkostenV).
 
 ### **Hauptfunktionen:**
+
 1. ✅ **Zählerstände erfassen** (Wohnungen + Gebäude)
 2. ✅ **Nebenkostenabrechnung berechnen**
 3. ✅ **Vorschau mit Kostenverteilung**
@@ -26,6 +27,7 @@ Das M14-Modul (Nebenkostenabrechnung) ist ein **vollständig funktionales System
 **Zwei Arten von Zählern:**
 
 #### **🏢 Gebäudezähler (Allgemein):**
+
 - **Zweck:** Vermieter-seitige Hauptzähler
 - **Beispiele:**
   - Allgemeinstrom (Treppenhaus, Keller, Flur)
@@ -37,6 +39,7 @@ Das M14-Modul (Nebenkostenabrechnung) ist ein **vollständig funktionales System
 - **Abgerechnet:** Via Nebenkostenabrechnung auf Mieter verteilt
 
 #### **🏠 Wohnungszähler (Unterzähler):**
+
 - **Zweck:** Verbrauchserfassung pro Wohnung
 - **Beispiele:**
   - Kaltwasser Wohnung
@@ -48,6 +51,7 @@ Das M14-Modul (Nebenkostenabrechnung) ist ein **vollständig funktionales System
 - **Abgerechnet:** Jahresabrechnung mit tatsächlichem Verbrauch
 
 #### **Zählertypen:**
+
 - Kaltwasser
 - Warmwasser
 - Heizung
@@ -55,6 +59,7 @@ Das M14-Modul (Nebenkostenabrechnung) ist ein **vollständig funktionales System
 - Gas
 
 #### **Erfasste Daten:**
+
 - Wohneinheit/Gebäude
 - Zählertyp
 - Ablesedatum
@@ -72,30 +77,35 @@ Das M14-Modul (Nebenkostenabrechnung) ist ein **vollständig funktionales System
 ### **2. Nebenkostenabrechnung berechnen**
 
 #### **Eingabe:**
+
 - **Objekt auswählen**
 - **Abrechnungszeitraum** (Von/Bis)
 - **Jahresgesamtkosten eingeben:**
-  - 💨 Heizkosten (€) - *30% Grundkosten + 70% Verbrauch*
-  - 💧 Wasserkosten (€) - *Nach Verbrauch*
-  - 🗑️ Müllkosten (€) - *Nach Umlage-Schlüssel*
-  - 🏛️ Grundsteuer (€) - *Nach Fläche*
-  - 📋 Sonstige Kosten (€) - *Hausmeister, Versicherung, etc.*
+  - 💨 Heizkosten (€) - _30% Grundkosten + 70% Verbrauch_
+  - 💧 Wasserkosten (€) - _Nach Verbrauch_
+  - 🗑️ Müllkosten (€) - _Nach Umlage-Schlüssel_
+  - 🏛️ Grundsteuer (€) - _Nach Fläche_
+  - 📋 Sonstige Kosten (€) - _Hausmeister, Versicherung, etc._
 
 #### **Berechnung nach HeizkostenV:**
 
 **Heizkosten:**
+
 - 30% Grundkosten → Verteilung nach Wohnfläche (m²)
 - 70% Verbrauchskosten → Verteilung nach Heizkostenverteiler-Daten
 
 **Wasserkosten:**
+
 - Nach erfasstem Verbrauch (Zählerstände)
 - Kalt- und Warmwasser getrennt
 
 **Andere Kosten:**
+
 - Nach im Vertrag festgelegtem Umlageschlüssel
 - Optionen: Nach Fläche (m²), Nach Personenzahl, Gleichmäßig
 
 #### **Automatische Berücksichtigung:**
+
 - NK-Vorauszahlungen aus Mietvertrag
 - Berechnung: Nachzahlung/Guthaben
 - Nur aktive Verträge im Abrechnungszeitraum
@@ -107,18 +117,21 @@ Das M14-Modul (Nebenkostenabrechnung) ist ein **vollständig funktionales System
 ### **3. Vorschau & Kostenverteilung**
 
 #### **Übersicht:**
+
 - Gesamtkosten (alle Einheiten)
 - Anzahl Einheiten
 - Durchschnitt NK/Einheit
 - Abrechnungszeitraum
 
 #### **Pro Wohneinheit:**
+
 - 🏠 **Wohnungsnummer** (z.B. "Whg 1a")
 - **Mieter** (Name/E-Mail)
 - 📐 **Fläche** (m²)
 - **Umlageschlüssel**
 
 **Kostenaufschlüsselung:**
+
 - 🔥 Heizung (mit 30%/70% Breakdown)
 - 💧 Wasser (Kalt/Warm)
 - 🗑️ Müll
@@ -126,6 +139,7 @@ Das M14-Modul (Nebenkostenabrechnung) ist ein **vollständig funktionales System
 - 📋 Sonstige
 
 **Gesamtberechnung:**
+
 - Gesamt NK
 - NK-Vorauszahlung
 - **Nachzahlung/Guthaben**
@@ -135,12 +149,14 @@ Das M14-Modul (Nebenkostenabrechnung) ist ein **vollständig funktionales System
 ### **4. CSV-Export**
 
 **Format:**
+
 ```csv
 Wohnung,Mieter,Heizkosten,Wasser,Müll,Grundsteuer,Sonstiges,Gesamt,Vorauszahlung,Nachzahlung/Guthaben
 Whg 1a,Fritz Müller,35.00,16.25,8.75,3.75,25.00,88.75,2160.00,-2071.25
 ```
 
 **Verwendung:**
+
 - Import in Excel/Buchhaltungssoftware
 - Archivierung
 - Versand an Steuerberater
@@ -152,6 +168,7 @@ Whg 1a,Fritz Müller,35.00,16.25,8.75,3.75,25.00,88.75,2160.00,-2071.25
 ### **Datenmodelle:**
 
 #### **UtilityReading** (Zählerstand)
+
 ```python
 class UtilityReading(models.Model):
     unit = ForeignKey(Unit)  # Wohnung oder "Allgemein"
@@ -166,6 +183,7 @@ class UtilityReading(models.Model):
 ```
 
 #### **Contract** (Mietvertrag)
+
 ```python
 class Contract(models.Model):
     unit = ForeignKey(Unit)
@@ -180,6 +198,7 @@ class Contract(models.Model):
 ```
 
 #### **Unit** (Wohneinheit)
+
 ```python
 class Unit(models.Model):
     property = ForeignKey(Property)
@@ -193,15 +212,16 @@ class Unit(models.Model):
 ### **Services:**
 
 #### **UtilityCostCalculator**
+
 ```python
 class UtilityCostCalculator:
     def __init__(self, property_id, start_date, end_date)
-    
+
     def calculate_all_costs(
-        total_heating, total_water, total_waste, 
+        total_heating, total_water, total_waste,
         total_property_tax, total_other
     ) -> Dict[contract_id, costs]
-    
+
     def _calculate_heating_costs(contract, total) -> Dict
     def _calculate_water_costs(contract, total) -> Dict
     def _allocate_by_key(contract, total, key) -> Decimal
@@ -209,6 +229,7 @@ class UtilityCostCalculator:
 ```
 
 **Berechnungslogik:**
+
 - Heizung: 30% Fläche + 70% Verbrauch
 - Wasser: Nach Zählerständen
 - Rest: Nach Verteilerschlüssel
@@ -218,6 +239,7 @@ class UtilityCostCalculator:
 ## 📱 **BENUTZEROBERFLÄCHE**
 
 ### **Navigation:**
+
 ```
 Portal → Wartung → NK-Abrechnung
   ├─ Zählerstände
@@ -226,12 +248,14 @@ Portal → Wartung → NK-Abrechnung
 ```
 
 ### **Zählerstände-Liste:**
+
 - Filter: Objekt, Zählertyp, Wohneinheit, Zeitraum
 - Gruppierung: Gebäudezähler / Wohnungszähler
 - Icons: 🏢 Gebäude | 🏠 Wohnung
 - Badge: "Gebäudezähler" für Allgemein
 
 ### **Formular: Zählerstand erfassen**
+
 ```
 Wohneinheit / Gebäude *
   🏢 Gebäudezähler
@@ -264,6 +288,7 @@ Notizen
 ```
 
 ### **Formular: NK-Berechnung**
+
 ```
 Abrechnungszeitraum
   Objekt *: [Dropdown]
@@ -295,6 +320,7 @@ Jahresgesamtkosten eingeben
 ```
 
 ### **Vorschau:**
+
 ```
 Nebenkostenabrechnung - Vorschau
 Objekt: Mehrfamilienhaus | Zeitraum: 01.01.2024 - 31.12.2024
@@ -311,7 +337,7 @@ Mieter: Fritz Müller | 📐 45.00 m² | Umlage: Nach Fläche
 
 🔥 Heizung    💧 Wasser    🗑️ Müll    🏛️ Steuer  📋 Sonstige
 €35,00        €16,25       €8,75      €3,75      €25,00
-30%: €10,50   Kalt: €8     
+30%: €10,50   Kalt: €8
 70%: €24,50   Warm: €8,25
 
 [📥 Als CSV exportieren] [🖨️ Drucken]
@@ -324,23 +350,27 @@ Mieter: Fritz Müller | 📐 45.00 m² | Umlage: Nach Fläche
 ### **Management Commands:**
 
 #### **1. Gebäude-Units erstellen:**
+
 ```bash
 docker compose exec web python manage.py create_building_units
 ```
+
 Erstellt automatisch "Allgemein" Units für alle Properties.
 
 #### **2. Migrations:**
+
 ```bash
 docker compose exec web python manage.py makemigrations
 docker compose exec web python manage.py migrate
 ```
 
 ### **Docker Compose:**
+
 ```yaml
 services:
   web:
     volumes:
-      - ./backend/app:/app  # Live reload!
+      - ./backend/app:/app # Live reload!
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.dev
 ```
@@ -354,6 +384,7 @@ services:
 ### **Manueller Test-Workflow:**
 
 **1. Zählerstände erfassen:**
+
 ```
 1. Navigiere zu: /portal/utility/readings/create
 2. Wähle: "Mehrfamilienhaus - Allgemein"
@@ -370,6 +401,7 @@ services:
 ```
 
 **2. NK-Abrechnung berechnen:**
+
 ```
 1. Navigiere zu: /portal/utility/calculation/
 2. Objekt: "Mehrfamilienhaus"
@@ -424,18 +456,21 @@ Nachzahlung/Guthaben
 ## 🎓 **BEST PRACTICES**
 
 ### **Zählerstände:**
+
 1. **Regelmäßig ablesen** (monatlich oder quartalsweise)
 2. **Fotos machen** (Beweissicherung)
 3. **Notizen nutzen** für besondere Ereignisse
 4. **Gebäudezähler NICHT vergessen!**
 
 ### **Abrechnung:**
+
 1. **Jahresbetrag eingeben** (nicht Monatsbetrag!)
 2. **Alle Rechnungen sammeln** (Stadtwerke, Hausmeister, etc.)
 3. **Zeitraum beachten** (nur aktive Verträge werden berechnet)
 4. **Vorauszahlungen prüfen** (aus Mietverträgen)
 
 ### **Rechtliches:**
+
 - **HeizkostenV einhalten** (30%/70% Regelung)
 - **Frist beachten** (12 Monate nach Abrechnungsperiode)
 - **Belege aufbewahren** (10 Jahre)
@@ -445,18 +480,21 @@ Nachzahlung/Guthaben
 ## 🚀 **ROADMAP / TODOs**
 
 ### **V1.1 (Next):**
+
 - [ ] PDF-Export für Mieter
 - [ ] E-Mail-Versand der Abrechnungen
 - [ ] Historien-Ansicht (Vergleich zu Vorjahr)
 - [ ] Grafische Auswertungen (Charts)
 
 ### **V1.2:**
+
 - [ ] Automatische Zählerstand-Erinnerungen
 - [ ] Mieter-Portal: Eigene Zählerstände erfassen
 - [ ] Heizkostenverteiler-Integration
 - [ ] Warmwasser-Berechnung nach Zirkulationspumpe
 
 ### **V2.0:**
+
 - [ ] Multi-Property Support (mehrere Gebäude)
 - [ ] Kostenstellen-Verwaltung
 - [ ] Automatische Rechnungs-Parsing (OCR)
@@ -468,16 +506,16 @@ Nachzahlung/Guthaben
 
 ### **Häufige Probleme:**
 
-**Q: Speichern funktioniert nicht?**  
+**Q: Speichern funktioniert nicht?**
 A: Prüfe Browser-Konsole (F12) auf Fehlermeldungen. Meist Date-Format-Problem.
 
-**Q: Vorschau zeigt keine Werte?**  
+**Q: Vorschau zeigt keine Werte?**
 A: Prüfe ob Zählerstände im Zeitraum erfasst wurden. Prüfe ob Verträge aktiv sind.
 
-**Q: CSV-Download startet nicht?**  
+**Q: CSV-Download startet nicht?**
 A: Popup-Blocker deaktivieren. Form sendet POST mit hidden inputs.
 
-**Q: "Allgemein" Unit fehlt?**  
+**Q: "Allgemein" Unit fehlt?**
 A: Run: `docker compose exec web python manage.py create_building_units`
 
 ---
@@ -485,6 +523,7 @@ A: Run: `docker compose exec web python manage.py create_building_units`
 ## 📄 **CHANGELOG**
 
 ### **v1.0 (19.10.2025) - FINAL**
+
 - ✅ Zählerstände erfassen (Wohnung + Gebäude)
 - ✅ NK-Berechnung mit HeizkostenV-Konformität
 - ✅ Vorschau mit vollständiger Kostenaufschlüsselung
@@ -496,6 +535,7 @@ A: Run: `docker compose exec web python manage.py create_building_units`
 - ✅ Alle Bugfixes
 
 ### **Fixes (Final Session):**
+
 - Fixed: Date format (ISO for HTML5 inputs)
 - Fixed: Template context variables
 - Fixed: POST field name mismatch
@@ -510,6 +550,7 @@ A: Run: `docker compose exec web python manage.py create_building_units`
 **Status:** Das M14-Modul ist vollständig funktional und produktionsbereit!
 
 **Getestet:**
+
 - ✅ Zählerstände erfassen
 - ✅ Gebäude vs Wohnungszähler
 - ✅ NK-Berechnung
@@ -518,6 +559,7 @@ A: Run: `docker compose exec web python manage.py create_building_units`
 - ✅ Live reload
 
 **Compliance:**
+
 - ✅ HeizkostenV (30/70 Regelung)
 - ✅ DSGVO-konform
 - ✅ Audit-Logs (recorded_by)
@@ -526,4 +568,4 @@ A: Run: `docker compose exec web python manage.py create_building_units`
 
 **Ende der Dokumentation**
 
-*Viel Erfolg mit der Nebenkostenabrechnung! 🎉*
+_Viel Erfolg mit der Nebenkostenabrechnung! 🎉_

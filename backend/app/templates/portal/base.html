@@ -1,54 +1,15 @@
-{% extends "_base_front.html" %}
-{% block header_right %}
+{% extends "_base_front.html" %} {% block header_right %}
 <nav class="flex flex-wrap gap-x-3 gap-y-2 text-xs justify-end max-w-md">
-  <a
-    class="hover:underline whitespace-nowrap"
-    href="{% url 'portal_dashboard' %}"
-    >Dashboard</a
-  >
-  <a class="hover:underline whitespace-nowrap" href="{% url 'portal_issues' %}"
-    >Tickets</a
-  >
-  <a
-    class="hover:underline whitespace-nowrap"
-    href="{% url 'portal_documents' %}"
-    >Dokumente</a
-  >
-  <a
-    class="hover:underline whitespace-nowrap"
-    href="{% url 'portal_contracts' %}"
-    >Verträge</a
-  >
-  <a
-    class="hover:underline whitespace-nowrap"
-    href="{% url 'portal_payments' %}"
-    >Zahlungen</a
-  >
-  <a
-    class="hover:underline whitespace-nowrap"
-    href="{% url 'portal_checklists' %}"
-    >Checklisten</a
-  >
-  <a
-    class="hover:underline whitespace-nowrap"
-    href="{% url 'portal_maintenance_list' %}"
-    >Wartung</a
-  >
-  <a
-    class="hover:underline whitespace-nowrap"
-    href="{% url 'portal_utility_readings' %}"
-    >NK-Abrechnung</a
-  >
-  <a class="hover:underline whitespace-nowrap" href="{% url 'portal_reports' %}"
-    >Reports</a
-  >
-  <a class="hover:underline whitespace-nowrap" href="{% url 'portal_tenants' %}"
-    >Mieter</a
-  >
+  <a class="hover:underline whitespace-nowrap" href="{% url 'portal_dashboard' %}">Dashboard</a>
+  <a class="hover:underline whitespace-nowrap" href="{% url 'portal_issues' %}">Tickets</a>
+  <a class="hover:underline whitespace-nowrap" href="{% url 'portal_documents' %}">Dokumente</a>
+  <a class="hover:underline whitespace-nowrap" href="{% url 'portal_contracts' %}">Verträge</a>
+  <a class="hover:underline whitespace-nowrap" href="{% url 'portal_payments' %}">Zahlungen</a>
+  <a class="hover:underline whitespace-nowrap" href="{% url 'portal_checklists' %}">Checklisten</a>
+  <a class="hover:underline whitespace-nowrap" href="{% url 'portal_maintenance_list' %}">Wartung</a>
+  <a class="hover:underline whitespace-nowrap" href="{% url 'portal_utility_readings' %}">NK-Abrechnung</a>
+  <a class="hover:underline whitespace-nowrap" href="{% url 'portal_reports' %}">Reports</a>
+  <a class="hover:underline whitespace-nowrap" href="{% url 'portal_tenants' %}">Mieter</a>
   <a class="hover:underline whitespace-nowrap" href="/admin/">Admin</a>
 </nav>
-{% endblock %}
-{% block content %}
-{% block portal %}
-{% endblock %}
-{% endblock %}
+{% endblock %} {% block content %} {% block portal %} {% endblock %} {% endblock %}

@@ -1,16 +1,12 @@
 # 🏢 UVM - Universal Vermieter Management# 🏢 UVM - Universal Vermieter Management
 
-
-
 ## Projekt-Roadmap & Feature-Status## Projekt-Roadmap & Feature-Status
 
+**Stand:** 19. Oktober 2025 **Stand:** 19. Oktober 2025
 
+**Version:** 1.0.0 (Production Ready!) **Version:** 0.11.0 (Development - M15 Wartungskalender Complete!)
 
-**Stand:** 19. Oktober 2025  **Stand:** 19. Oktober 2025
-
-**Version:** 1.0.0 (Production Ready!)  **Version:** 0.11.0 (Development - M15 Wartungskalender Complete!)
-
-**Letzte Aktualisierung:** 19.10.2025 23:00  **Letzte Aktualisierung:** 19.10.2025 14:00 - **M15 WARTUNGSKALENDER FERTIG!** ✅
+**Letzte Aktualisierung:** 19.10.2025 23:00 **Letzte Aktualisierung:** 19.10.2025 14:00 - **M15 WARTUNGSKALENDER FERTIG!** ✅
 
 **Status:** 🎉 **GO-LIVE READY!** ✅
 
@@ -44,83 +40,77 @@ Das UVM-System ist eine **produktionsreife webbasierte Hausverwaltungssoftware**
 
 - **Finanz-Management** (Verträge, Zahlungen, CSV-Import)**Zeit-Effizienz:** 94% Zeitersparnis durch AI-Unterstützung! 🔥🔥🔥🔥
 
+**Aktueller Fortschritt:** 🎉 **95% Complete** (Core Features 100% fertig!) ---
 
-
-**Aktueller Fortschritt:** 🎉 **95% Complete** (Core Features 100% fertig!)  ---
-
-**Verbleibend:** Nur noch Polish & Testing (Security Audit, Performance, Docs)  
+**Verbleibend:** Nur noch Polish & Testing (Security Audit, Performance, Docs)
 
 **Zeit-Effizienz:** 📈 **94% Zeitersparnis durch AI-Unterstützung!** 🔥## ✅ IMPLEMENTIERTE FEATURES (M1-M10 + M11b + M12a/b + M14 + M15 + M16 + M17a + PR1-2)
 
-
-
 ---### 🎫 **Ticketing & Kommunikation**
 
-
-
-## ✅ IMPLEMENTIERTE FEATURES (PRODUCTION READY)| Feature                        | Status  | Details                                                                   |
+## ✅ IMPLEMENTIERTE FEATURES (PRODUCTION READY)| Feature | Status | Details |
 
 | ------------------------------ | ------- | ------------------------------------------------------------------------- |
 
 ### 🎫 **M1-M8: Ticketing & Kommunikation** ✅ **100% DONE**| Chat-basierte Anliegen-Meldung | ✅ 100% | Strukturierter Dialog: Problem → Kategorie → Schwere → Foto → Bestätigung |
 
-| Ticket-Erstellung              | ✅ 100% | Auto-Ticket-Nr (TCK-YYYY-XXXXX), Status-Tracking                          |
+| Ticket-Erstellung | ✅ 100% | Auto-Ticket-Nr (TCK-YYYY-XXXXX), Status-Tracking |
 
-| Feature                        | Status  | Details                                                                   || Status-Workflow                | ✅ 100% | NEW → IN*PROGRESS → WAITING*\* → DONE                                     |
+| Feature | Status | Details || Status-Workflow | ✅ 100% | NEW → IN*PROGRESS → WAITING*\* → DONE |
 
-| ------------------------------ | ------- | ------------------------------------------------------------------------- || Notizen & Kommunikation        | ✅ 100% | Public/Internal Notes, Verlauf                                            |
+| ------------------------------ | ------- | ------------------------------------------------------------------------- || Notizen & Kommunikation | ✅ 100% | Public/Internal Notes, Verlauf |
 
-| Chat-basierte Anliegen-Meldung | ✅ 100% | Strukturierter Dialog: Problem → Kategorie → Schwere → Foto → Bestätigung || Automatische Priorisierung     | ✅ 100% | Severity 1-5 aus Chat-Dialog                                              |
+| Chat-basierte Anliegen-Meldung | ✅ 100% | Strukturierter Dialog: Problem → Kategorie → Schwere → Foto → Bestätigung || Automatische Priorisierung | ✅ 100% | Severity 1-5 aus Chat-Dialog |
 
-| Ticket-Erstellung              | ✅ 100% | Auto-Ticket-Nr (TCK-YYYY-XXXXX), Status-Tracking                          || Dokumenten-Upload              | ✅ 100% | Fotos/PDFs während Chat & nachträglich                                    |
+| Ticket-Erstellung | ✅ 100% | Auto-Ticket-Nr (TCK-YYYY-XXXXX), Status-Tracking || Dokumenten-Upload | ✅ 100% | Fotos/PDFs während Chat & nachträglich |
 
-| Status-Workflow                | ✅ 100% | NEW → IN_PROGRESS → WAITING → DONE                                        |
+| Status-Workflow | ✅ 100% | NEW → IN_PROGRESS → WAITING → DONE |
 
-| Notizen & Kommunikation        | ✅ 100% | Public/Internal Notes, Verlauf                                            |### 📁 **Dokumenten-Management (M9 + M11b + M17a)**
+| Notizen & Kommunikation | ✅ 100% | Public/Internal Notes, Verlauf |### 📁 **Dokumenten-Management (M9 + M11b + M17a)**
 
-| Automatische Priorisierung     | ✅ 100% | Severity 1-5 aus Chat-Dialog                                              |
+| Automatische Priorisierung | ✅ 100% | Severity 1-5 aus Chat-Dialog |
 
-| Dokumenten-Upload              | ✅ 100% | Fotos/PDFs während Chat & nachträglich                                    || Feature                          | Status  | Details                                                  |
+| Dokumenten-Upload | ✅ 100% | Fotos/PDFs während Chat & nachträglich || Feature | Status | Details |
 
 | -------------------------------- | ------- | -------------------------------------------------------- |
 
----| Digitaler Dokumentenspeicher     | ✅ 100% | Categories: lease, invoice, protocol, certificate, other |
+---| Digitaler Dokumentenspeicher | ✅ 100% | Categories: lease, invoice, protocol, certificate, other |
 
-| Download/Export                  | ✅ 100% | Einzeldownload + Bulk-Export                             |
+| Download/Export | ✅ 100% | Einzeldownload + Bulk-Export |
 
-### 📁 **M9 + M11b + M17a: Dokumenten-Management** ✅ **100% DONE**| Upload-Validierung               | ✅ 100% | Max 10MB/Datei, 40MB gesamt, JPEG/PNG/GIF/PDF            |
+### 📁 **M9 + M11b + M17a: Dokumenten-Management** ✅ **100% DONE**| Upload-Validierung | ✅ 100% | Max 10MB/Datei, 40MB gesamt, JPEG/PNG/GIF/PDF |
 
-| **Dokumente → Units/Properties** | ✅ 100% | **M11b:** Property/Unit/Tenant ForeignKeys (5.5h)        |
+| **Dokumente → Units/Properties** | ✅ 100% | **M11b:** Property/Unit/Tenant ForeignKeys (5.5h) |
 
-| Feature                          | Status  | Details                                                  | Zeitaufwand || **Versionshistorie**             | ✅ 100% | **M17a:** DocumentVersion Model, Timeline UI (2.5h)      |
+| Feature | Status | Details | Zeitaufwand || **Versionshistorie** | ✅ 100% | **M17a:** DocumentVersion Model, Timeline UI (2.5h) |
 
 | -------------------------------- | ------- | -------------------------------------------------------- | ----------- |
 
-| Digitaler Dokumentenspeicher     | ✅ 100% | Categories: lease, invoice, protocol, certificate, other | -           |### 🔧 **Handwerker/Dienstleister (M10 + M11)**
+| Digitaler Dokumentenspeicher | ✅ 100% | Categories: lease, invoice, protocol, certificate, other | - |### 🔧 **Handwerker/Dienstleister (M10 + M11)**
 
-| Download/Export                  | ✅ 100% | Einzeldownload + Bulk-Export                             | -           |
+| Download/Export | ✅ 100% | Einzeldownload + Bulk-Export | - |
 
-| Upload-Validierung               | ✅ 100% | Max 10MB/Datei, 40MB gesamt, JPEG/PNG/GIF/PDF            | -           || Feature                    | Status  | Details                                      |
+| Upload-Validierung | ✅ 100% | Max 10MB/Datei, 40MB gesamt, JPEG/PNG/GIF/PDF | - || Feature | Status | Details |
 
-| **Dokumente → Units/Properties** | ✅ 100% | **M11b:** Property/Unit/Tenant ForeignKeys               | 5.5h        || -------------------------- | ------- | -------------------------------------------- |
+| **Dokumente → Units/Properties** | ✅ 100% | **M11b:** Property/Unit/Tenant ForeignKeys | 5.5h || -------------------------- | ------- | -------------------------------------------- |
 
-| **Versionshistorie**             | ✅ 100% | **M17a:** DocumentVersion Model, Timeline UI             | 2.5h        || Vendor-Datenbank           | ✅ 100% | Name, Trade, Kontakt, Notizen                |
+| **Versionshistorie** | ✅ 100% | **M17a:** DocumentVersion Model, Timeline UI | 2.5h || Vendor-Datenbank | ✅ 100% | Name, Trade, Kontakt, Notizen |
 
-| Vendor Auth Token          | ✅ 100% | Magic-Link (24h Gültigkeit, VendorAuthToken) |
+| Vendor Auth Token | ✅ 100% | Magic-Link (24h Gültigkeit, VendorAuthToken) |
 
-**M11b Features:**| Vendor-Zuweisung zu Issues | ✅ 100% | Appointments mit Vendor-Link                 |
+**M11b Features:**| Vendor-Zuweisung zu Issues | ✅ 100% | Appointments mit Vendor-Link |
 
-- ✅ Property/Unit/Tenant Zuordnung per Dropdown| E-Mail bei Zuweisung       | ✅ 100% | Auto-Versand mit Magic-Link & Ticket-Details |
+- ✅ Property/Unit/Tenant Zuordnung per Dropdown| E-Mail bei Zuweisung | ✅ 100% | Auto-Versand mit Magic-Link & Ticket-Details |
 
-- ✅ Icons in Liste (🏢 Property, 🚪 Unit, 👤 Tenant)| Vendor-Portal Frontend     | ✅ 100% | Login, Auftrags-Liste, Ticket-Details        |
+- ✅ Icons in Liste (🏢 Property, 🚪 Unit, 👤 Tenant)| Vendor-Portal Frontend | ✅ 100% | Login, Auftrags-Liste, Ticket-Details |
 
-- ✅ Filter nach Zuordnung| PDF-Upload (KVA/Rechnung)  | ✅ 100% | Kategorisiert, validiert (10MB, nur PDF)     |
+- ✅ Filter nach Zuordnung| PDF-Upload (KVA/Rechnung) | ✅ 100% | Kategorisiert, validiert (10MB, nur PDF) |
 
-| Vendor-Uploads im Portal   | ✅ 100% | Staff sieht Vendor-Dokumente, Tenant NICHT   |
+| Vendor-Uploads im Portal | ✅ 100% | Staff sieht Vendor-Dokumente, Tenant NICHT |
 
-**M17a Features:**| Approval durch Vermieter   | ⚠️ 50%  | Manuell zuweisen, kein Workflow              |
+**M17a Features:**| Approval durch Vermieter | ⚠️ 50% | Manuell zuweisen, kein Workflow |
 
-- ✅ Automatische Versionierung (v1 → v2 → v3)| Auftragshistorie           | ✅ 100% | Über Appointments & VendorAttachments        |
+- ✅ Automatische Versionierung (v1 → v2 → v3)| Auftragshistorie | ✅ 100% | Über Appointments & VendorAttachments |
 
 - ✅ History Timeline UI
 
@@ -128,43 +118,43 @@ Das UVM-System ist eine **produktionsreife webbasierte Hausverwaltungssoftware**
 
 - ✅ Version-Metadaten (uploaded_by, uploaded_at)
 
-| Feature                      | Status  | Details                                  |
+| Feature | Status | Details |
 
 ---| ---------------------------- | ------- | ---------------------------------------- |
 
-| Dashboard                    | ✅ 100% | Offene Tickets, neueste Vorgänge         |
+| Dashboard | ✅ 100% | Offene Tickets, neueste Vorgänge |
 
-### 🔧 **M10 + M11: Handwerker/Dienstleister** ✅ **100% DONE**| SLA-Tracking                 | ✅ 100% | Zeit bis erste Reaktion, Zeit bis Lösung |
+### 🔧 **M10 + M11: Handwerker/Dienstleister** ✅ **100% DONE**| SLA-Tracking | ✅ 100% | Zeit bis erste Reaktion, Zeit bis Lösung |
 
-| SLA-Verstöße Report          | ✅ 100% | Issues >24h ohne Reaktion                |
+| SLA-Verstöße Report | ✅ 100% | Issues >24h ohne Reaktion |
 
-| Feature                    | Status  | Details                                                  | Zeitaufwand || Reaktionszeit nach Kategorie | ✅ 100% | Avg. Response-Time pro Category          |
+| Feature | Status | Details | Zeitaufwand || Reaktionszeit nach Kategorie | ✅ 100% | Avg. Response-Time pro Category |
 
-| -------------------------- | ------- | -------------------------------------------------------- | ----------- || Lösungszeit nach Priorität   | ✅ 100% | Avg. Resolution-Time pro Severity        |
+| -------------------------- | ------- | -------------------------------------------------------- | ----------- || Lösungszeit nach Priorität | ✅ 100% | Avg. Resolution-Time pro Severity |
 
-| Vendor-Datenbank           | ✅ 100% | Name, Trade, Kontakt, Notizen                            | -           || CSV-Export                   | ✅ 100% | Alle KPIs exportierbar                   |
+| Vendor-Datenbank | ✅ 100% | Name, Trade, Kontakt, Notizen | - || CSV-Export | ✅ 100% | Alle KPIs exportierbar |
 
-| Vendor Auth Token          | ✅ 100% | Magic-Link (24h Gültigkeit, VendorAuthToken)             | -           |
+| Vendor Auth Token | ✅ 100% | Magic-Link (24h Gültigkeit, VendorAuthToken) | - |
 
-| Vendor-Zuweisung zu Issues | ✅ 100% | Appointments mit Vendor-Link                             | -           |### 👥 **Mieter-Verwaltung (PR 2 Phase 1)**
+| Vendor-Zuweisung zu Issues | ✅ 100% | Appointments mit Vendor-Link | - |### 👥 **Mieter-Verwaltung (PR 2 Phase 1)**
 
-| E-Mail bei Zuweisung       | ✅ 100% | Auto-Versand mit Magic-Link & Ticket-Details             | -           |
+| E-Mail bei Zuweisung | ✅ 100% | Auto-Versand mit Magic-Link & Ticket-Details | - |
 
-| Vendor-Portal Frontend     | ✅ 100% | Login, Auftrags-Liste, Ticket-Details                    | -           || Feature                           | Status  | Details                              |
+| Vendor-Portal Frontend | ✅ 100% | Login, Auftrags-Liste, Ticket-Details | - || Feature | Status | Details |
 
-| PDF-Upload (KVA/Rechnung)  | ✅ 100% | Kategorisiert, validiert (10MB, nur PDF)                 | -           || --------------------------------- | ------- | ------------------------------------ |
+| PDF-Upload (KVA/Rechnung) | ✅ 100% | Kategorisiert, validiert (10MB, nur PDF) | - || --------------------------------- | ------- | ------------------------------------ |
 
-| Vendor-Uploads im Portal   | ✅ 100% | Staff sieht Vendor-Dokumente, Tenant NICHT               | -           || Mieter-Liste                      | ✅ 100% | Card-Layout mit allen Details        |
+| Vendor-Uploads im Portal | ✅ 100% | Staff sieht Vendor-Dokumente, Tenant NICHT | - || Mieter-Liste | ✅ 100% | Card-Layout mit allen Details |
 
-| Auftragshistorie           | ✅ 100% | Über Appointments & VendorAttachments                    | -           || Mieter anlegen                    | ✅ 100% | Unit, E-Mail, Telefon, Einzugsdatum  |
+| Auftragshistorie | ✅ 100% | Über Appointments & VendorAttachments | - || Mieter anlegen | ✅ 100% | Unit, E-Mail, Telefon, Einzugsdatum |
 
-| **Total M11:**             | ✅ DONE | Komplettes Vendor Portal inkl. Security & File-Handling  | **10.5h**   || Mieter bearbeiten                 | ✅ 100% | Alle Felder editierbar               |
+| **Total M11:** | ✅ DONE | Komplettes Vendor Portal inkl. Security & File-Handling | **10.5h** || Mieter bearbeiten | ✅ 100% | Alle Felder editierbar |
 
-| Mieter deaktivieren (Soft Delete) | ✅ 100% | is_active=False, moved_out_at        |
+| Mieter deaktivieren (Soft Delete) | ✅ 100% | is_active=False, moved_out_at |
 
-**M11 Highlights:**| Mieter löschen (Hard Delete)      | ✅ 100% | Nur wenn keine Tickets vorhanden     |
+**M11 Highlights:**| Mieter löschen (Hard Delete) | ✅ 100% | Nur wenn keine Tickets vorhanden |
 
-- ✅ Separate VendorAuthToken Tabelle (nicht im User-Model!)| Willkommens-E-Mail                | ✅ 100% | Automatischer Versand mit Magic-Link |
+- ✅ Separate VendorAuthToken Tabelle (nicht im User-Model!)| Willkommens-E-Mail | ✅ 100% | Automatischer Versand mit Magic-Link |
 
 - ✅ Data Segregation: Tenants sehen KEINE Vendor-Kosten
 
@@ -172,95 +162,93 @@ Das UVM-System ist eine **produktionsreife webbasierte Hausverwaltungssoftware**
 
 - ✅ Django Admin Integration
 
-| Feature                      | Status            | Details                              |
+| Feature | Status | Details |
 
 ---| ---------------------------- | ----------------- | ------------------------------------ |
 
-| Contract Model               | ✅ 100%           | Miete, NK, Kaution, Laufzeit         |
+| Contract Model | ✅ 100% | Miete, NK, Kaution, Laufzeit |
 
-### 📈 **M9: Reports & KPIs** ✅ **100% DONE**| Vertrags-Liste               | ✅ 100%           | Filter nach Status, Unit, Tenant     |
+### 📈 **M9: Reports & KPIs** ✅ **100% DONE**| Vertrags-Liste | ✅ 100% | Filter nach Status, Unit, Tenant |
 
-| Vertrags-Detail              | ✅ 100%           | Alle Infos, Zahlungshistorie         |
+| Vertrags-Detail | ✅ 100% | Alle Infos, Zahlungshistorie |
 
-| Feature                      | Status  | Details                                  || Status-Verwaltung            | ✅ 100%           | Draft, Active, Terminated, Cancelled |
+| Feature | Status | Details || Status-Verwaltung | ✅ 100% | Draft, Active, Terminated, Cancelled |
 
-| ---------------------------- | ------- | ---------------------------------------- || Document-Verknüpfung         | ✅ 100%           | Contract → Document FK               |
+| ---------------------------- | ------- | ---------------------------------------- || Document-Verknüpfung | ✅ 100% | Contract → Document FK |
 
-| Dashboard                    | ✅ 100% | Offene Tickets, neueste Vorgänge         || **Zeit:** 4.5h (geplant 10h) | ✅ 87% Effizienz! |
+| Dashboard | ✅ 100% | Offene Tickets, neueste Vorgänge || **Zeit:** 4.5h (geplant 10h) | ✅ 87% Effizienz! |
 
-| SLA-Tracking                 | ✅ 100% | Zeit bis erste Reaktion, Zeit bis Lösung |
+| SLA-Tracking | ✅ 100% | Zeit bis erste Reaktion, Zeit bis Lösung |
 
-| SLA-Verstöße Report          | ✅ 100% | Issues >24h ohne Reaktion                |### 💰 **Zahlungs-Management (M12b)**
+| SLA-Verstöße Report | ✅ 100% | Issues >24h ohne Reaktion |### 💰 **Zahlungs-Management (M12b)**
 
-| Reaktionszeit nach Kategorie | ✅ 100% | Avg. Response-Time pro Category          |
+| Reaktionszeit nach Kategorie | ✅ 100% | Avg. Response-Time pro Category |
 
-| Lösungszeit nach Priorität   | ✅ 100% | Avg. Resolution-Time pro Severity        || Feature                   | Status            | Details                               |
+| Lösungszeit nach Priorität | ✅ 100% | Avg. Resolution-Time pro Severity || Feature | Status | Details |
 
-| CSV-Export                   | ✅ 100% | Alle KPIs exportierbar                   || ------------------------- | ----------------- | ------------------------------------- |
+| CSV-Export | ✅ 100% | Alle KPIs exportierbar || ------------------------- | ----------------- | ------------------------------------- |
 
-| PaymentTransaction Model  | ✅ 100%           | Miete, Kaution, NK, Sonstiges         |
+| PaymentTransaction Model | ✅ 100% | Miete, Kaution, NK, Sonstiges |
 
----| CSV-Import (Kontoauszug)  | ✅ 100%           | Automatische Zuordnung zu Contracts   |
+---| CSV-Import (Kontoauszug) | ✅ 100% | Automatische Zuordnung zu Contracts |
 
-| Zahlungs-Liste            | ✅ 100%           | Filter nach Contract, Typ, Status     |
+| Zahlungs-Liste | ✅ 100% | Filter nach Contract, Typ, Status |
 
-### 👥 **PR 2 Phase 1+2: Mieter-Verwaltung & Auth** ✅ **100% DONE**| Status-Tracking           | ✅ 100%           | Pending, Received, Overdue, Cancelled |
+### 👥 **PR 2 Phase 1+2: Mieter-Verwaltung & Auth** ✅ **100% DONE**| Status-Tracking | ✅ 100% | Pending, Received, Overdue, Cancelled |
 
-| Überfällig-Anzeige        | ✅ 100%           | Automatische Berechnung               |
+| Überfällig-Anzeige | ✅ 100% | Automatische Berechnung |
 
-| Feature                           | Status  | Details                                           || **Zeit:** 2h (geplant 6h) | ✅ 67% Effizienz! |
+| Feature | Status | Details || **Zeit:** 2h (geplant 6h) | ✅ 67% Effizienz! |
 
 | --------------------------------- | ------- | ------------------------------------------------- |
 
-| Mieter-Liste                      | ✅ 100% | Card-Layout mit allen Details                     |### 📊 **Nebenkostenabrechnung (M14)** 🔥 **NEU!**
+| Mieter-Liste | ✅ 100% | Card-Layout mit allen Details |### 📊 **Nebenkostenabrechnung (M14)** 🔥 **NEU!**
 
-| Mieter anlegen                    | ✅ 100% | Unit, E-Mail, Telefon, Einzugsdatum               |
+| Mieter anlegen | ✅ 100% | Unit, E-Mail, Telefon, Einzugsdatum |
 
-| Mieter bearbeiten                 | ✅ 100% | Alle Felder editierbar                            || Feature                       | Status                       | Details                                   |
+| Mieter bearbeiten | ✅ 100% | Alle Felder editierbar || Feature | Status | Details |
 
-| Mieter deaktivieren (Soft Delete) | ✅ 100% | is_active=False, moved_out_at                     || ----------------------------- | ---------------------------- | ----------------------------------------- |
+| Mieter deaktivieren (Soft Delete) | ✅ 100% | is_active=False, moved_out_at || ----------------------------- | ---------------------------- | ----------------------------------------- |
 
-| Mieter löschen (Hard Delete)      | ✅ 100% | Nur wenn keine Tickets vorhanden                  || **UtilityReading Model**      | ✅ 100%                      | Zählerstand (Wasser, Strom, Gas, Heizung) |
+| Mieter löschen (Hard Delete) | ✅ 100% | Nur wenn keine Tickets vorhanden || **UtilityReading Model** | ✅ 100% | Zählerstand (Wasser, Strom, Gas, Heizung) |
 
-| Willkommens-E-Mail                | ✅ 100% | Automatischer Versand mit Magic-Link              || **Auto-Verbrauchsberechnung** | ✅ 100%                      | consumption = current - previous          |
+| Willkommens-E-Mail | ✅ 100% | Automatischer Versand mit Magic-Link || **Auto-Verbrauchsberechnung** | ✅ 100% | consumption = current - previous |
 
-| **Tenant Magic-Link Login**       | ✅ 100% | E-Mail-basiert, 15min, single-use                 || **4 Umlage-Schlüssel**        | ✅ 100%                      | Fläche, Personen, Verbrauch, Units        |
+| **Tenant Magic-Link Login** | ✅ 100% | E-Mail-basiert, 15min, single-use || **4 Umlage-Schlüssel** | ✅ 100% | Fläche, Personen, Verbrauch, Units |
 
-| **Chat Protection**               | ✅ 100% | Redirect zu /tenant/ wenn nicht authentifiziert   || **HeizkostenV-Berechnung**    | ✅ 100%                      | 30% Grundkosten + 70% Verbrauch           |
+| **Chat Protection** | ✅ 100% | Redirect zu /tenant/ wenn nicht authentifiziert || **HeizkostenV-Berechnung** | ✅ 100% | 30% Grundkosten + 70% Verbrauch |
 
-| **Issue-Tenant Assignment**       | ✅ 100% | Automatische Zuweisung beim Chat-Ticket-Erstellen || **UtilityCostCalculator**     | ✅ 100%                      | Service für NK-Verteilung                 |
+| **Issue-Tenant Assignment** | ✅ 100% | Automatische Zuweisung beim Chat-Ticket-Erstellen || **UtilityCostCalculator** | ✅ 100% | Service für NK-Verteilung |
 
-| **Tenant-Portal**                 | ✅ 100% | Eigene Ticket-Historie unter /tenant/issues/      || **Zählerstände-UI**           | ✅ 100%                      | Liste, Filter, Erfassen                   |
+| **Tenant-Portal** | ✅ 100% | Eigene Ticket-Historie unter /tenant/issues/ || **Zählerstände-UI** | ✅ 100% | Liste, Filter, Erfassen |
 
-| **Session Management**            | ✅ 100% | tenant_id in session, logout-Funktion             || **NK-Vorschau**               | ✅ 100%                      | Berechnung mit Gesamtkosten-Eingabe       |
+| **Session Management** | ✅ 100% | tenant_id in session, logout-Funktion || **NK-Vorschau** | ✅ 100% | Berechnung mit Gesamtkosten-Eingabe |
 
-| **CSV-Export**                | ✅ 100%                      | Abrechnung exportieren                    |
+| **CSV-Export** | ✅ 100% | Abrechnung exportieren |
 
----| **14 Tests**                  | ✅ 100%                      | Model + Calculator Tests                  |
+---| **14 Tests** | ✅ 100% | Model + Calculator Tests |
 
-| **Dokumentation**             | ✅ 100%                      | README + ROADMAP aktualisiert             |
+| **Dokumentation** | ✅ 100% | README + ROADMAP aktualisiert |
 
-### 📋 **M12a: Vertrags-Management** ✅ **100% DONE**| **Zeit:** 1.5h (geplant 10h)  | ✅ 85% Zeitersparnis! 🔥🔥🔥 |
+### 📋 **M12a: Vertrags-Management** ✅ **100% DONE**| **Zeit:** 1.5h (geplant 10h) | ✅ 85% Zeitersparnis! 🔥🔥🔥 |
 
-
-
-| Feature                      | Status            | Details                                            | Zeitaufwand |**M14 Features im Detail:**
+| Feature | Status | Details | Zeitaufwand |**M14 Features im Detail:**
 
 | ---------------------------- | ----------------- | -------------------------------------------------- | ----------- |
 
-| Contract Model               | ✅ 100%           | Miete, NK, Kaution, Laufzeit, Allocation-Key       | -           |- ✓ 5 Zählertypen (Kaltwasser, Warmwasser, Strom, Gas, Heizung)
+| Contract Model | ✅ 100% | Miete, NK, Kaution, Laufzeit, Allocation-Key | - |- ✓ 5 Zählertypen (Kaltwasser, Warmwasser, Strom, Gas, Heizung)
 
-| Vertrags-Liste               | ✅ 100%           | Filter nach Status, Unit, Tenant                   | -           |- ✓ Automatische Previous-Value-Ermittlung aus letzter Ablesung
+| Vertrags-Liste | ✅ 100% | Filter nach Status, Unit, Tenant | - |- ✓ Automatische Previous-Value-Ermittlung aus letzter Ablesung
 
-| Vertrags-Detail              | ✅ 100%           | Alle Infos, Dokument + Versionshistorie, Zahlungen | -           |- ✓ Unique Constraint: Ein Reading pro Unit/Type/Datum
+| Vertrags-Detail | ✅ 100% | Alle Infos, Dokument + Versionshistorie, Zahlungen | - |- ✓ Unique Constraint: Ein Reading pro Unit/Type/Datum
 
-| Status-Verwaltung            | ✅ 100%           | Draft, Active, Terminated, Cancelled               | -           |- ✓ Heizkosten nach HeizkostenV: 30% fixed (Fläche), 70% consumption
+| Status-Verwaltung | ✅ 100% | Draft, Active, Terminated, Cancelled | - |- ✓ Heizkosten nach HeizkostenV: 30% fixed (Fläche), 70% consumption
 
-| Document-Verknüpfung         | ✅ 100%           | Contract → Document FK (Mietvertrag-Upload)        | -           |- ✓ Wasserkosten nach Verbrauch wenn verfügbar
+| Document-Verknüpfung | ✅ 100% | Contract → Document FK (Mietvertrag-Upload) | - |- ✓ Wasserkosten nach Verbrauch wenn verfügbar
 
-| **Allocation Keys**          | ✅ 100%           | 4 Schlüssel für NK-Abrechnung                      | -           |- ✓ Vorschuss-Berechnung & Nachzahlung/Guthaben automatisch
+| **Allocation Keys** | ✅ 100% | 4 Schlüssel für NK-Abrechnung | - |- ✓ Vorschuss-Berechnung & Nachzahlung/Guthaben automatisch
 
-| **Zeit:** 4.5h (geplant 8h)  | ✅ 44% Effizienz! | -                                                  | **4.5h**    |- ✓ Migration & Django Admin Integration
+| **Zeit:** 4.5h (geplant 8h) | ✅ 44% Effizienz! | - | **4.5h** |- ✓ Migration & Django Admin Integration
 
 - ✓ Filter nach Property, Unit, Meter Type, Datum
 
@@ -270,19 +258,19 @@ Das UVM-System ist eine **produktionsreife webbasierte Hausverwaltungssoftware**
 
 - PERSONS: Nach Personenzahl
 
-- CONSUMPTION: Nach Verbrauch| Feature                          | Status  | Details                                           |
+- CONSUMPTION: Nach Verbrauch| Feature | Status | Details |
 
 - UNITS: Gleichmäßig pro Wohnung| -------------------------------- | ------- | ------------------------------------------------- |
 
-| Tenant Magic-Link Login          | ✅ 100% | E-Mail-basiert, 15min, single-use                 |
+| Tenant Magic-Link Login | ✅ 100% | E-Mail-basiert, 15min, single-use |
 
-**M12a Highlights:**| Chat nur für eingeloggte Tenants | ✅ 100% | Redirect zu /tenant/ wenn nicht authentifiziert   |
+**M12a Highlights:**| Chat nur für eingeloggte Tenants | ✅ 100% | Redirect zu /tenant/ wenn nicht authentifiziert |
 
-- ✅ Constraint: Nur 1 aktiver Vertrag pro Unit| Issue mit Tenant verknüpft       | ✅ 100% | Automatische Zuweisung beim Chat-Ticket-Erstellen |
+- ✅ Constraint: Nur 1 aktiver Vertrag pro Unit| Issue mit Tenant verknüpft | ✅ 100% | Automatische Zuweisung beim Chat-Ticket-Erstellen |
 
-- ✅ Auto-Create Contract bei Upload (Kategorie "Vertrag")| Tenant-Portal                    | ✅ 100% | Eigene Ticket-Historie unter /tenant/issues/      |
+- ✅ Auto-Create Contract bei Upload (Kategorie "Vertrag")| Tenant-Portal | ✅ 100% | Eigene Ticket-Historie unter /tenant/issues/ |
 
-- ✅ Vollständige Versionshistorie-Integration| Session Management               | ✅ 100% | tenant_id in session, logout-Funktion             |
+- ✅ Vollständige Versionshistorie-Integration| Session Management | ✅ 100% | tenant_id in session, logout-Funktion |
 
 - ✅ Zahlungshistorie-Integration
 
@@ -290,83 +278,77 @@ Das UVM-System ist eine **produktionsreife webbasierte Hausverwaltungssoftware**
 
 ---
 
-| Feature              | Status  | Details                      |
+| Feature | Status | Details |
 
 ### 💰 **M12b: Zahlungs-Management** ✅ **100% DONE**| -------------------- | ------- | ---------------------------- |
 
-| Properties (Gebäude) | ✅ 100% | Name, Adresse, Verwaltung    |
+| Properties (Gebäude) | ✅ 100% | Name, Adresse, Verwaltung |
 
-| Feature                   | Status            | Details                                | Zeitaufwand || Units (Wohnungen)    | ✅ 100% | Label, Etage, Zimmer, Fläche |
+| Feature | Status | Details | Zeitaufwand || Units (Wohnungen) | ✅ 100% | Label, Etage, Zimmer, Fläche |
 
-| ------------------------- | ----------------- | -------------------------------------- | ----------- || Tenant-Zuweisung     | ✅ 100% | 1 aktiver Mieter pro Unit    |
+| ------------------------- | ----------------- | -------------------------------------- | ----------- || Tenant-Zuweisung | ✅ 100% | 1 aktiver Mieter pro Unit |
 
-| PaymentTransaction Model  | ✅ 100%           | Miete, Kaution, NK, Sonstiges          | -           |
+| PaymentTransaction Model | ✅ 100% | Miete, Kaution, NK, Sonstiges | - |
 
-| CSV-Import (Kontoauszug)  | ✅ 100%           | Automatische Zuordnung zu Contracts    | -           |### 🔐 **Sicherheit & Auth**
+| CSV-Import (Kontoauszug) | ✅ 100% | Automatische Zuordnung zu Contracts | - |### 🔐 **Sicherheit & Auth**
 
-| Zahlungs-Liste            | ✅ 100%           | Filter nach Contract, Typ, Status      | -           |
+| Zahlungs-Liste | ✅ 100% | Filter nach Contract, Typ, Status | - |
 
-| Status-Tracking           | ✅ 100%           | Pending, Received, Overdue, Cancelled  | -           || Feature                 | Status  | Details                                                 |
+| Status-Tracking | ✅ 100% | Pending, Received, Overdue, Cancelled | - || Feature | Status | Details |
 
-| Überfällig-Anzeige        | ✅ 100%           | Automatische Berechnung                | -           || ----------------------- | ------- | ------------------------------------------------------- |
+| Überfällig-Anzeige | ✅ 100% | Automatische Berechnung | - || ----------------------- | ------- | ------------------------------------------------------- |
 
-| Contract Integration      | ✅ 100%           | Zahlungshistorie im Contract-Detail    | -           || Staff Login             | ✅ 100% | Django Admin Auth                                       |
+| Contract Integration | ✅ 100% | Zahlungshistorie im Contract-Detail | - || Staff Login | ✅ 100% | Django Admin Auth |
 
-| **Zeit:** 2h (geplant 7h) | ✅ 71% Effizienz! | -                                      | **2h**      || Tenant Magic-Link       | ✅ 100% | E-Mail-basiert, Rate-Limited (3/30min)                  |
+| **Zeit:** 2h (geplant 7h) | ✅ 71% Effizienz! | - | **2h** || Tenant Magic-Link | ✅ 100% | E-Mail-basiert, Rate-Limited (3/30min) |
 
-| Vendor Magic-Link       | ✅ 100% | Token-basiert, 24h Gültigkeit                           |
+| Vendor Magic-Link | ✅ 100% | Token-basiert, 24h Gültigkeit |
 
-**M12b Features:**| Chat-Protection         | ✅ 100% | Nur für authentifizierte Tenants                        |
+**M12b Features:**| Chat-Protection | ✅ 100% | Nur für authentifizierte Tenants |
 
-- ✅ Flexible CSV-Format-Unterstützung| Session-basierte Auth   | ✅ 100% | Passwordless für Tenants & Vendors                      |
+- ✅ Flexible CSV-Format-Unterstützung| Session-basierte Auth | ✅ 100% | Passwordless für Tenants & Vendors |
 
-- ✅ Auto-Matching zu Contracts via Reference/Amount| Data Segregation        | ✅ 100% | Tenant sieht KEINE Vendor-Dokumente (Kosten/Rechnungen) |
+- ✅ Auto-Matching zu Contracts via Reference/Amount| Data Segregation | ✅ 100% | Tenant sieht KEINE Vendor-Dokumente (Kosten/Rechnungen) |
 
-- ✅ Gesamt-Summary pro Contract| Rollen & Rechte         | ⚠️ 30%  | Nur `staff_member_required`, kein Granular ACL          |
+- ✅ Gesamt-Summary pro Contract| Rollen & Rechte | ⚠️ 30% | Nur `staff_member_required`, kein Granular ACL |
 
-- ✅ Django Admin Integration| Multi-Vermieter Support | ⚠️ 50%  | Model unterstützt es, **kein UI**                       |
+- ✅ Django Admin Integration| Multi-Vermieter Support | ⚠️ 50% | Model unterstützt es, **kein UI** |
 
-
-
-------
-
-
+---
 
 ### 📊 **M14: Nebenkostenabrechnung** ✅ **100% DONE** 🔥## ✅ ABGESCHLOSSEN (v0.4)
 
-
-
-| Feature                          | Status                       | Details                                                | Zeitaufwand |### **PR 1: Vendor Models + Tests**
+| Feature | Status | Details | Zeitaufwand |### **PR 1: Vendor Models + Tests**
 
 | -------------------------------- | ---------------------------- | ------------------------------------------------------ | ----------- |
 
-| **UtilityReading Model**         | ✅ 100%                      | Zählerstand (Wasser, Strom, Gas, Heizung)              | -           |- ✅ Vendor Model mit Auth-Token
+| **UtilityReading Model** | ✅ 100% | Zählerstand (Wasser, Strom, Gas, Heizung) | - |- ✅ Vendor Model mit Auth-Token
 
-| **Auto-Verbrauchsberechnung**    | ✅ 100%                      | consumption = current - previous                       | -           |- ✅ Django Admin Integration
+| **Auto-Verbrauchsberechnung** | ✅ 100% | consumption = current - previous | - |- ✅ Django Admin Integration
 
-| **4 Umlage-Schlüssel**           | ✅ 100%                      | Fläche, Personen, Verbrauch, Units                     | -           |- ✅ 20 Tests passed
+| **4 Umlage-Schlüssel** | ✅ 100% | Fläche, Personen, Verbrauch, Units | - |- ✅ 20 Tests passed
 
-| **HeizkostenV-Berechnung**       | ✅ 100%                      | 30% Grundkosten + 70% Verbrauch                        | -           |
+| **HeizkostenV-Berechnung** | ✅ 100% | 30% Grundkosten + 70% Verbrauch | - |
 
-| **UtilityCostCalculator**        | ✅ 100%                      | Service für NK-Verteilung                              | -           |### **PR 2 Phase 1: Mieter-Verwaltung**
+| **UtilityCostCalculator** | ✅ 100% | Service für NK-Verteilung | - |### **PR 2 Phase 1: Mieter-Verwaltung**
 
-| **Building-Level Readings**      | ✅ 100%                      | 🏢 Gebäudezähler (Allgemeinstrom, Gartenwasser, etc.)  | -           |
+| **Building-Level Readings** | ✅ 100% | 🏢 Gebäudezähler (Allgemeinstrom, Gartenwasser, etc.) | - |
 
-| **Zählerstände-UI**              | ✅ 100%                      | Liste, Filter, Erfassen (gruppierte Dropdowns)         | -           |- ✅ Card-basiertes Layout
+| **Zählerstände-UI** | ✅ 100% | Liste, Filter, Erfassen (gruppierte Dropdowns) | - |- ✅ Card-basiertes Layout
 
-| **NK-Vorschau**                  | ✅ 100%                      | Berechnung mit Gesamtkosten-Eingabe                    | -           |- ✅ CRUD (Create, Edit, Deactivate, Delete)
+| **NK-Vorschau** | ✅ 100% | Berechnung mit Gesamtkosten-Eingabe | - |- ✅ CRUD (Create, Edit, Deactivate, Delete)
 
-| **CSV-Export**                   | ✅ 100%                      | Abrechnung exportieren                                 | -           |- ✅ Willkommens-E-Mail Task
+| **CSV-Export** | ✅ 100% | Abrechnung exportieren | - |- ✅ Willkommens-E-Mail Task
 
-| **8 Model Tests**                | ✅ 100%                      | UtilityReading Tests                                   | -           |
+| **8 Model Tests** | ✅ 100% | UtilityReading Tests | - |
 
-| **6 Calculator Tests**           | ✅ 100%                      | UtilityCostCalculator Tests                            | -           |### **PR 2 Phase 2: Tenant-Authentifizierung**
+| **6 Calculator Tests** | ✅ 100% | UtilityCostCalculator Tests | - |### **PR 2 Phase 2: Tenant-Authentifizierung**
 
-| **Management Command**           | ✅ 100%                      | `create_building_units` für Gebäudezähler              | -           |
+| **Management Command** | ✅ 100% | `create_building_units` für Gebäudezähler | - |
 
-| **Dokumentation**                | ✅ 100%                      | README + M14_FINAL.md (529 Zeilen)                     | -           |- ✅ Magic-Link Auth für Tenants
+| **Dokumentation** | ✅ 100% | README + M14_FINAL.md (529 Zeilen) | - |- ✅ Magic-Link Auth für Tenants
 
-| **Zeit:** 1.75h (geplant 20h)    | ✅ 91% Zeitersparnis! 🔥🔥🔥 | -                                                      | **1.75h**   |- ✅ Chat-Protection (nur eingeloggte Tenants)
+| **Zeit:** 1.75h (geplant 20h) | ✅ 91% Zeitersparnis! 🔥🔥🔥 | - | **1.75h** |- ✅ Chat-Protection (nur eingeloggte Tenants)
 
 - ✅ Issue-Tenant Assignment (automatisch)
 
@@ -408,35 +390,29 @@ Das UVM-System ist eine **produktionsreife webbasierte Hausverwaltungssoftware**
 
 - ✅ Hauswasser Gesamt (vor Verteilung)---
 
-
-
 ---## 🚀 NÄCHSTE SCHRITTE (NEU PRIORISIERT nach logischem Workflow)
-
-
 
 ### 📋 **M16: Checklisten-System** ✅ **100% DONE**> **Neue Strategie:** Priorisierung nach **technischen Abhängigkeiten**, **Einfachheit** und **Kosten** statt Business Value!
 
-
-
-| Feature                 | Status  | Details                                   | Zeitaufwand |---
+| Feature | Status | Details | Zeitaufwand |---
 
 | ----------------------- | ------- | ----------------------------------------- | ----------- |
 
-| ChecklistTemplate Model | ✅ 100% | Vorlagen: Einzug, Auszug, Wartung         | -           |### **PHASE 1: Dokumente & Basis-Infrastruktur** ✅ **ABGESCHLOSSEN!**
+| ChecklistTemplate Model | ✅ 100% | Vorlagen: Einzug, Auszug, Wartung | - |### **PHASE 1: Dokumente & Basis-Infrastruktur** ✅ **ABGESCHLOSSEN!**
 
-| Checklist Model         | ✅ 100% | Instance pro Unit + Datum                 | -           |
+| Checklist Model | ✅ 100% | Instance pro Unit + Datum | - |
 
-| ChecklistItem Model     | ✅ 100% | Items mit Status (pending/done/defect)    | -           |**Priorität:** 🔥 KRITISCH | **Kosten:** €0 | **Aufwand:** 8h | **Status:** ✅ DONE
+| ChecklistItem Model | ✅ 100% | Items mit Status (pending/done/defect) | - |**Priorität:** 🔥 KRITISCH | **Kosten:** €0 | **Aufwand:** 8h | **Status:** ✅ DONE
 
-| Photo-Upload            | ✅ 100% | Fotos pro Item (Schadendokumentation)     | -           |
+| Photo-Upload | ✅ 100% | Fotos pro Item (Schadendokumentation) | - |
 
-| UI: Liste & Detail      | ✅ 100% | Filterable, Status-Tracking               | -           |#### **M11b: Dokumente → Units/Properties zuordnen** ✅
+| UI: Liste & Detail | ✅ 100% | Filterable, Status-Tracking | - |#### **M11b: Dokumente → Units/Properties zuordnen** ✅
 
-| PDF-Export              | ✅ 100% | Übergabeprotokoll als PDF                 | -           |
+| PDF-Export | ✅ 100% | Übergabeprotokoll als PDF | - |
 
-| Tests                   | ✅ 100% | Model + CRUD Tests                        | -           |**Aufwand:** 5.5h | **Status:** ✅ DONE (18.10.2025)
+| Tests | ✅ 100% | Model + CRUD Tests | - |**Aufwand:** 5.5h | **Status:** ✅ DONE (18.10.2025)
 
-| **Total M16:**          | ✅ DONE | Komplettes Checklisten-System             | **~12h**    |
+| **Total M16:** | ✅ DONE | Komplettes Checklisten-System | **~12h** |
 
 **Implementiert:**
 
@@ -450,39 +426,31 @@ Das UVM-System ist eine **produktionsreife webbasierte Hausverwaltungssoftware**
 
 - INSPECTION: Inspektionsprotokoll- ✅ 18 Tests geschrieben (warten auf Document-Migration-Fix)
 
-
-
-------
-
-
+---
 
 ### 🔧 **M15: Wartungskalender** ✅ **100% DONE**#### **M17a: Dokumenten-Versionshistorie** ✅
 
-
-
-| Feature                | Status  | Details                                  | Zeitaufwand |**Aufwand:** 2.5h | **Status:** ✅ DONE (18.10.2025)
+| Feature | Status | Details | Zeitaufwand |**Aufwand:** 2.5h | **Status:** ✅ DONE (18.10.2025)
 
 | ---------------------- | ------- | ---------------------------------------- | ----------- |
 
-| MaintenanceItem Model  | ✅ 100% | Type, Unit, Next Date, Interval, Cost    | -           |**Implementiert:**
+| MaintenanceItem Model | ✅ 100% | Type, Unit, Next Date, Interval, Cost | - |**Implementiert:**
 
-| Rauchmelder-Verwaltung | ✅ 100% | Pro Wohnung, Prüf-Intervall              | -           |
+| Rauchmelder-Verwaltung | ✅ 100% | Pro Wohnung, Prüf-Intervall | - |
 
-| Heizungswartung        | ✅ 100% | Jährlich, pro Objekt                     | -           |- ✅ DocumentVersion Model (version_number, file, metadata)
+| Heizungswartung | ✅ 100% | Jährlich, pro Objekt | - |- ✅ DocumentVersion Model (version_number, file, metadata)
 
-| Celery Beat Task       | ✅ 100% | Recurring Checks (täglich)               | -           |- ✅ Upload-Logic mit Auto-Archivierung (v1 → v2 → v3)
+| Celery Beat Task | ✅ 100% | Recurring Checks (täglich) | - |- ✅ Upload-Logic mit Auto-Archivierung (v1 → v2 → v3)
 
-| E-Mail-Erinnerungen    | ✅ 100% | 7 Tage vorher Reminder                   | -           |- ✅ History Timeline UI (aktuelle + alte Versionen)
+| E-Mail-Erinnerungen | ✅ 100% | 7 Tage vorher Reminder | - |- ✅ History Timeline UI (aktuelle + alte Versionen)
 
-| UI: Wartungskalender   | ✅ 100% | Liste + Übersicht, Overdue Detection     | -           |- ✅ Download alter Versionen
+| UI: Wartungskalender | ✅ 100% | Liste + Übersicht, Overdue Detection | - |- ✅ Download alter Versionen
 
-| Cost Tracking          | ✅ 100% | Kosten pro Wartung, Total per Property   | -           |- ✅ Browser-Testing erfolgreich (v1/v2/v3 funktioniert)
+| Cost Tracking | ✅ 100% | Kosten pro Wartung, Total per Property | - |- ✅ Browser-Testing erfolgreich (v1/v2/v3 funktioniert)
 
-| Tests                  | ✅ 100% | Model Tests                              | -           |
+| Tests | ✅ 100% | Model Tests | - |
 
-| **Total M15:**         | ✅ DONE | Kompletter Wartungskalender inkl. Celery | **~12h**    |**Optional (später):**
-
-
+| **Total M15:** | ✅ DONE | Kompletter Wartungskalender inkl. Celery | **~12h** |**Optional (später):**
 
 **M15 Maintenance Types:**- ⏸️ Automatische Tests (30min)
 
@@ -508,17 +476,17 @@ Das UVM-System ist eine **produktionsreife webbasierte Hausverwaltungssoftware**
 
 **Aufwand:** 4.5h | **Status:** ✅ DONE (19.10.2025)
 
-| Feature              | Status  | Details                      |
+| Feature | Status | Details |
 
 | -------------------- | ------- | ---------------------------- |**Implementiert:**
 
-| Properties (Gebäude) | ✅ 100% | Name, Adresse, Verwaltung    |
+| Properties (Gebäude) | ✅ 100% | Name, Adresse, Verwaltung |
 
-| Units (Wohnungen)    | ✅ 100% | Label, Etage, Zimmer, Fläche |- ✅ Contract Model (unit, tenant, dates, rent, deposit, status)
+| Units (Wohnungen) | ✅ 100% | Label, Etage, Zimmer, Fläche |- ✅ Contract Model (unit, tenant, dates, rent, deposit, status)
 
-| Tenant-Zuweisung     | ✅ 100% | 1 aktiver Mieter pro Unit    |- ✅ Upload Integration (Kategorie "Vertrag" → Auto-Create Contract)
+| Tenant-Zuweisung | ✅ 100% | 1 aktiver Mieter pro Unit |- ✅ Upload Integration (Kategorie "Vertrag" → Auto-Create Contract)
 
-| "Allgemein" Units    | ✅ 100% | Für Gebäudezähler (M14)      |- ✅ Vertrags-Liste UI (Filter: Status, Unit, Tenant)
+| "Allgemein" Units | ✅ 100% | Für Gebäudezähler (M14) |- ✅ Vertrags-Liste UI (Filter: Status, Unit, Tenant)
 
 - ✅ Details-Seite (Wohnung, Mieter, Konditionen, Dokument + Versionshistorie!)
 
@@ -528,43 +496,35 @@ Das UVM-System ist eine **produktionsreife webbasierte Hausverwaltungssoftware**
 
 ### 🔐 **Sicherheit & Auth** ✅ **90% DONE**- ✅ Constraint: Nur 1 aktiver Vertrag pro Unit
 
-
-
-| Feature                 | Status  | Details                                                 |**Optional (später):**
+| Feature | Status | Details |**Optional (später):**
 
 | ----------------------- | ------- | ------------------------------------------------------- |
 
-| Staff Login             | ✅ 100% | Django Admin Auth                                       |- ⏸️ Automatische Tests (1h)
+| Staff Login | ✅ 100% | Django Admin Auth |- ⏸️ Automatische Tests (1h)
 
-| Tenant Magic-Link       | ✅ 100% | E-Mail-basiert, Rate-Limited (3/30min)                  |- ⏸️ Vertrag beenden Workflow (1h)
+| Tenant Magic-Link | ✅ 100% | E-Mail-basiert, Rate-Limited (3/30min) |- ⏸️ Vertrag beenden Workflow (1h)
 
-| Vendor Magic-Link       | ✅ 100% | Token-basiert, 24h Gültigkeit                           |
+| Vendor Magic-Link | ✅ 100% | Token-basiert, 24h Gültigkeit |
 
-| Chat-Protection         | ✅ 100% | Nur für authentifizierte Tenants                        |**Zeitersparnis:** 3.5h! (4.5h statt 8h)
+| Chat-Protection | ✅ 100% | Nur für authentifizierte Tenants |**Zeitersparnis:** 3.5h! (4.5h statt 8h)
 
-| Session-basierte Auth   | ✅ 100% | Passwordless für Tenants & Vendors                      |
+| Session-basierte Auth | ✅ 100% | Passwordless für Tenants & Vendors |
 
-| Data Segregation        | ✅ 100% | Tenant sieht KEINE Vendor-Dokumente (Kosten/Rechnungen) |---
+| Data Segregation | ✅ 100% | Tenant sieht KEINE Vendor-Dokumente (Kosten/Rechnungen) |---
 
-| Rollen & Rechte         | ⚠️ 30%  | Nur `staff_member_required`, kein Granular ACL          |
+| Rollen & Rechte | ⚠️ 30% | Nur `staff_member_required`, kein Granular ACL |
 
-| Multi-Vermieter Support | ⚠️ 50%  | Model unterstützt es, **kein UI**                       |#### **M12b: Zahlungen CSV-Import** ✅ **DONE!**
-
-
+| Multi-Vermieter Support | ⚠️ 50% | Model unterstützt es, **kein UI** |#### **M12b: Zahlungen CSV-Import** ✅ **DONE!**
 
 ---**Aufwand:** 2h | **Status:** ✅ DONE (19.10.2025)
 
-
-
 ## 📊 FORTSCHRITTS-ÜBERSICHT**Implementiert:**
-
-
 
 ### **Implementierte Module:**- ✅ PaymentTransaction Model (contract, amount, date, type, status, sender, reference)
 
 - ✅ CSV-Upload View (flexibles Format, Auto-Matching zu Contracts)
 
-```- ✅ Zahlungen-Liste UI (Filter: Contract, Type, Status + Gesamtsumme)
+````- ✅ Zahlungen-Liste UI (Filter: Contract, Type, Status + Gesamtsumme)
 
 ✅ M1-M8:   Ticketing & Kommunikation     100% ✅- ✅ Integration in Contract Details (Zahlungshistorie mit Summary)
 
@@ -610,7 +570,7 @@ Das UVM-System ist eine **produktionsreife webbasierte Hausverwaltungssoftware**
 
 ⏳ Deployment Guide                       0%  (~4h)**Warum jetzt?**
 
-```
+````
 
 - ✅ **Braucht M12b!** ✅ Zahlungen als Basis
 
@@ -618,7 +578,7 @@ Das UVM-System ist eine **produktionsreife webbasierte Hausverwaltungssoftware**
 
 - ✅ **Komplexität!** Braucht Zeit, aber lohnt sich
 
-```
+````
 
 🔴 M12c:    Mahnwesen                     0%  (~4h)  - OPTIONAL### **PHASE 3: Wartung & Compliance (2 Wochen)** ⏳ **TODO**
 
@@ -950,7 +910,7 @@ Failed Tests (nicht kritisch):
 
 - test_document_upload_without_assignment#### **M13: Bankkonto-Integration**
 
-```
+````
 
 **Aufwand:** 20h | **Kosten:** €0 (FinTS kostenlos) | **Problem:** Sehr komplex!
 
@@ -962,21 +922,21 @@ Failed Tests (nicht kritisch):
 
 - ❌ **Keine Test-API!** Braucht echte Bankdaten
 
-| Risiko                   | Level       | Mitigation                                  | Status   |- ❌ **Sicherheitsrisiko!** Kontozugriff
+| Risiko | Level | Mitigation | Status |- ❌ **Sicherheitsrisiko!** Kontozugriff
 
 | ------------------------ | ----------- | ------------------------------------------- | -------- |- ❌ **Komplex!** TAN, PSD2, Bank-spezifisch
 
-| DSGVO Compliance         | 🟡 MITTEL   | Rechtsberatung, Anonymisierung, Audit-Logs  | ✅ Done  |- ✅ **Workaround:** CSV-Import reicht!
+| DSGVO Compliance | 🟡 MITTEL | Rechtsberatung, Anonymisierung, Audit-Logs | ✅ Done |- ✅ **Workaround:** CSV-Import reicht!
 
-| Skalierung (>1000 Units) | 🟢 NIEDRIG  | PostgreSQL Indexing, Caching                | ⏳ TODO  |
+| Skalierung (>1000 Units) | 🟢 NIEDRIG | PostgreSQL Indexing, Caching | ⏳ TODO |
 
-| Bank-API Komplexität     | ✅ GELÖST   | **CSV-Import statt API!**                   | ✅ Done  |**Entscheidung:** Nur wenn Kunde explizit zahlt & bereit 20h zu investieren!
+| Bank-API Komplexität | ✅ GELÖST | **CSV-Import statt API!** | ✅ Done |**Entscheidung:** Nur wenn Kunde explizit zahlt & bereit 20h zu investieren!
 
-| External API-Kosten      | ✅ GELÖST   | **€0 bis Go-Live!**                         | ✅ Done  |
+| External API-Kosten | ✅ GELÖST | **€0 bis Go-Live!** | ✅ Done |
 
-| OCR Genauigkeit          | 🔴 POST-GO  | **Phase 5 = Post-Launch!**                  | -        |---
+| OCR Genauigkeit | 🔴 POST-GO | **Phase 5 = Post-Launch!** | - |---
 
-| Session Security         | 🟡 MITTEL   | HTTPS-only, Secure Cookies, CSRF-Protection | ⏳ Audit |
+| Session Security | 🟡 MITTEL | HTTPS-only, Secure Cookies, CSRF-Protection | ⏳ Audit |
 
 #### **M17b: OCR für Rechnungen**
 
@@ -1018,19 +978,11 @@ Failed Tests (nicht kritisch):
 
 - [ ] API Documentation (optional, falls REST API öffentlich)- ❌ **Nice-to-have!** PDF-Vertrag reicht
 
-
-
-------
-
-
+---
 
 ## 🎯 STRATEGISCHE ENTSCHEIDUNGEN#### **M19: Smart-Home**
 
-
-
-### **✅ RICHTIG:****Aufwand:** 16h | **Kosten:** Hardware + APIs (€€€)
-
-
+### **✅ RICHTIG:\*\***Aufwand:** 16h | **Kosten:\*\* Hardware + APIs (€€€)
 
 1. **CSV-Import statt Bank-API** - Einfacher, sicherer, kostenlos**Warum später?**
 
@@ -1048,11 +1000,7 @@ Failed Tests (nicht kritisch):
 
 8. **Data Segregation** - Tenants sehen keine Vendor-Kosten#### **M20: KI-Analysen**
 
-
-
-### **❌ VERMIEDEN:****Aufwand:** 26h | **Kosten:** ~€20/Monat (OpenAI API)
-
-
+### **❌ VERMIEDEN:\*\***Aufwand:** 26h | **Kosten:\*\* ~€20/Monat (OpenAI API)
 
 1. Komplexe Bank-API Integration (zu früh)**Warum später?**
 
@@ -1076,7 +1024,7 @@ Failed Tests (nicht kritisch):
 
 ### **Sofort (Woche 9):**
 
-```
+````
 
 1. 🔐 **Security Audit** (~8h)✅ Woche 1-2   (18.10):      M11 abgeschlossen ✅
 
@@ -1158,7 +1106,7 @@ Failed Tests (nicht kritisch):
 
 ## 📊 NEUE Go-Live Checkliste
 
-```
+````
 
 ✅ Alle Core-Features implementiert!- [x] M1-M10 Backend & Portal ✅
 
@@ -1170,7 +1118,7 @@ Failed Tests (nicht kritisch):
 
 ✅ Professionelles Hausverwaltungs-System!- [x] **M11b Dokumente → Units** ✅ DONE (1.5h actual)
 
-```- [x] **M17a Versionshistorie** ✅ DONE (included in M12a migration!)
+````- [x] **M17a Versionshistorie** ✅ DONE (included in M12a migration!)
 
 - [ ] **M16 Checklisten** (12h → ~6h estimated)
 
@@ -1230,7 +1178,7 @@ Total: €0/Monat (nur Hosting ~€50)
 
 **Erstellt von:** AI Assistant  ### **Post-Launch (Phase 5):**
 
-**Letzte Aktualisierung:** 19.10.2025 23:00 Uhr  
+**Letzte Aktualisierung:** 19.10.2025 23:00 Uhr
 
 **Roadmap Version:** 2.0 (Production Ready)  ```
 
@@ -1243,7 +1191,7 @@ Total: €0/Monat (nur Hosting ~€50)
 - Smart Home: €€€€ (Hardware)
 
 Geschätzt: €50-100/Monat
-```
+````
 
 ---
 
