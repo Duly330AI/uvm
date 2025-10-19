@@ -35,7 +35,8 @@
         return originalFetch(url, options);
       };
     </script>
-    {% block head %}{% endblock %}
+    {% block head %}
+{% endblock %}
   </head>
   <body class="bg-slate-50 text-slate-900">
     <header class="border-b bg-white">
@@ -43,12 +44,15 @@
         class="mx-auto max-w-3xl px-4 py-3 flex items-center justify-between"
       >
         <a href="/" class="font-semibold tracking-tight">UVM</a>
-        {% block header_right %}{% endblock %}
+        {% block header_right %}
+{% endblock %}
       </div>
     </header>
     <main class="mx-auto max-w-3xl px-4 py-6">
-      {% block content %}{% endblock %}
+      {% block content %}
+{% endblock %}
     </main>
-    {% block foot %}{% endblock %}
+    {% block foot %}
+{% endblock %}
   </body>
 </html>

@@ -28,8 +28,7 @@
         {% else %}
         <div class="text-gray-500">Keine Wohnung zugeordnet</div>
         {% endif %}
-
-        {% if issue.tenant %}
+{% if issue.tenant %}
         <div class="flex items-center gap-2">
           <span class="text-blue-700 font-semibold">👤 Mieter:</span>
           <span class="text-gray-900">{{ issue.tenant.primary_email }}</span>
@@ -53,7 +52,7 @@
       <h3 class="font-medium mb-2">Anhänge</h3>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
         {% for att in attachments %}
-          {% if att.mime|slice:":5" == "image" %}
+{% if att.mime|slice:":5" == "image" %}
             <a href="{{ att.file.url }}" target="_blank" class="border rounded-lg overflow-hidden hover:opacity-80">
               <img src="{{ att.file.url }}" alt="Anhang" class="w-full h-32 object-cover">
             </a>
@@ -62,12 +61,11 @@
               📎 {{ att.file.name|slice:"10:" }}
             </a>
           {% endif %}
-        {% endfor %}
+{% endfor %}
       </div>
     </div>
     {% endif %}
-
-    {% if vendor_uploads %}
+{% if vendor_uploads %}
     <div class="mb-4">
       <h3 class="font-medium mb-2">🔧 Handwerker-Dokumente</h3>
       <div class="space-y-2">
@@ -133,7 +131,7 @@
         {% if appts %}
           <ul class="space-y-1" id="assignedVendors">
             {% for a in appts %}
-              {% if a.vendor %}
+{% if a.vendor %}
                 <li class="flex justify-between items-center">
                   <span class="text-slate-600">✓ {{ a.vendor.name }} ({{ a.vendor.trade }})</span>
                   <button
@@ -147,7 +145,7 @@
                   </button>
                 </li>
               {% endif %}
-            {% endfor %}
+{% endfor %}
           </ul>
         {% else %}
           <div class="text-slate-400">Noch keine Zuweisung</div>

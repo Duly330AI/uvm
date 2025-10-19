@@ -1,11 +1,13 @@
-{% extends "portal/base.html" %} {% block portal %}
+{% extends "portal/base.html" %}
+{% block portal %}
 <div class="max-w-2xl mx-auto p-6">
   <h1 class="text-2xl font-bold mb-6">
     {% if is_edit %}Mieter bearbeiten{% else %}Neuer Mieter{% endif %}
   </h1>
 
   <form method="post" class="bg-white border rounded-xl p-6 space-y-4">
-    {% csrf_token %} {% if not is_edit %}
+    {% csrf_token %}
+{% if not is_edit %}
     <div>
       <label class="block text-sm font-medium mb-1">Wohneinheit *</label>
       <select name="unit" required class="w-full border rounded-lg px-3 py-2">
@@ -68,10 +70,7 @@
         <input
           type="checkbox"
           name="is_active"
-          {%
-          if
-          tenant.is_active
-          %}checked{%
+          {% if tenant.is_active %}checked{%
           endif
           %}
           class="rounded"
@@ -79,7 +78,8 @@
         <span class="text-sm">Aktiv (nicht ausgezogen)</span>
       </label>
     </div>
-    {% endif %} {% if not is_edit %}
+    {% endif %}
+{% if not is_edit %}
     <div class="border-t pt-4">
       <label class="inline-flex items-center gap-2">
         <input type="checkbox" name="send_welcome" class="rounded" />

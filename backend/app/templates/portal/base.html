@@ -1,4 +1,5 @@
-{% extends "_base_front.html" %} {% block header_right %}
+{% extends "_base_front.html" %}
+{% block header_right %}
 <nav class="flex flex-wrap gap-x-3 gap-y-2 text-xs justify-end max-w-md">
   <a
     class="hover:underline whitespace-nowrap"
@@ -41,4 +42,8 @@
   >
   <a class="hover:underline whitespace-nowrap" href="/admin/">Admin</a>
 </nav>
-{% endblock %} {% block content %}{% block portal %}{% endblock %}{% endblock %}
+{% endblock %}
+{% block content %}
+{% block portal %}
+{% endblock %}
+{% endblock %}

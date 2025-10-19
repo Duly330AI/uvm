@@ -159,7 +159,8 @@
         </div>
         {% if checklist.tenant %}
         <div>👤 Mieter: {{ checklist.tenant.primary_email }}</div>
-        {% endif %} {% if checklist.conducted_by %}
+        {% endif %}
+{% if checklist.conducted_by %}
         <div>
           ✍️ Durchgeführt von: {{
           checklist.conducted_by.get_full_name|default:checklist.conducted_by.username
@@ -212,13 +213,15 @@
         <div class="item-condition condition-{{ item.condition }}">
           Zustand: {{ item.get_condition_display }}
         </div>
-        {% endif %} {% if item.notes %}
+        {% endif %}
+{% if item.notes %}
         <div class="notes">💬 {{ item.notes }}</div>
         {% endif %}
       </div>
       {% endfor %}
     </div>
-    {% endfor %} {% if checklist.general_notes %}
+    {% endfor %}
+{% if checklist.general_notes %}
     <div
       style="
         margin-top: 30px;

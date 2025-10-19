@@ -13,7 +13,8 @@
       <div class="text-slate-600 text-xs mt-1 space-y-0.5">
         {% if a.vendor.address_text %}
         <div>📍 {{ a.vendor.address_text }}</div>
-        {% endif %} {% if a.vendor.email %}
+        {% endif %}
+{% if a.vendor.email %}
         <div>
           📧
           <a
@@ -22,7 +23,8 @@
             >{{ a.vendor.email }}</a
           >
         </div>
-        {% endif %} {% if a.vendor.phone %}
+        {% endif %}
+{% if a.vendor.phone %}
         <div>
           📞
           <a

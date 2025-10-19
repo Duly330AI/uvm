@@ -187,7 +187,7 @@
             {% if payment.reference %}
               <div class="text-sm">{{ payment.reference|truncatechars:40 }}</div>
             {% endif %}
-            {% if payment.sender_name %}
+{% if payment.sender_name %}
               <div class="text-xs text-slate-500">{{ payment.sender_name|truncatechars:30 }}</div>
             {% endif %}
           </td>

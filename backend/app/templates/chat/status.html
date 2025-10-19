@@ -1,5 +1,7 @@
-{% extends "_base_front.html" %} {% block title %}Ticket {{ issue.ticket_no }}{%
-endblock %} {% block content %}
+{% extends "_base_front.html" %}
+{% block title %}Ticket {{ issue.ticket_no }}{%
+endblock %}
+{% block content %}
 <h1 class="text-xl font-semibold mb-4">Ticket {{ issue.ticket_no }}</h1>
 
 <div class="grid gap-4">
@@ -20,7 +22,8 @@ endblock %} {% block content %}
       <div class="font-medium">{{ issue.summary }}</div>
       <div class="text-slate-600 text-sm mt-1">
         {% if issue.occurred_at %} Seit: {{ issue.occurred_at|date:"d.m.Y H:i"
-        }} · {% endif %} {% if issue.location_hint %}Ort: {{ issue.location_hint
+        }} · {% endif %}
+{% if issue.location_hint %}Ort: {{ issue.location_hint
         }}{% endif %}
       </div>
     </div>
@@ -32,8 +35,7 @@ endblock %} {% block content %}
     <ul class="text-sm space-y-1">
       {% for a in appts %}
       <li>
-        • {{ a.start|date:"d.m.Y H:i" }} – {{ a.end|date:"H:i" }} {% if a.vendor
-        %}( {{ a.vendor.name }} ){% endif %}
+        • {{ a.start|date:"d.m.Y H:i" }} – {{ a.end|date:"H:i" }} {% if a.vendor %}( {{ a.vendor.name }} ){% endif %}
       </li>
       {% endfor %}
     </ul>

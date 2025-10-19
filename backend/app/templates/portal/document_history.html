@@ -1,5 +1,7 @@
-{% extends "portal/base.html" %} {% block title %}Versionshistorie: {{
-document.name }}{% endblock %} {% block portal %}
+{% extends "portal/base.html" %}
+{% block title %}Versionshistorie: {{
+document.name }}{% endblock %}
+{% block portal %}
 <div class="mb-4">
   <a href="{% url 'portal_documents' %}" class="text-blue-600 hover:underline">
     ← Zurück zur Dokumenten-Liste
@@ -12,8 +14,7 @@ document.name }}{% endblock %} {% block portal %}
   <div class="text-sm text-slate-500 mt-2">
     Kategorie: {{ document.get_category_display }} • {% if document.unit %} 🚪
     {{ document.unit.unit_label }} @ {{ document.unit.property.name }} {% elif
-    document.property %} 🏢 {{ document.property.name }} {% elif document.tenant
-    %} 👤 {{ document.tenant.primary_email }} {% endif %}
+    document.property %} 🏢 {{ document.property.name }} {% elif document.tenant %} 👤 {{ document.tenant.primary_email }} {% endif %}
   </div>
 </div>
 

@@ -1,7 +1,5 @@
 {% extends "portal/base.html" %}
-
 {% block title %}{{ checklist.title }} - M16{% endblock %}
-
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
@@ -111,7 +109,7 @@
                         <div class="flex-shrink-0 pt-1">
                             <input type="checkbox"
                                    {% if item.is_checked %}checked{% endif %}
-                                   {% if checklist.status == 'completed' %}disabled{% endif %}
+{% if checklist.status == 'completed' %}disabled{% endif %}
                                    class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                    onchange="toggleItem({{ item.id }}, this.checked)">
                         </div>
@@ -137,8 +135,7 @@
                                         </span>
                                     </div>
                                     {% endif %}
-
-                                    {% if item.notes %}
+{% if item.notes %}
                                     <p class="mt-2 text-sm text-gray-600">
                                         💬 {{ item.notes }}
                                     </p>

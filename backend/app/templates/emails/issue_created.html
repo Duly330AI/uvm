@@ -11,7 +11,8 @@
       <li><strong>Betreff:</strong> {{ issue.summary }}</li>
       {% if issue.occurred_at %}
       <li><strong>Aufgetreten am:</strong> {{ issue.occurred_at }}</li>
-      {% endif %} {% if issue.location_hint %}
+      {% endif %}
+{% if issue.location_hint %}
       <li><strong>Ort:</strong> {{ issue.location_hint }}</li>
       {% endif %}
       <li><strong>Schwere:</strong> {{ issue.severity }}</li>
