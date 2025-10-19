@@ -16,6 +16,9 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
+    volumes:
+      # Mount source code for live reload in development
+      - ./backend/app:/app
     depends_on:
       db:
         condition: service_healthy
@@ -46,6 +49,8 @@ services:
       DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0"
       DJANGO_CSRF_TRUSTED_ORIGINS: "http://localhost:8000,http://127.0.0.1:8000,http://0.0.0.0:8000"
     command: celery -A config.celery_app worker -l info -Q default,emails --prefetch-multiplier=1 --concurrency=2
+    volumes:
+      - ./backend/app:/app
     depends_on:
       db:
         condition: service_healthy
@@ -64,6 +69,8 @@ services:
       DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0"
       DJANGO_CSRF_TRUSTED_ORIGINS: "http://localhost:8000,http://127.0.0.1:8000,http://0.0.0.0:8000"
     command: celery -A config beat -l info
+    volumes:
+      - ./backend/app:/app
     depends_on:
       redis:
         condition: service_healthy
