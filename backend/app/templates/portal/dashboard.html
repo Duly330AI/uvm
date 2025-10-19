@@ -1,0 +1,26 @@
+{% extends "portal/base.html" %} {% block title %}Vermieter-Dashboard{% endblock
+%} {% block portal %}
+<h1 class="text-xl font-semibold mb-4">Dashboard</h1>
+<div class="grid md:grid-cols-3 gap-4">
+  <div class="bg-white border rounded-xl p-4">
+    <div class="text-3xl font-bold">{{ open_count }}</div>
+    <div class="text-slate-500 text-sm">offene Tickets</div>
+  </div>
+  <div class="bg-white border rounded-xl p-4 md:col-span-2">
+    <div class="font-medium mb-2">Neueste Tickets</div>
+    <ul class="text-sm divide-y">
+      {% for i in recent %}
+      <li class="py-2 flex justify-between gap-3">
+        <a class="underline" href="{% url 'portal_issue_detail' i.id %}"
+          >{{ i.ticket_no }}</a
+        >
+        <span class="text-slate-500 truncate flex-1">{{ i.summary }}</span>
+        <span class="text-slate-400">{{ i.created_at|date:"d.m. H:i" }}</span>
+      </li>
+      {% empty %}
+      <li class="py-2 text-slate-500">Keine Tickets.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

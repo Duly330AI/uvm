@@ -1,0 +1,52 @@
+<ul class="text-sm space-y-2" id="apptsList">
+  {% for a in appts %}
+  <li
+    class="border-l-2 border-blue-500 pl-2 pr-2 flex justify-between items-start"
+  >
+    <div class="flex-1">
+      <div class="font-medium">{{ a.start|date:"d.m.Y H:i" }} Uhr</div>
+      <div class="text-slate-600">bis {{ a.end|date:"d.m.Y H:i" }} Uhr</div>
+      {% if a.vendor %}
+      <div class="text-slate-700 text-sm mt-2 font-medium">
+        {{ a.vendor.name }} ({{ a.vendor.trade }})
+      </div>
+      <div class="text-slate-600 text-xs mt-1 space-y-0.5">
+        {% if a.vendor.address_text %}
+        <div>📍 {{ a.vendor.address_text }}</div>
+        {% endif %} {% if a.vendor.email %}
+        <div>
+          📧
+          <a
+            href="mailto:{{ a.vendor.email }}"
+            class="text-blue-600 hover:underline"
+            >{{ a.vendor.email }}</a
+          >
+        </div>
+        {% endif %} {% if a.vendor.phone %}
+        <div>
+          📞
+          <a
+            href="tel:{{ a.vendor.phone }}"
+            class="text-blue-600 hover:underline"
+            >{{ a.vendor.phone }}</a
+          >
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+    <button
+      hx-delete="{% url 'portal_appointment_delete' a.id %}"
+      hx-target="#apptsList"
+      hx-swap="outerHTML"
+      hx-confirm="Termin wirklich löschen?"
+      class="text-red-600 hover:text-red-800 text-xs ml-2"
+      title="Termin löschen"
+    >
+      🗑️
+    </button>
+  </li>
+  {% empty %}
+  <li class="text-slate-500">Keine Termine.</li>
+  {% endfor %}
+</ul>

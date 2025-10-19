@@ -1,0 +1,169 @@
+{% extends "_base_front.html" %} {% block title %}{{ issue.ticket_no }}{%
+endblock %} {% block header_right %}
+<nav class="flex gap-4 text-sm">
+  <a class="hover:underline" href="{% url 'tenant_my_issues' %}">← Zurück</a>
+  <a class="hover:underline" href="{% url 'tenant_logout' %}">Abmelden</a>
+</nav>
+{% endblock %} {% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="mb-4">
+    <h1 class="text-2xl font-semibold mb-2">{{ issue.ticket_no }}</h1>
+    <span
+      class="inline-flex items-center rounded-full px-3 py-1 text-sm {% if issue.status == 'NEW' %}bg-slate-200 {% elif issue.status == 'IN_PROGRESS' %}bg-blue-200 {% elif issue.status == 'WAITING_VENDOR' %}bg-amber-200 {% elif issue.status == 'WAITING_TENANT' %}bg-violet-200 {% elif issue.status == 'DONE' %}bg-emerald-200 {% else %}bg-slate-200{% endif %}"
+    >
+      {{ issue.status }}
+    </span>
+  </div>
+
+  {% if messages %} {% for message in messages %}
+  <div
+    class="mb-4 p-3 rounded-lg {% if message.tags == 'success' %}bg-green-50 text-green-800{% elif message.tags == 'error' %}bg-red-50 text-red-800{% else %}bg-blue-50 text-blue-800{% endif %}"
+  >
+    {{ message }}
+  </div>
+  {% endfor %} {% endif %}
+
+  <div class="grid md:grid-cols-3 gap-4">
+    <section class="bg-white border rounded-xl p-4 md:col-span-2">
+      <div class="font-medium mb-1">{{ issue.summary }}</div>
+
+      <!-- Ihre Wohnung (DSGVO-konform: eigene Daten) -->
+      {% if issue.unit %}
+      <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+        <div class="text-sm font-semibold text-green-800 mb-1">
+          📍 Ihre Wohnung
+        </div>
+        <div class="text-sm text-gray-900">
+          <div>
+            {{ issue.unit.property.name }} • {{ issue.unit.unit_label }}
+          </div>
+          {% if issue.unit.property.street %}
+          <div class="text-gray-600">
+            {{ issue.unit.property.street }}, {{ issue.unit.property.postal_code
+            }} {{ issue.unit.property.city }}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="text-sm text-slate-600 mb-3">
+        Ort: {{ issue.location_hint|default:"—" }} • Schwere {{ issue.severity
+        }} • Erstellt: {{ issue.created_at|date:"d.m.Y H:i" }}
+      </div>
+
+      {% if attachments %}
+      <div class="mb-4">
+        <h3 class="font-medium mb-2">Anhänge</h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+          {% for att in attachments %} {% if att.mime|slice:":5" == "image" %}
+          <a
+            href="{{ att.file.url }}"
+            target="_blank"
+            class="border rounded-lg overflow-hidden hover:opacity-80"
+          >
+            <img
+              src="{{ att.file.url }}"
+              alt="Anhang"
+              class="w-full h-32 object-cover"
+            />
+          </a>
+          {% else %}
+          <a
+            href="{{ att.file.url }}"
+            target="_blank"
+            class="border rounded-lg p-3 text-sm hover:bg-slate-50"
+          >
+            📎 {{ att.file.name|slice:"10:" }}
+          </a>
+          {% endif %} {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <h2 class="font-medium mb-2">Verlauf & Notizen</h2>
+      <div class="space-y-2 mb-4">
+        {% for note in notes %}
+        <div class="border rounded-lg p-3 bg-slate-50">
+          <div class="text-sm">{{ note.text }}</div>
+          <div class="text-xs text-slate-400 mt-1">
+            {{ note.created_at|date:"d.m.Y H:i" }} {% if note.author %} ·
+            <span class="font-medium"
+              >{{ note.author.get_full_name|default:note.author.username
+              }}</span
+            >
+            {% else %} · <span class="italic">Mieter</span>
+            {% endif %}
+          </div>
+        </div>
+        {% empty %}
+        <div class="text-slate-500 text-sm">Noch keine Notizen.</div>
+        {% endfor %}
+      </div>
+
+      <form
+        method="post"
+        action="{% url 'tenant_add_note' issue.id %}"
+        class="mb-4"
+      >
+        {% csrf_token %}
+        <textarea
+          name="text"
+          rows="3"
+          class="w-full border rounded-lg px-3 py-2 mb-2"
+          placeholder="Ihre Nachricht / Rückfrage ..."
+        ></textarea>
+        <button class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm">
+          Notiz senden
+        </button>
+      </form>
+
+      <h3 class="font-medium mb-2">Weitere Dateien hochladen</h3>
+      <form
+        method="post"
+        action="{% url 'tenant_add_attachment' issue.id %}"
+        enctype="multipart/form-data"
+        class="space-y-2"
+      >
+        {% csrf_token %}
+        <input
+          type="file"
+          name="file"
+          accept="image/jpeg,image/png,image/gif,application/pdf"
+          class="block w-full text-sm border rounded-lg p-2"
+        />
+        <div class="text-xs text-slate-500">
+          Max. 10 MB pro Datei, 40 MB gesamt. Erlaubt: JPEG, PNG, GIF, PDF
+        </div>
+        <button class="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm">
+          Datei hochladen
+        </button>
+      </form>
+    </section>
+
+    <aside class="bg-white border rounded-xl p-4">
+      <h3 class="font-medium mb-2">Details</h3>
+      <dl class="text-sm space-y-2">
+        <div>
+          <dt class="text-slate-500">Objekt</dt>
+          <dd class="font-medium">{{ issue.unit.property.name }}</dd>
+        </div>
+        <div>
+          <dt class="text-slate-500">Wohneinheit</dt>
+          <dd class="font-medium">{{ issue.unit.unit_label }}</dd>
+        </div>
+        <div>
+          <dt class="text-slate-500">Kategorie</dt>
+          <dd class="font-medium">{{ issue.category }}</dd>
+        </div>
+        <div>
+          <dt class="text-slate-500">Vorgefallen am</dt>
+          <dd class="font-medium">
+            {{ issue.occurred_at|date:"d.m.Y H:i"|default:"—" }}
+          </dd>
+        </div>
+      </dl>
+    </aside>
+  </div>
+</div>
+{% endblock %}

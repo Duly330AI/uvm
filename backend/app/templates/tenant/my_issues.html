@@ -1,0 +1,58 @@
+{% extends "_base_front.html" %} {% block title %}Meine Tickets{% endblock %} {%
+block header_right %}
+<nav class="flex gap-4 text-sm">
+  <span class="text-slate-600">{{ tenant.primary_email }}</span>
+  <a class="hover:underline" href="{% url 'chat_page' %}">Neue Meldung</a>
+  <a class="hover:underline" href="{% url 'tenant_logout' %}">Abmelden</a>
+</nav>
+{% endblock %} {% block content %}
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-2xl font-semibold mb-4">Meine Tickets</h1>
+
+  {% if messages %} {% for message in messages %}
+  <div
+    class="mb-4 p-3 rounded-lg {% if message.tags == 'success' %}bg-green-50 text-green-800{% elif message.tags == 'error' %}bg-red-50 text-red-800{% else %}bg-blue-50 text-blue-800{% endif %}"
+  >
+    {{ message }}
+  </div>
+  {% endfor %} {% endif %}
+
+  <div class="space-y-3">
+    {% for issue in issues %}
+    <a
+      href="{% url 'tenant_issue_detail' issue.id %}"
+      class="block bg-white border rounded-xl p-4 hover:shadow-md transition"
+    >
+      <div class="flex justify-between items-start">
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="font-medium">{{ issue.ticket_no }}</span>
+            <span
+              class="inline-flex items-center rounded-full px-2 py-1 text-xs {% if issue.status == 'NEW' %}bg-slate-200 {% elif issue.status == 'IN_PROGRESS' %}bg-blue-200 {% elif issue.status == 'WAITING_VENDOR' %}bg-amber-200 {% elif issue.status == 'WAITING_TENANT' %}bg-violet-200 {% elif issue.status == 'DONE' %}bg-emerald-200 {% else %}bg-slate-200{% endif %}"
+            >
+              {{ issue.status }}
+            </span>
+          </div>
+          <div class="text-slate-700">{{ issue.summary }}</div>
+          <div class="text-sm text-slate-500 mt-1">
+            {{ issue.unit.property.name }} • {{ issue.unit.unit_label }} •
+            Erstellt: {{ issue.created_at|date:"d.m.Y H:i" }}
+          </div>
+        </div>
+        <div class="text-sm">
+          <span
+            class="{% if issue.severity >= 4 %}text-red-600 font-bold{% else %}text-slate-600{% endif %}"
+          >
+            Prio {{ issue.severity }}
+          </span>
+        </div>
+      </div>
+    </a>
+    {% empty %}
+    <div class="bg-slate-50 border rounded-xl p-6 text-center text-slate-500">
+      Keine Tickets vorhanden.
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

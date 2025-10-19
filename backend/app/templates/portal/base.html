@@ -1,0 +1,10 @@
+{% extends "_base_front.html" %} {% block header_right %}
+<nav class="flex gap-4 text-sm">
+  <a class="hover:underline" href="{% url 'portal_dashboard' %}">Dashboard</a>
+  <a class="hover:underline" href="{% url 'portal_issues' %}">Tickets</a>
+  <a class="hover:underline" href="{% url 'portal_documents' %}">Dokumente</a>
+  <a class="hover:underline" href="{% url 'portal_reports' %}">Reports</a>
+  <a class="hover:underline" href="{% url 'portal_tenants' %}">Mieter</a>
+  <a class="hover:underline" href="/admin/">Admin</a>
+</nav>
+{% endblock %} {% block content %}{% block portal %}{% endblock %}{% endblock %}

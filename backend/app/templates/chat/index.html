@@ -1,0 +1,308 @@
+{% extends "_base_front.html" %} {% block title %}Schadensmeldung{% endblock %}
+{% block content %}
+<h1 class="text-xl font-semibold mb-4">Schadensmeldung</h1>
+
+<div id="chat" class="bg-white rounded-xl shadow-sm border">
+  <!-- Conversation area -->
+  <div id="log" class="p-4 h-[48vh] overflow-y-auto space-y-3">
+    <div class="text-sm text-slate-500">
+      Drücke „Session starten", um zu beginnen.
+    </div>
+  </div>
+
+  <!-- Footer / controls -->
+  <div class="border-t p-3">
+    <div id="startRow" class="flex justify-between items-center">
+      <button
+        id="startBtn"
+        class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+      >
+        Session starten
+      </button>
+      <div class="text-xs text-slate-500">
+        Rate Limit aktiv. Missbrauch wird gebremst.
+      </div>
+    </div>
+
+    <!-- Dynamic input row -->
+    <form
+      id="msgForm"
+      class="hidden mt-2 flex items-center gap-2"
+      enctype="multipart/form-data"
+    >
+      <input
+        type="text"
+        id="textInput"
+        name="text"
+        class="flex-1 rounded-lg border px-3 py-2"
+        placeholder="Nachricht…"
+      />
+      <input
+        type="datetime-local"
+        id="dtInput"
+        name="occurred_at"
+        class="flex-1 rounded-lg border px-3 py-2 hidden"
+      />
+      <input
+        type="text"
+        id="locInput"
+        name="location"
+        class="flex-1 rounded-lg border px-3 py-2 hidden"
+        placeholder="Ort (z. B. Bad)"
+      />
+      <input
+        type="number"
+        id="sevInput"
+        name="severity"
+        min="1"
+        max="5"
+        class="w-28 rounded-lg border px-3 py-2 hidden"
+        placeholder="1–5"
+      />
+      <input type="file" id="fileInput" name="files" multiple class="hidden" />
+      <button
+        class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+        type="submit"
+      >
+        Senden
+      </button>
+    </form>
+
+    <div id="confirmRow" class="hidden mt-2 flex justify-end">
+      <button
+        id="confirmBtn"
+        class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+      >
+        Meldung abschicken
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 hidden">
+  <div
+    class="rounded-lg bg-slate-900 text-white px-4 py-2 text-sm shadow-lg"
+    id="toastText"
+  ></div>
+</div>
+
+<script>
+  (() => {
+    const log = document.getElementById("log");
+    const startBtn = document.getElementById("startBtn");
+    const startRow = document.getElementById("startRow");
+    const msgForm = document.getElementById("msgForm");
+    const confirmRow = document.getElementById("confirmRow");
+    const textInput = document.getElementById("textInput");
+    const dtInput = document.getElementById("dtInput");
+    const locInput = document.getElementById("locInput");
+    const sevInput = document.getElementById("sevInput");
+    const fileInput = document.getElementById("fileInput");
+
+    let sid = null;
+    let version = 0;
+    let state = null;
+    let nextPrompt = null;
+
+    function toast(s) {
+      const t = document.getElementById("toast");
+      const tx = document.getElementById("toastText");
+      tx.textContent = s;
+      t.classList.remove("hidden");
+      setTimeout(() => t.classList.add("hidden"), 2500);
+    }
+    function bubble(text, kind = "bot") {
+      const wrap = document.createElement("div");
+      wrap.className =
+        "flex " + (kind === "user" ? "justify-end" : "justify-start");
+      const b = document.createElement("div");
+      b.className =
+        (kind === "user"
+          ? "bg-blue-600 text-white"
+          : "bg-slate-100 text-slate-900") +
+        " px-3 py-2 rounded-2xl max-w-[85%]";
+      b.textContent = text;
+      wrap.appendChild(b);
+      log.appendChild(wrap);
+      log.scrollTop = log.scrollHeight;
+    }
+    function uiForState(s) {
+      // Reset
+      textInput.classList.add("hidden");
+      dtInput.classList.add("hidden");
+      locInput.classList.add("hidden");
+      sevInput.classList.add("hidden");
+      fileInput.classList.add("hidden");
+
+      // Which control is active?
+      if (s === "GREETING" || s === "CAPTURE_SUMMARY") {
+        textInput.placeholder = "Bitte kurz das Problem beschreiben…";
+        textInput.classList.remove("hidden");
+      } else if (s === "CAPTURE_OCCURRED_AT") {
+        dtInput.classList.remove("hidden");
+      } else if (s === "CAPTURE_LOCATION") {
+        locInput.classList.remove("hidden");
+      } else if (s === "CAPTURE_SEVERITY") {
+        sevInput.classList.remove("hidden");
+      } else if (s === "CAPTURE_MEDIA") {
+        fileInput.classList.remove("hidden");
+      } else if (s === "CAPTURE_CONTACT") {
+        textInput.placeholder = "Kontakt (E-Mail oder Telefon)…";
+        textInput.classList.remove("hidden");
+      }
+    }
+
+    async function createSession() {
+      const r = await fetch("/api/chat/sessions/", {
+        method: "POST",
+        headers: { "HX-Request": "true" },
+      });
+      if (!r.ok) {
+        toast("Fehler beim Starten");
+        return;
+      }
+      const j = await r.json();
+      sid = j.id;
+      version = 0;
+      state = j.state;
+      nextPrompt = j.next_prompt || "…";
+      startRow.classList.add("hidden");
+      msgForm.classList.remove("hidden");
+      bubble(nextPrompt, "bot");
+      uiForState(state);
+    }
+
+    async function postMessage(formData, isFiles = false) {
+      // Enrich with version
+      if (!isFiles) formData.append("version", String(version));
+      else formData.set("version", String(version));
+
+      const r = await fetch(`/api/chat/sessions/${sid}/message`, {
+        method: "POST",
+        body: formData,
+        headers: isFiles
+          ? {}
+          : { "Content-Type": "application/x-www-form-urlencoded" },
+      });
+
+      if (r.status === 200) {
+        const j = await r.json();
+        version = j.version;
+        state = j.state;
+        nextPrompt = j.next_prompt || "…";
+        bubble(nextPrompt, "bot");
+        uiForState(state);
+        if (state === "CONFIRM") {
+          confirmRow.classList.remove("hidden");
+          msgForm.classList.add("hidden");
+        }
+        return;
+      }
+
+      const j = await r.json().catch(() => ({}));
+      if (
+        r.status === 409 &&
+        j.code === "STATE_VERSION_CONFLICT" &&
+        typeof j.version === "number"
+      ) {
+        version = j.version; // einmalig nachziehen
+        toast("Aktualisiert – bitte nochmal senden.");
+        return;
+      }
+      if (r.status === 409 && j.code === "STATE_MISMATCH") {
+        toast("Anderes Feld erwartet – UI angepasst.");
+        state = j.expected || state;
+        uiForState(state);
+        return;
+      }
+      if (r.status === 410) {
+        toast("Sitzung abgelaufen – neu starten.");
+        return;
+      }
+      if (r.status === 429) {
+        toast("Zu viele Anfragen – kurz warten.");
+        return;
+      }
+      toast("Fehler – bitte später erneut versuchen.");
+    }
+
+    startBtn.addEventListener("click", createSession);
+
+    msgForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      // User bubble
+      let said = "";
+      if (!textInput.classList.contains("hidden") && textInput.value)
+        said = textInput.value;
+      if (!locInput.classList.contains("hidden") && locInput.value)
+        said = locInput.value;
+      if (!sevInput.classList.contains("hidden") && sevInput.value)
+        said = `Dringlichkeit ${sevInput.value}`;
+      if (!dtInput.classList.contains("hidden") && dtInput.value)
+        said = new Date(dtInput.value).toLocaleString();
+      if (!fileInput.classList.contains("hidden") && fileInput.files.length)
+        said = `${fileInput.files.length} Datei(en)`;
+
+      if (said) bubble(said, "user");
+
+      // Build payload by state
+      let fd,
+        isFiles = false;
+      if (state === "CAPTURE_MEDIA" && fileInput.files.length) {
+        isFiles = true;
+        fd = new FormData();
+        for (const f of fileInput.files) fd.append("files", f);
+      } else {
+        fd = new URLSearchParams();
+        if (!textInput.classList.contains("hidden") && textInput.value)
+          fd.append("text", textInput.value);
+        if (!locInput.classList.contains("hidden") && locInput.value)
+          fd.append("location", locInput.value);
+        if (!sevInput.classList.contains("hidden") && sevInput.value)
+          fd.append("severity", sevInput.value);
+        if (!dtInput.classList.contains("hidden") && dtInput.value) {
+          // ISO mit Sekunden (Server akzeptiert ISO)
+          fd.append("occurred_at", new Date(dtInput.value).toISOString());
+        }
+      }
+
+      await postMessage(fd, isFiles);
+
+      // clear text fields (nicht Dateien/Datum)
+      if (said && !isFiles && state !== "CAPTURE_MEDIA") {
+        textInput.value = "";
+        locInput.value = "";
+        sevInput.value = "";
+      }
+    });
+
+    document
+      .getElementById("confirmBtn")
+      .addEventListener("click", async () => {
+        const key =
+          (crypto.randomUUID && crypto.randomUUID()) || String(Date.now());
+        const r = await fetch(`/api/chat/sessions/${sid}/confirm`, {
+          method: "POST",
+          headers: { "Idempotency-Key": key },
+        });
+        const j = await r.json().catch(() => ({}));
+        if (r.status === 200) {
+          bubble(`Danke! Ticket ${j.ticket_no} angelegt.`, "bot");
+          confirmRow.classList.add("hidden");
+          const a = document.createElement("a");
+          a.href = j.status_url || "#";
+          a.textContent = "Status anzeigen";
+          a.className = "inline-block mt-2 text-blue-700 underline";
+          const wrap = document.createElement("div");
+          wrap.appendChild(a);
+          log.appendChild(wrap);
+        } else if (r.status === 429) {
+          toast("Zu viele Bestätigungen – kurz warten.");
+        } else {
+          toast("Fehler bei Bestätigung.");
+        }
+      });
+  })();
+</script>
+{% endblock %}

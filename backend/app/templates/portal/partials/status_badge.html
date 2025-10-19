@@ -1,0 +1,5 @@
+<span
+  class="inline-flex items-center rounded-full px-2 py-1 text-xs {% if issue.status == 'NEW' %}bg-slate-200{% elif issue.status == 'IN_PROGRESS' %}bg-blue-200{% elif issue.status == 'WAITING_VENDOR' %}bg-amber-200{% elif issue.status == 'WAITING_TENANT' %}bg-violet-200{% elif issue.status == 'DONE' %}bg-emerald-200{% else %}bg-slate-200{% endif %}"
+>
+  {{ issue.status }}
+</span>

@@ -1,0 +1,17 @@
+<ul class="text-sm space-y-2" id="notesList">
+  {% for n in notes %}
+  <li class="border rounded-lg p-2">
+    <div>{{ n.text }}</div>
+    <div class="text-xs text-slate-400">
+      {{ n.created_at|date:"d.m.Y H:i" }} {% if n.author %} ·
+      <span class="font-medium"
+        >{{ n.author.get_full_name|default:n.author.username }}</span
+      >
+      {% else %} · <span class="italic">Mieter</span>
+      {% endif %} · {{ n.visibility }}
+    </div>
+  </li>
+  {% empty %}
+  <li class="text-slate-500">Keine Notizen.</li>
+  {% endfor %}
+</ul>

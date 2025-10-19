@@ -1,0 +1,188 @@
+{% extends "portal/base.html" %}
+{% block title %}Mietverträge{% endblock %}
+{% block portal %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-semibold">📝 Mietverträge</h1>
+</div>
+
+<!-- Filters -->
+<div class="bg-white border rounded-xl p-4 mb-6">
+  <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div>
+      <label class="block text-sm font-medium mb-1">Status</label>
+      <select name="status" class="w-full border rounded px-3 py-2">
+        <option value="">Alle Status</option>
+        {% for value, label in status_choices %}
+          <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Wohnung</label>
+      <select name="unit" class="w-full border rounded px-3 py-2">
+        <option value="">Alle Wohnungen</option>
+        {% for unit in units %}
+          <option value="{{ unit.id }}" {% if filters.unit|stringformat:"s" == unit.id|stringformat:"s" %}selected{% endif %}>
+            {{ unit.unit_label }} @ {{ unit.property.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Mieter</label>
+      <select name="tenant" class="w-full border rounded px-3 py-2">
+        <option value="">Alle Mieter</option>
+        {% for tenant in tenants %}
+          <option value="{{ tenant.id }}" {% if filters.tenant|stringformat:"s" == tenant.id|stringformat:"s" %}selected{% endif %}>
+            {{ tenant.primary_email }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="flex items-end gap-2">
+      <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        Filtern
+      </button>
+      <a href="{% url 'portal_contracts' %}" class="px-4 py-2 border rounded-lg hover:bg-slate-50">
+        Reset
+      </a>
+    </div>
+  </form>
+</div>
+
+<!-- Contracts Table -->
+<div class="bg-white border rounded-xl overflow-hidden">
+  <table class="w-full">
+    <thead class="bg-slate-50 border-b">
+      <tr>
+        <th class="text-left p-3 font-medium">Wohnung</th>
+        <th class="text-left p-3 font-medium">Mieter</th>
+        <th class="text-left p-3 font-medium">Laufzeit</th>
+        <th class="text-left p-3 font-medium">Miete</th>
+        <th class="text-left p-3 font-medium">Status</th>
+        <th class="text-left p-3 font-medium">Dokument</th>
+        <th class="text-left p-3 font-medium">Aktionen</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for contract in contracts %}
+        <tr class="border-t hover:bg-slate-50">
+          <!-- Unit -->
+          <td class="p-3">
+            <div class="font-medium">{{ contract.unit.unit_label }}</div>
+            <div class="text-sm text-slate-500">{{ contract.unit.property.name }}</div>
+          </td>
+
+          <!-- Tenant -->
+          <td class="p-3">
+            <div>{{ contract.tenant.primary_email }}</div>
+            {% if contract.tenant.phone %}
+              <div class="text-sm text-slate-500">{{ contract.tenant.phone }}</div>
+            {% endif %}
+          </td>
+
+          <!-- Duration -->
+          <td class="p-3">
+            <div class="text-sm">
+              <strong>Von:</strong> {{ contract.start_date|date:"d.m.Y" }}
+            </div>
+            {% if contract.end_date %}
+              <div class="text-sm">
+                <strong>Bis:</strong> {{ contract.end_date|date:"d.m.Y" }}
+              </div>
+            {% else %}
+              <div class="text-sm text-green-600">
+                ∞ Unbefristet
+              </div>
+            {% endif %}
+          </td>
+
+          <!-- Rent -->
+          <td class="p-3">
+            <div class="font-medium">€{{ contract.rent_amount|floatformat:2 }}</div>
+            <div class="text-sm text-slate-500">
+              + NK €{{ contract.additional_costs|floatformat:2 }}
+            </div>
+            <div class="text-xs text-slate-400">
+              = €{{ contract.total_rent|floatformat:2 }} gesamt
+            </div>
+          </td>
+
+          <!-- Status -->
+          <td class="p-3">
+            {% if contract.status == 'active' %}
+              <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                ✓ {{ contract.get_status_display }}
+              </span>
+            {% elif contract.status == 'draft' %}
+              <span class="px-2 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded-full">
+                ✏️ {{ contract.get_status_display }}
+              </span>
+            {% elif contract.status == 'ended' %}
+              <span class="px-2 py-1 bg-slate-100 text-slate-800 text-xs font-semibold rounded-full">
+                ⏹ {{ contract.get_status_display }}
+              </span>
+            {% else %}
+              <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">
+                {{ contract.get_status_display }}
+              </span>
+            {% endif %}
+          </td>
+
+          <!-- Document -->
+          <td class="p-3">
+            {% if contract.document %}
+              <a href="{{ contract.document.file.url }}" target="_blank"
+                 class="text-blue-600 hover:underline text-sm">
+                📄 {{ contract.document.name|truncatechars:20 }}
+              </a>
+              <div class="text-xs text-slate-400">
+                v{{ contract.document.current_version }}
+              </div>
+            {% else %}
+              <span class="text-slate-400 text-sm">Kein Dokument</span>
+            {% endif %}
+          </td>
+
+          <!-- Actions -->
+          <td class="p-3">
+            <div class="flex flex-col gap-1">
+              <a href="{% url 'portal_contract_detail' contract.id %}"
+                 class="text-blue-600 hover:underline text-sm">
+                Details
+              </a>
+              <a href="/admin/landlord/contract/{{ contract.id }}/change/"
+                 class="text-slate-600 hover:underline text-sm">
+                Admin
+              </a>
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="7" class="p-8 text-center text-slate-500">
+            Keine Verträge gefunden.
+            {% if filters.status or filters.unit or filters.tenant %}
+              <br>
+              <a href="{% url 'portal_contracts' %}" class="text-blue-600 hover:underline">
+                Filter zurücksetzen
+              </a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Summary -->
+<div class="mt-4 text-sm text-slate-600">
+  <strong>{{ contracts|length }}</strong> Vertrag{% if contracts|length != 1 %}e{% endif %} gefunden
+</div>
+
+{% endblock %}

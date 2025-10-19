@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <title>Ticket erstellt</title>
+  </head>
+  <body>
+    <p>Guten Tag,</p>
+    <p>Ihre Meldung <strong>[{{ issue.ticket_no }}]</strong> wurde erfasst.</p>
+    <ul>
+      <li><strong>Betreff:</strong> {{ issue.summary }}</li>
+      {% if issue.occurred_at %}
+      <li><strong>Aufgetreten am:</strong> {{ issue.occurred_at }}</li>
+      {% endif %} {% if issue.location_hint %}
+      <li><strong>Ort:</strong> {{ issue.location_hint }}</li>
+      {% endif %}
+      <li><strong>Schwere:</strong> {{ issue.severity }}</li>
+    </ul>
+    <p>Wir melden uns bei Rückfragen.</p>
+    {% if status_url %}
+    <p style="margin-top: 12px">
+      <a
+        href="{{ status_url }}"
+        style="
+          background: #2563eb;
+          color: white;
+          padding: 10px 14px;
+          border-radius: 8px;
+          text-decoration: none;
+        "
+      >
+        Status anzeigen
+      </a>
+    </p>
+    {% endif %}
+    <p>– {{ site_domain }}</p>
+  </body>
+</html>

@@ -1,0 +1,88 @@
+{% extends "portal/base.html" %} {% block title %}Reports & KPI{% endblock %} {%
+block portal %}
+<div class="flex justify-between items-center mb-4">
+  <h1 class="text-2xl font-semibold">Reports & KPI</h1>
+  <a
+    href="{% url 'portal_reports_export' %}"
+    class="px-4 py-2 rounded-lg bg-emerald-600 text-white"
+  >
+    ­ƒôè CSV Export
+  </a>
+</div>
+
+<div class="grid md:grid-cols-3 gap-4 mb-6">
+  <div class="bg-white border rounded-xl p-4">
+    <div class="text-sm text-slate-500 mb-1">SLA-Verst├Â├ƒe (>24h)</div>
+    <div class="text-3xl font-bold">{{ sla_breached }}</div>
+    <div class="text-sm text-slate-600 mt-1">
+      {{ breach_percentage }}% von {{ total_with_response }} Tickets
+    </div>
+  </div>
+
+  <div class="bg-white border rounded-xl p-4">
+    <div class="text-sm text-slate-500 mb-1">├ÿ Zeit bis erste Reaktion</div>
+    <div class="text-3xl font-bold">
+      {% if avg_response_by_category %} {{
+      avg_response_by_category.0.avg_hours|floatformat:1 }}h {% else %} - {%
+      endif %}
+    </div>
+    <div class="text-sm text-slate-600 mt-1">Letzte 30 Tage</div>
+  </div>
+
+  <div class="bg-white border rounded-xl p-4">
+    <div class="text-sm text-slate-500 mb-1">├ÿ Zeit bis L├Âsung</div>
+    <div class="text-3xl font-bold">
+      {% if avg_resolution_by_severity %} {{
+      avg_resolution_by_severity.0.avg_hours|floatformat:1 }}h {% else %} - {%
+      endif %}
+    </div>
+    <div class="text-sm text-slate-600 mt-1">Letzte 30 Tage</div>
+  </div>
+</div>
+
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Offene Tickets pro Objekt</h2>
+    <div class="space-y-2">
+      {% for item in open_by_property %}
+      <div class="flex justify-between items-center">
+        <span class="text-sm"
+          >{{ item.unit__property__name|default:"Unbekannt" }}</span
+        >
+        <span class="font-semibold">{{ item.count }}</span>
+      </div>
+      {% empty %}
+      <div class="text-slate-500 text-sm">Keine offenen Tickets</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="bg-white border rounded-xl p-4">
+    <h2 class="font-semibold mb-3">├ÿ Reaktionszeit nach Kategorie</h2>
+    <div class="space-y-2">
+      {% for item in avg_response_by_category %}
+      <div class="flex justify-between items-center">
+        <span class="text-sm capitalize">{{ item.category }}</span>
+        <span class="font-semibold">{{ item.avg_hours|floatformat:1 }}h</span>
+      </div>
+      {% empty %}
+      <div class="text-slate-500 text-sm">Keine Daten</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="bg-white border rounded-xl p-4">
+    <h2 class="font-semibold mb-3">├ÿ L├Âsungszeit nach Priorit├ñt</h2>
+    <div class="space-y-2">
+      {% for item in avg_resolution_by_severity %}
+      <div class="flex justify-between items-center">
+        <span class="text-sm">Priorit├ñt {{ item.severity }}</span>
+        <span class="font-semibold">{{ item.avg_hours|floatformat:1 }}h</span>
+      </div>
+      {% empty %}
+      <div class="text-slate-500 text-sm">Keine Daten</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

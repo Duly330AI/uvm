@@ -1,0 +1,72 @@
+{% extends "portal/base.html" %}
+{% block title %}Tickets{% endblock %}
+{% block portal %}
+<h1 class="text-xl font-semibold mb-4">Tickets</h1>
+
+<form method="get" class="bg-white border rounded-xl p-3 mb-3 grid md:grid-cols-5 gap-2">
+  <input type="text" name="s" value="{{ q }}" placeholder="Suche (Ticket/Betreff)"
+         class="border rounded-lg px-3 py-2 md:col-span-2">
+  <select name="status" class="border rounded-lg px-3 py-2">
+    <option value="">Status</option>
+    {% for s in status_choices %}
+      <option value="{{ s }}" {% if status_val == s %}selected{% endif %}>{{ s }}</option>
+    {% endfor %}
+  </select>
+  <select name="property" class="border rounded-lg px-3 py-2">
+    <option value="">Objekt</option>
+    {% for p in properties %}
+      <option value="{{ p.id }}" {% if prop_val|default:'' == p.id|stringformat:"s" %}selected{% endif %}>{{ p.name }}</option>
+    {% endfor %}
+  </select>
+  <label class="inline-flex items-center gap-2 text-sm">
+    <input type="checkbox" name="urgent" value="true" {% if urgent_val == "true" %}checked{% endif %}>
+    🔥 Dringend
+  </label>
+  <button class="px-3 py-2 rounded-lg bg-blue-600 text-white md:col-start-5">Filtern</button>
+</form>
+
+<div class="bg-white border rounded-xl overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50">
+      <tr>
+        <th class="text-left p-2">Ticket</th>
+        <th class="text-left p-2">Status</th>
+        <th class="text-left p-2">Betreff</th>
+        <th class="text-left p-2">Objekt/WE</th>
+        <th class="text-left p-2">Seit</th>
+        <th class="text-left p-2">Prio</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in page.object_list %}
+      <tr class="border-t hover:bg-slate-50 cursor-pointer" onclick="location.href='{% url 'portal_issue_detail' i.id %}'">
+        <td class="p-2 font-medium">{{ i.ticket_no }}</td>
+        <td class="p-2">{% include 'portal/partials/status_badge.html' with issue=i %}</td>
+        <td class="p-2 truncate max-w-[24ch]">{{ i.summary }}</td>
+        <td class="p-2 text-slate-600">
+          {% if i.unit %}
+            {{ i.unit.property.name }} / {{ i.unit.unit_label }}
+          {% else %}
+            <span class="text-red-600">⚠️ Keine Wohnung</span>
+          {% endif %}
+        </td>
+        <td class="p-2 text-slate-600">{{ i.created_at|date:"d.m. H:i" }}</td>
+        <td class="p-2">{{ i.severity }}</td>
+      </tr>
+      {% empty %}
+      <tr><td class="p-3 text-slate-500" colspan="6">Keine Treffer.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="mt-3 flex gap-2">
+  {% if page.has_previous %}
+  <a class="px-3 py-2 border rounded-lg" href="?page={{ page.previous_page_number }}&s={{ q }}&status={{ status_val }}&urgent={{ urgent_val }}&property={{ prop_val }}">Zurück</a>
+  {% endif %}
+  <div class="px-3 py-2 text-sm text-slate-600">Seite {{ page.number }} / {{ page.paginator.num_pages }}</div>
+  {% if page.has_next %}
+  <a class="px-3 py-2 border rounded-lg" href="?page={{ page.next_page_number }}&s={{ q }}&status={{ status_val }}&urgent={{ urgent_val }}&property={{ prop_val }}">Weiter</a>
+  {% endif %}
+</div>
+{% endblock %}

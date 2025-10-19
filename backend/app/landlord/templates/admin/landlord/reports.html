@@ -1,0 +1,37 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Tickets – Report (letzte {{ days }} Tage)</h1>
+
+<h2>Offene Tickets pro Objekt</h2>
+<table class="adminlist">
+  <tr><th>Property</th><th>Anzahl</th></tr>
+  {% for r in open_by_property %}
+  <tr>
+    <td>{{ r.unit__property__name }} (ID {{ r.unit__property__id }})</td>
+    <td>{{ r.total }}</td>
+  </tr>
+  {% empty %}<tr><td colspan="2">keine Daten</td></tr>{% endfor %}
+</table>
+
+<h2>Ø-Alter pro Status</h2>
+<table class="adminlist">
+  <tr><th>Status</th><th>Ø Alter (Tage)</th></tr>
+  {% for r in aging_by_status %}
+  <tr>
+    <td>{{ r.status }}</td>
+    <td>{{ r.avg_age.days }}</td>
+  </tr>
+  {% empty %}<tr><td colspan="2">keine Daten</td></tr>{% endfor %}
+</table>
+
+<h2>Top-Kategorien (30 Tage)</h2>
+<table class="adminlist">
+  <tr><th>Kategorie</th><th>Anzahl</th></tr>
+  {% for r in top_categories %}
+  <tr>
+    <td>{{ r.category }}</td>
+    <td>{{ r.total }}</td>
+  </tr>
+  {% empty %}<tr><td colspan="2">keine Daten</td></tr>{% endfor %}
+</table>
+{% endblock %}

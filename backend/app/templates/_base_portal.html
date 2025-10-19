@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Portal{% endblock %} - UVM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  </head>
+  <body class="bg-slate-50">
+    <nav class="bg-white border-b">
+      <div class="max-w-7xl mx-auto px-4 py-3">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-6">
+            <a href="{% url 'portal_dashboard' %}" class="text-xl font-semibold"
+              >UVM</a
+            >
+            <a
+              href="{% url 'portal_issues' %}"
+              class="text-sm hover:text-blue-600"
+              >Tickets</a
+            >
+            <a
+              href="{% url 'portal_documents' %}"
+              class="text-sm hover:text-blue-600"
+              >Dokumente</a
+            >
+            <a
+              href="{% url 'portal_reports' %}"
+              class="text-sm hover:text-blue-600"
+              >Reports</a
+            >
+          </div>
+          <div class="flex gap-4 text-sm">
+            <a href="/admin/" class="hover:underline">Admin</a>
+            <a href="/chat/" class="hover:underline">Chat</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

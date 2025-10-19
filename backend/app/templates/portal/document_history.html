@@ -1,0 +1,132 @@
+{% extends "portal/base.html" %} {% block title %}Versionshistorie: {{
+document.name }}{% endblock %} {% block portal %}
+<div class="mb-4">
+  <a href="{% url 'portal_documents' %}" class="text-blue-600 hover:underline">
+    ← Zurück zur Dokumenten-Liste
+  </a>
+</div>
+
+<div class="bg-white border rounded-xl p-6 mb-6">
+  <h1 class="text-2xl font-semibold mb-2">🔄 Versionshistorie</h1>
+  <div class="text-lg text-slate-700">{{ document.name }}</div>
+  <div class="text-sm text-slate-500 mt-2">
+    Kategorie: {{ document.get_category_display }} • {% if document.unit %} 🚪
+    {{ document.unit.unit_label }} @ {{ document.unit.property.name }} {% elif
+    document.property %} 🏢 {{ document.property.name }} {% elif document.tenant
+    %} 👤 {{ document.tenant.primary_email }} {% endif %}
+  </div>
+</div>
+
+<!-- Timeline -->
+<div class="space-y-4">
+  <!-- Current Version (active) -->
+  <div class="bg-white border-2 border-blue-500 rounded-xl p-6 relative">
+    <div
+      class="absolute -left-4 top-6 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold"
+    >
+      ✓
+    </div>
+    <div class="ml-6">
+      <div class="flex items-center gap-3 mb-2">
+        <span
+          class="px-3 py-1 bg-blue-600 text-white text-sm font-semibold rounded-full"
+        >
+          v{{ document.current_version }} (aktuell)
+        </span>
+        <span class="text-xs text-slate-500">
+          {{ document.updated_at|date:"d.m.Y H:i" }} Uhr
+        </span>
+      </div>
+
+      <div class="text-sm text-slate-600 mb-3">
+        {% if document.uploaded_by %} Hochgeladen von:
+        <strong>{{ document.uploaded_by.username }}</strong>
+        {% endif %}
+        <br />
+        Größe: {{ document.size_bytes|filesizeformat }}
+        <br />
+        Typ: {{ document.content_type }}
+      </div>
+
+      {% if document.notes %}
+      <div class="text-sm text-slate-700 mb-3 p-3 bg-slate-50 rounded">
+        <strong>Notizen:</strong> {{ document.notes }}
+      </div>
+      {% endif %}
+
+      <a
+        href="{{ document.file.url }}"
+        target="_blank"
+        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+      >
+        📄 Aktuelle Version herunterladen
+      </a>
+    </div>
+  </div>
+
+  <!-- Archived Versions -->
+  {% for version in versions %}
+  <div
+    class="bg-white border border-slate-200 rounded-xl p-6 relative opacity-75 hover:opacity-100 transition"
+  >
+    <div
+      class="absolute -left-4 top-6 w-8 h-8 bg-slate-300 rounded-full flex items-center justify-center text-slate-600 font-bold text-sm"
+    >
+      {{ version.version_number }}
+    </div>
+    <div class="ml-6">
+      <div class="flex items-center gap-3 mb-2">
+        <span
+          class="px-3 py-1 bg-slate-200 text-slate-700 text-sm font-semibold rounded-full"
+        >
+          v{{ version.version_number }}
+        </span>
+        <span class="text-xs text-slate-500">
+          {{ version.created_at|date:"d.m.Y H:i" }} Uhr
+        </span>
+      </div>
+
+      <div class="text-sm text-slate-600 mb-3">
+        {% if version.uploaded_by %} Hochgeladen von:
+        <strong>{{ version.uploaded_by.username }}</strong>
+        <br />
+        {% endif %} Größe: {{ version.size_bytes|filesizeformat }}
+        <br />
+        Typ: {{ version.content_type }}
+      </div>
+
+      {% if version.upload_comment %}
+      <div
+        class="text-sm text-slate-700 mb-3 p-3 bg-amber-50 border border-amber-200 rounded"
+      >
+        <strong>💬 Kommentar:</strong> {{ version.upload_comment }}
+      </div>
+      {% endif %}
+
+      <a
+        href="{% url 'portal_document_version_download' document.id version.version_number %}"
+        class="inline-flex items-center px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50"
+      >
+        📥 Version {{ version.version_number }} herunterladen
+      </a>
+    </div>
+  </div>
+  {% empty %}
+  <div
+    class="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center text-slate-500"
+  >
+    Keine älteren Versionen vorhanden.
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Info Box -->
+<div class="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+  <div class="text-sm text-blue-800">
+    <strong>ℹ️ Hinweis:</strong> Wenn Sie dieses Dokument erneut hochladen, wird
+    die aktuelle Version automatisch archiviert und eine neue Version (v{{
+    document.current_version|add:1 }}) erstellt.
+  </div>
+</div>
+
+{% endblock %}

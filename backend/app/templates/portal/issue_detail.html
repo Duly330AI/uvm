@@ -1,0 +1,173 @@
+{% extends "portal/base.html" %}
+{% block title %}{{ issue.ticket_no }}{% endblock %}
+{% block portal %}
+<div class="mb-4">
+  <h1 class="text-xl font-semibold mb-2">{{ issue.ticket_no }}</h1>
+  <div id="statusBadge">{% include "portal/partials/status_badge.html" with issue=issue %}</div>
+</div>
+
+<div class="grid md:grid-cols-3 gap-4">
+  <section class="bg-white border rounded-xl p-4 md:col-span-2">
+    <div class="font-medium mb-1">{{ issue.summary }}</div>
+
+    <!-- Objekt & Wohnung & Mieter (WICHTIG!) -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+      <div class="grid gap-1 text-sm">
+        {% if issue.unit %}
+        <div class="flex items-center gap-2">
+          <span class="text-blue-700 font-semibold">🏢 Objekt:</span>
+          <span class="text-gray-900">{{ issue.unit.property.name }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-blue-700 font-semibold">🚪 Wohnung:</span>
+          <span class="text-gray-900">{{ issue.unit.unit_label }}</span>
+          {% if issue.unit.property.street %}
+          <span class="text-gray-600">· {{ issue.unit.property.street }}, {{ issue.unit.property.postal_code }} {{ issue.unit.property.city }}</span>
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="text-gray-500">Keine Wohnung zugeordnet</div>
+        {% endif %}
+
+        {% if issue.tenant %}
+        <div class="flex items-center gap-2">
+          <span class="text-blue-700 font-semibold">👤 Mieter:</span>
+          <span class="text-gray-900">{{ issue.tenant.primary_email }}</span>
+          {% if issue.tenant.phone %}
+          <span class="text-gray-600">· {{ issue.tenant.phone }}</span>
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="text-gray-500">Kein Mieter zugeordnet</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="text-sm text-slate-600 mb-3">
+      Ort: {{ issue.location_hint|default:"—" }} · Schwere {{ issue.severity }} ·
+      Erstellt: {{ issue.created_at|date:"d.m.Y H:i" }}
+    </div>
+
+    {% if attachments %}
+    <div class="mb-4">
+      <h3 class="font-medium mb-2">Anhänge</h3>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+        {% for att in attachments %}
+          {% if att.mime|slice:":5" == "image" %}
+            <a href="{{ att.file.url }}" target="_blank" class="border rounded-lg overflow-hidden hover:opacity-80">
+              <img src="{{ att.file.url }}" alt="Anhang" class="w-full h-32 object-cover">
+            </a>
+          {% else %}
+            <a href="{{ att.file.url }}" target="_blank" class="border rounded-lg p-3 text-sm hover:bg-slate-50">
+              📎 {{ att.file.name|slice:"10:" }}
+            </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if vendor_uploads %}
+    <div class="mb-4">
+      <h3 class="font-medium mb-2">🔧 Handwerker-Dokumente</h3>
+      <div class="space-y-2">
+        {% for upload in vendor_uploads %}
+        <div class="border border-gray-200 rounded-lg p-3 flex items-center justify-between hover:bg-gray-50">
+          <div class="flex items-center gap-3">
+            <svg class="w-8 h-8 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+            </svg>
+            <div class="min-w-0">
+              <p class="font-medium text-gray-900">{{ upload.get_category_display }}</p>
+              <p class="text-sm text-gray-600">{{ upload.vendor.name }} · {{ upload.created_at|date:"d.m.Y H:i" }}</p>
+              {% if upload.notes %}
+              <p class="text-sm text-gray-500 mt-1 truncate">{{ upload.notes }}</p>
+              {% endif %}
+            </div>
+          </div>
+          <a href="{{ upload.file.url }}" target="_blank"
+             class="text-blue-600 hover:text-blue-800 text-sm font-medium whitespace-nowrap ml-4">
+            Download ↓
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <h2 class="font-medium mb-2">Notizen</h2>
+    <div id="notesList">{% include "portal/partials/notes_list.html" with notes=notes %}</div>
+
+    <form hx-post="{% url 'portal_issue_add_note' issue.id %}" hx-target="#notesList" hx-swap="outerHTML"
+          class="mt-3 grid gap-2">
+      <textarea name="text" rows="3" class="border rounded-lg px-3 py-2" placeholder="Notiz …"></textarea>
+      <label class="text-sm inline-flex items-center gap-2"><input type="checkbox" name="is_internal"> nur intern</label>
+      <button class="self-start px-3 py-2 rounded-lg bg-blue-600 text-white">Notiz speichern</button>
+    </form>
+  </section>
+
+  <aside class="space-y-4">
+    <section class="bg-white border rounded-xl p-4">
+      <h3 class="font-medium mb-2">Status ändern</h3>
+      <form hx-post="{% url 'portal_issue_set_status' issue.id %}" hx-target="#statusBadge" hx-swap="outerHTML" class="grid gap-2">
+        <select name="status" class="border rounded-lg px-3 py-2 text-sm">
+          {% for s in status_choices %}
+          <option value="{{ s }}" {% if issue.status == s %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+        <button class="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm">Setzen</button>
+      </form>
+    </section>
+
+    <section class="bg-white border rounded-xl p-4">
+      <h3 class="font-medium mb-2">Schnellzuweisung</h3>
+      <form hx-post="{% url 'portal_issue_assign_vendor' issue.id %}" hx-target="#apptsList" hx-swap="outerHTML" class="grid gap-2">
+        <select name="vendor_id" class="border rounded-lg px-3 py-2 text-sm w-full overflow-hidden">
+          {% for v in vendors %}<option value="{{ v.id }}" class="truncate">{{ v.trade }}</option>{% endfor %}
+        </select>
+        <button class="px-3 py-2 rounded-lg bg-emerald-600 text-white text-sm">Zuweisen (Termin +2 Tage)</button>
+      </form>
+      <div class="mt-3 text-sm">
+        <div class="font-medium mb-1">Zugewiesene Vendors:</div>
+        {% if appts %}
+          <ul class="space-y-1" id="assignedVendors">
+            {% for a in appts %}
+              {% if a.vendor %}
+                <li class="flex justify-between items-center">
+                  <span class="text-slate-600">✓ {{ a.vendor.name }} ({{ a.vendor.trade }})</span>
+                  <button
+                    hx-delete="{% url 'portal_appointment_delete' a.id %}"
+                    hx-target="closest li"
+                    hx-swap="outerHTML swap:0.5s"
+                    hx-confirm="Zuweisung von {{ a.vendor.name }} wirklich entfernen?"
+                    class="text-red-600 hover:text-red-800 text-xs ml-2"
+                    title="Zuweisung entfernen">
+                    ✕
+                  </button>
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="text-slate-400">Noch keine Zuweisung</div>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="bg-white border rounded-xl p-4">
+      <h3 class="font-medium mb-2">Termine (manuell)</h3>
+      <div id="apptsList">{% include "portal/partials/appointments_list.html" with appts=appts %}</div>
+      <form hx-post="{% url 'portal_issue_add_appt' issue.id %}" hx-target="#apptsList" hx-swap="outerHTML" class="grid gap-2 mt-2">
+        <select name="vendor_id" class="border rounded-lg px-3 py-2 text-sm truncate">
+          <option value="">Ohne Vendor</option>
+          {% for v in vendors %}<option value="{{ v.id }}">{{ v.name }}</option>{% endfor %}
+        </select>
+        <input type="datetime-local" name="start" class="border rounded-lg px-3 py-2 text-sm" placeholder="Start">
+        <input type="datetime-local" name="end" class="border rounded-lg px-3 py-2 text-sm" placeholder="Ende">
+        <button class="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm">Termin anlegen</button>
+      </form>
+    </section>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+# docker-compose.prod.yml
+# Production override für docker-compose.yml
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  web:
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.prod
+      - DEBUG=0
+      - SECURE_SSL_REDIRECT=1
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:?SECRET_KEY required}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-localhost}
+      - DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:8000}
+      - USE_S3=true
+      - AWS_ACCESS_KEY_ID=minio
+      - AWS_SECRET_ACCESS_KEY=minio123
+      - AWS_STORAGE_BUCKET_NAME=uvm-uploads
+      - AWS_S3_ENDPOINT_URL=http://minio:9000
+    command: gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 --workers 2 --access-logfile - --error-logfile -
+
+  worker:
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.prod
+      - DEBUG=0
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:?SECRET_KEY required}
+
+  beat:
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.prod
+      - DEBUG=0
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:?SECRET_KEY required}

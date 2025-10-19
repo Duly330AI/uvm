@@ -1,0 +1,211 @@
+{% extends "portal/base.html" %}
+{% block title %}Zahlungen{% endblock %}
+{% block portal %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-semibold">💰 Zahlungen</h1>
+  <button onclick="document.getElementById('uploadModal').classList.remove('hidden')"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+    📤 CSV importieren
+  </button>
+</div>
+
+<!-- CSV Upload Modal -->
+<div id="uploadModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl p-6 max-w-2xl w-full mx-4">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold">📤 Zahlungen CSV importieren</h2>
+      <button onclick="document.getElementById('uploadModal').classList.add('hidden')"
+              class="text-slate-400 hover:text-slate-600">✕</button>
+    </div>
+
+    <form method="post" action="{% url 'portal_payment_csv_upload' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-2">CSV-Datei</label>
+        <input type="file" name="csv_file" accept=".csv" required
+               class="w-full border rounded px-3 py-2">
+      </div>
+
+      <div class="bg-blue-50 border border-blue-200 rounded p-4 mb-4">
+        <div class="text-sm font-medium text-blue-800 mb-2">
+          📋 Erwartetes CSV-Format (Semikolon-getrennt):
+        </div>
+        <div class="text-xs text-blue-700 font-mono space-y-1">
+          <div>• Datum / Buchungstag / Valuta</div>
+          <div>• Betrag / Amount</div>
+          <div>• Verwendungszweck / Reference</div>
+          <div>• Auftraggeber / Sender</div>
+          <div>• IBAN (optional)</div>
+        </div>
+        <div class="text-xs text-blue-600 mt-2">
+          💡 Das System versucht automatisch, Zahlungen den richtigen Verträgen zuzuordnen.
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          Importieren
+        </button>
+        <button type="button"
+                onclick="document.getElementById('uploadModal').classList.add('hidden')"
+                class="px-4 py-2 border rounded-lg hover:bg-slate-50">
+          Abbrechen
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white border rounded-xl p-4 mb-6">
+  <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div>
+      <label class="block text-sm font-medium mb-1">Vertrag</label>
+      <select name="contract" class="w-full border rounded px-3 py-2">
+        <option value="">Alle Verträge</option>
+        {% for contract in contracts %}
+          <option value="{{ contract.id }}" {% if filters.contract|stringformat:"s" == contract.id|stringformat:"s" %}selected{% endif %}>
+            {{ contract.unit.unit_label }} - {{ contract.tenant.primary_email|truncatechars:25 }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Typ</label>
+      <select name="payment_type" class="w-full border rounded px-3 py-2">
+        <option value="">Alle Typen</option>
+        {% for value, label in payment_type_choices %}
+          <option value="{{ value }}" {% if filters.payment_type == value %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Status</label>
+      <select name="status" class="w-full border rounded px-3 py-2">
+        <option value="">Alle Status</option>
+        {% for value, label in status_choices %}
+          <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="flex items-end gap-2">
+      <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        Filtern
+      </button>
+      <a href="{% url 'portal_payments' %}" class="px-4 py-2 border rounded-lg hover:bg-slate-50">
+        Reset
+      </a>
+    </div>
+  </form>
+</div>
+
+<!-- Summary -->
+<div class="bg-gradient-to-r from-green-50 to-blue-50 border rounded-xl p-4 mb-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <div class="text-sm text-slate-600">Gesamtsumme (gefiltert)</div>
+      <div class="text-2xl font-bold text-green-600">€{{ total_amount|floatformat:2 }}</div>
+    </div>
+    <div class="text-sm text-slate-500">
+      {{ payments|length }} Zahlung{% if payments|length != 1 %}en{% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Payments Table -->
+<div class="bg-white border rounded-xl overflow-hidden">
+  <table class="w-full">
+    <thead class="bg-slate-50 border-b">
+      <tr>
+        <th class="text-left p-3 font-medium">Datum</th>
+        <th class="text-left p-3 font-medium">Vertrag</th>
+        <th class="text-left p-3 font-medium">Betrag</th>
+        <th class="text-left p-3 font-medium">Typ</th>
+        <th class="text-left p-3 font-medium">Status</th>
+        <th class="text-left p-3 font-medium">Referenz</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for payment in payments %}
+        <tr class="border-t hover:bg-slate-50">
+          <td class="p-3">
+            <div class="font-medium">{{ payment.transaction_date|date:"d.m.Y" }}</div>
+            {% if payment.csv_import_date %}
+              <div class="text-xs text-slate-400">
+                CSV: {{ payment.csv_import_date|date:"d.m.y H:i" }}
+              </div>
+            {% endif %}
+          </td>
+
+          <td class="p-3">
+            <a href="{% url 'portal_contract_detail' payment.contract.id %}"
+               class="text-blue-600 hover:underline">
+              {{ payment.contract.unit.unit_label }}
+            </a>
+            <div class="text-sm text-slate-500">
+              {{ payment.contract.tenant.primary_email|truncatechars:30 }}
+            </div>
+          </td>
+
+          <td class="p-3">
+            <div class="font-semibold text-lg text-green-600">
+              €{{ payment.amount|floatformat:2 }}
+            </div>
+          </td>
+
+          <td class="p-3">
+            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded">
+              {{ payment.get_payment_type_display }}
+            </span>
+          </td>
+
+          <td class="p-3">
+            {% if payment.status == 'received' %}
+              <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                ✓ {{ payment.get_status_display }}
+              </span>
+            {% elif payment.status == 'overdue' %}
+              <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">
+                ✗ {{ payment.get_status_display }}
+              </span>
+            {% else %}
+              <span class="px-2 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded-full">
+                {{ payment.get_status_display }}
+              </span>
+            {% endif %}
+          </td>
+
+          <td class="p-3">
+            {% if payment.reference %}
+              <div class="text-sm">{{ payment.reference|truncatechars:40 }}</div>
+            {% endif %}
+            {% if payment.sender_name %}
+              <div class="text-xs text-slate-500">{{ payment.sender_name|truncatechars:30 }}</div>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="6" class="p-8 text-center text-slate-500">
+            Keine Zahlungen gefunden.
+            <br><br>
+            <button onclick="document.getElementById('uploadModal').classList.remove('hidden')"
+                    class="text-blue-600 hover:underline">
+              📤 Jetzt CSV importieren
+            </button>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
