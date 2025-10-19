@@ -122,7 +122,7 @@ def utility_reading_create(request):
     context = {
         'units': units,
         'meter_types': UtilityReading.MeterType.choices,
-        'today': date.today()
+        'today': date.today().isoformat()  # ISO format for HTML5 date input
     }
     return render(request, 'portal/utility_reading_form.html', context)
 
