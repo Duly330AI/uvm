@@ -324,8 +324,8 @@ endblock %} {% block portal %}
             {% endif %}
           </div>
           <div class="text-xs text-slate-500 mt-1">
-            {{ payment.transaction_date|date:"d.m.Y" }} {% if payment.reference
-            %} • {{ payment.reference|truncatechars:40 }} {% endif %}
+            {{ payment.transaction_date|date:"d.m.Y" }}
+            {% if payment.reference %} • {{ payment.reference|truncatechars:40 }}{% endif %}
           </div>
         </div>
       </div>
@@ -338,11 +338,11 @@ endblock %} {% block portal %}
         href="{% url 'portal_payments' %}?contract={{ contract.id }}"
         class="text-sm text-blue-600 hover:underline"
       >
-        + {{ payments|length|add:"-5" }} weitere Zahlung{% if
-        payments|length|add:"-5" != 1 %}en{% endif %} anzeigen
+        + {{ payments|length|add:"-5" }} weitere Zahlung{% if payments|length|add:"-5" != 1 %}en{% endif %} anzeigen
       </a>
     </div>
-    {% endif %} {% else %}
+    {% endif %}
+    {% else %}
     <div class="text-center py-6 text-slate-500">
       <div class="text-3xl mb-2">💰</div>
       <div>Noch keine Zahlungen erfasst</div>
