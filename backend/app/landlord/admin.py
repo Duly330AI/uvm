@@ -320,3 +320,158 @@ class UtilityReadingAdmin(admin.ModelAdmin):
 			obj.recorded_by = request.user
 		super().save_model(request, obj, form, change)
 
+
+# ============================================================================
+# M16: CHECKLISTEN (HANDOVER PROTOCOLS)
+# ============================================================================
+
+@admin.register(models.ChecklistTemplate)
+class ChecklistTemplateAdmin(admin.ModelAdmin):
+	"""Admin für Checklisten-Vorlagen (M16)"""
+	list_display = (
+		"id",
+		"name",
+		"template_type",
+		"is_active",
+		"item_count",
+		"created_at"
+	)
+	list_filter = ("template_type", "is_active")
+	search_fields = ("name", "description")
+	readonly_fields = ("created_at", "updated_at")
+	
+	fieldsets = (
+		("Vorlage (M16)", {
+			"fields": ("name", "template_type", "description", "is_active")
+		}),
+		("Standard-Prüfpunkte (JSON)", {
+			"fields": ("default_items",),
+			"description": 'Format: [{"name": "Fenster", "category": "Wohnzimmer", "order": 1}]'
+		}),
+		("System", {
+			"fields": ("created_at", "updated_at"),
+			"classes": ("collapse",)
+		}),
+	)
+	
+	def item_count(self, obj):
+		"""Display number of default items"""
+		return len(obj.default_items) if obj.default_items else 0
+	item_count.short_description = "Anzahl Prüfpunkte"
+
+
+class ChecklistItemInline(admin.TabularInline):
+	"""Inline for Checklist Items"""
+	model = models.ChecklistItem
+	extra = 0
+	fields = ("category", "name", "order", "is_checked", "condition", "notes")
+	ordering = ("order", "category", "name")
+
+
+@admin.register(models.Checklist)
+class ChecklistAdmin(admin.ModelAdmin):
+	"""Admin für Checklisten (M16)"""
+	list_display = (
+		"id",
+		"title",
+		"unit",
+		"tenant",
+		"checklist_type",
+		"checklist_date",
+		"status",
+		"completion_display",
+		"conducted_by"
+	)
+	list_filter = (
+		"checklist_type",
+		"status",
+		"checklist_date",
+		"unit__property"
+	)
+	search_fields = (
+		"title",
+		"unit__unit_label",
+		"tenant__primary_email",
+		"general_notes"
+	)
+	autocomplete_fields = ["template", "unit", "tenant", "conducted_by"]
+	date_hierarchy = "checklist_date"
+	readonly_fields = ("completed_at", "created_at", "updated_at", "completion_percentage")
+	inlines = [ChecklistItemInline]
+	
+	fieldsets = (
+		("Checkliste (M16)", {
+			"fields": ("template", "title", "checklist_type", "checklist_date")
+		}),
+		("Zuordnung", {
+			"fields": ("unit", "tenant", "conducted_by")
+		}),
+		("Status", {
+			"fields": ("status", "completion_percentage", "completed_at")
+		}),
+		("Notizen", {
+			"fields": ("general_notes",)
+		}),
+		("System", {
+			"fields": ("created_at", "updated_at"),
+			"classes": ("collapse",)
+		}),
+	)
+	
+	def completion_display(self, obj):
+		"""Display completion percentage"""
+		percentage = obj.completion_percentage
+		if percentage == 100:
+			return f"✓ {percentage:.0f}%"
+		elif percentage > 0:
+			return f"⋯ {percentage:.0f}%"
+		else:
+			return f"○ {percentage:.0f}%"
+	completion_display.short_description = "Fortschritt"
+
+
+@admin.register(models.ChecklistItem)
+class ChecklistItemAdmin(admin.ModelAdmin):
+	"""Admin für einzelne Checklist-Items (M16)"""
+	list_display = (
+		"id",
+		"checklist",
+		"category",
+		"name",
+		"is_checked",
+		"condition",
+		"has_photo"
+	)
+	list_filter = (
+		"is_checked",
+		"condition",
+		"category",
+		"checklist__checklist_type"
+	)
+	search_fields = (
+		"name",
+		"category",
+		"notes",
+		"checklist__title"
+	)
+	autocomplete_fields = ["checklist"]
+	readonly_fields = ("created_at", "updated_at")
+	
+	fieldsets = (
+		("Prüfpunkt (M16)", {
+			"fields": ("checklist", "category", "name", "order")
+		}),
+		("Prüfung", {
+			"fields": ("is_checked", "condition", "notes", "photo")
+		}),
+		("System", {
+			"fields": ("created_at", "updated_at"),
+			"classes": ("collapse",)
+		}),
+	)
+	
+	def has_photo(self, obj):
+		"""Display if item has photo"""
+		return "📷 Ja" if obj.photo else "○ Nein"
+	has_photo.short_description = "Foto"
+

@@ -3,8 +3,8 @@
 ## Projekt-Roadmap & Feature-Status
 
 **Stand:** 19. Oktober 2025
-**Version:** 0.9.0 (Development - M14 Nebenkostenabrechnung Complete!)
-**Letzte Aktualisierung:** 19.10.2025 10:00 - **M14 NEBENKOSTENABRECHNUNG FERTIG!** ✅
+**Version:** 0.10.0 (Development - M16 Checklisten Complete!)
+**Letzte Aktualisierung:** 19.10.2025 12:00 - **M16 CHECKLISTEN FERTIG!** ✅
 
 ---
 
@@ -16,13 +16,14 @@ Das UVM-System ist eine **webbasierte Hausverwaltungssoftware** mit Fokus auf:
 - **Vermieter-Portal** (Verwaltung, Reports, KPIs)
 - **Handwerker-Integration** (Magic-Link, Aufträge)
 - **Nebenkostenabrechnung** (Zählerstand, Umlage, Export)
+- **Checklisten-System** (Einzug, Auszug, Wartung, PDF-Export)
 
-**Aktueller Fortschritt:** 32% Complete (24.5h / 76h)
-**Zeit-Effizienz:** 87% Zeitersparnis durch AI-Unterstützung! 🔥
+**Aktueller Fortschritt:** 38% Complete (36.5h / 96h)
+**Zeit-Effizienz:** 92% Zeitersparnis durch AI-Unterstützung! 🔥🔥🔥
 
 ---
 
-## ✅ IMPLEMENTIERTE FEATURES (M1-M10 + M11b + M12a/b + M14 + M17a + PR1-2)
+## ✅ IMPLEMENTIERTE FEATURES (M1-M10 + M11b + M12a/b + M14 + M16 + M17a + PR1-2)
 
 ### 🎫 **Ticketing & Kommunikation**
 

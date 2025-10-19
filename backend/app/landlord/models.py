@@ -820,3 +820,226 @@ class UtilityReading(TimeStampedModel):
         super().save(*args, **kwargs)
 
 
+# ============================================================================
+# M16: CHECKLISTEN (HANDOVER PROTOCOLS)
+# ============================================================================
+
+class ChecklistTemplate(TimeStampedModel):
+    """
+    Template für Checklisten (z.B. Einzug, Auszug, Wartung).
+    M16: Checklisten-System
+    """
+    
+    class TemplateType(models.TextChoices):
+        MOVE_IN = 'move_in', 'Einzugsprotokoll'
+        MOVE_OUT = 'move_out', 'Auszugsprotokoll'
+        INSPECTION = 'inspection', 'Wohnungsbesichtigung'
+        MAINTENANCE = 'maintenance', 'Wartungsprotokoll'
+        CUSTOM = 'custom', 'Benutzerdefiniert'
+    
+    name = models.CharField(
+        max_length=200,
+        help_text='Name der Vorlage (z.B. "Standard Einzugsprotokoll")'
+    )
+    template_type = models.CharField(
+        max_length=20,
+        choices=TemplateType.choices,
+        help_text='Art der Checkliste'
+    )
+    description = models.TextField(
+        blank=True,
+        help_text='Beschreibung und Verwendungszweck'
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Ist diese Vorlage aktiv?'
+    )
+    
+    # Template Items (stored as JSON for flexibility)
+    default_items = models.JSONField(
+        default=list,
+        help_text='Standard-Prüfpunkte als JSON Array: [{"name": "...", "category": "...", "order": 1}]'
+    )
+    
+    class Meta:
+        ordering = ['template_type', 'name']
+        indexes = [
+            models.Index(fields=['template_type', 'is_active']),
+        ]
+    
+    def __str__(self) -> str:
+        return f"{self.get_template_type_display()}: {self.name}"
+
+
+class Checklist(TimeStampedModel):
+    """
+    Konkrete Checkliste für eine Wohnung (erstellt aus Template).
+    M16: Checklisten-System
+    """
+    
+    class Status(models.TextChoices):
+        DRAFT = 'draft', 'Entwurf'
+        IN_PROGRESS = 'in_progress', 'In Bearbeitung'
+        COMPLETED = 'completed', 'Abgeschlossen'
+        ARCHIVED = 'archived', 'Archiviert'
+    
+    template = models.ForeignKey(
+        ChecklistTemplate,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='checklists',
+        help_text='Vorlage (optional, falls aus Template erstellt)'
+    )
+    unit = models.ForeignKey(
+        Unit,
+        on_delete=models.CASCADE,
+        related_name='checklists',
+        help_text='Wohnung für die diese Checkliste gilt'
+    )
+    tenant = models.ForeignKey(
+        Tenant,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='checklists',
+        help_text='Mieter (bei Ein-/Auszug)'
+    )
+    
+    # Checklist Info
+    title = models.CharField(
+        max_length=200,
+        help_text='Titel der Checkliste'
+    )
+    checklist_type = models.CharField(
+        max_length=20,
+        choices=ChecklistTemplate.TemplateType.choices,
+        help_text='Art der Checkliste'
+    )
+    checklist_date = models.DateField(
+        help_text='Datum der Begehung/Prüfung'
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.DRAFT
+    )
+    
+    # Participants
+    conducted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='conducted_checklists',
+        help_text='Durchgeführt von (Staff)'
+    )
+    
+    # Notes
+    general_notes = models.TextField(
+        blank=True,
+        help_text='Allgemeine Anmerkungen'
+    )
+    
+    # Completion
+    completed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text='Wann wurde die Checkliste abgeschlossen?'
+    )
+    
+    class Meta:
+        ordering = ['-checklist_date', '-created_at']
+        indexes = [
+            models.Index(fields=['unit', 'checklist_date']),
+            models.Index(fields=['status', 'checklist_date']),
+        ]
+    
+    def __str__(self) -> str:
+        return f"{self.title} - {self.unit.unit_label} ({self.checklist_date})"
+    
+    @property
+    def is_completed(self) -> bool:
+        """Is checklist completed?"""
+        return self.status == self.Status.COMPLETED
+    
+    @property
+    def completion_percentage(self) -> float:
+        """Calculate completion percentage based on checked items"""
+        total = self.items.count()
+        if total == 0:
+            return 0.0
+        checked = self.items.filter(is_checked=True).count()
+        return (checked / total) * 100
+
+
+class ChecklistItem(TimeStampedModel):
+    """
+    Einzelner Prüfpunkt in einer Checkliste.
+    M16: Checklisten-System
+    """
+    
+    class Condition(models.TextChoices):
+        EXCELLENT = 'excellent', 'Sehr gut'
+        GOOD = 'good', 'Gut'
+        FAIR = 'fair', 'Befriedigend'
+        POOR = 'poor', 'Schlecht'
+        DAMAGED = 'damaged', 'Beschädigt'
+        NOT_APPLICABLE = 'n/a', 'Nicht zutreffend'
+    
+    checklist = models.ForeignKey(
+        Checklist,
+        on_delete=models.CASCADE,
+        related_name='items',
+        help_text='Zugehörige Checkliste'
+    )
+    
+    # Item Info
+    category = models.CharField(
+        max_length=100,
+        help_text='Kategorie (z.B. "Küche", "Bad", "Wohnzimmer")'
+    )
+    name = models.CharField(
+        max_length=200,
+        help_text='Name des Prüfpunkts (z.B. "Herd", "Dusche", "Fenster")'
+    )
+    order = models.PositiveSmallIntegerField(
+        default=0,
+        help_text='Reihenfolge der Anzeige'
+    )
+    
+    # Check Status
+    is_checked = models.BooleanField(
+        default=False,
+        help_text='Wurde dieser Punkt geprüft?'
+    )
+    condition = models.CharField(
+        max_length=20,
+        choices=Condition.choices,
+        blank=True,
+        help_text='Zustand des geprüften Elements'
+    )
+    
+    # Details
+    notes = models.TextField(
+        blank=True,
+        help_text='Anmerkungen zu diesem Prüfpunkt'
+    )
+    photo = models.ImageField(
+        upload_to='checklists/%Y/%m/',
+        null=True,
+        blank=True,
+        help_text='Beweisfoto (optional)'
+    )
+    
+    class Meta:
+        ordering = ['checklist', 'order', 'category', 'name']
+        indexes = [
+            models.Index(fields=['checklist', 'order']),
+        ]
+    
+    def __str__(self) -> str:
+        status = "✓" if self.is_checked else "○"
+        return f"{status} {self.category}: {self.name}"
+
+

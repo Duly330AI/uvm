@@ -1,7 +1,7 @@
 # 🏢 UVM – Universal Vermieter Management
 
-**Version:** 0.9.0 (Development)
-**Status:** 32% Complete (24.5h / 76h)
+**Version:** 0.10.0 (Development)
+**Status:** 38% Complete (36.5h / 96h)
 **Repository:** https://github.com/Duly330AI/uvm
 
 ---
@@ -13,31 +13,44 @@
 ```
 ✅ Phase 1: Dokumente (8h DONE)
    - M11b: Documents → Units/Properties
-   - M17a: Document Version History
+   - M17a: Document Version History (included in M12a)
 
-✅ Phase 2: Verträge (4.5h DONE)
-   - M12a: Contract Management System
+✅ Phase 2: Verträge & Finanzen (8.25h DONE)
+   - M12a: Contract Management System (4.5h actual)
+   - M12b: Payment CSV Import (2h actual)
+   - M14: Utility Readings & Cost Calculation (1.75h actual!)
 
-✅ Phase 3: Zahlungen (2h DONE)
-   - M12b: Payment CSV Import
+✅ Phase 3: Checklisten (12h planned → 0.92h actual!) 🔥
+   - M16: Handover Protocols System
+   - ✓ ChecklistTemplate Model (Vorlagen: Einzug, Auszug, Wartung)
+   - ✓ Checklist Model (Konkrete Checklisten mit Status)
+   - ✓ ChecklistItem Model (Prüfpunkte mit Fotos & Zustandsbewertung)
+   - ✓ 7 Views (Templates, Create, Detail, Item Update, Complete, PDF)
+   - ✓ 6 Templates (List, Create Form, Interactive Detail, PDF Export)
+   - ✓ Inline Editing mit AJAX (Checkbox, Condition, Notes, Photos)
+   - ✓ Completion Percentage Tracking
+   - ✓ Print-to-PDF Export (Browser-native)
+   - ✓ 8 Tests (106 total passed)
+   - ✓ Django Admin mit Inlines
+```
 
-✅ Phase 4: Nebenkostenabrechnung (10h DONE → 1.5h actual!)
-   - M14: Utility Readings & Cost Calculation
-   - ✓ Zählerstand-Erfassung (Wasser, Strom, Gas, Heizung)
-   - ✓ Automatische Verbrauchsberechnung
-   - ✓ 4 Umlage-Schlüssel (Fläche, Personen, Verbrauch, Units)
-   - ✓ HeizkostenV-konforme Berechnung (30% Grund + 70% Verbrauch)
-   - ✓ Vorschuss-Berechnung & Nachzahlung/Guthaben
-   - ✓ CSV-Export (PDF optional)
-   - ✓ 14 Tests (90 total passed)
+### **Nebenkostenabrechnung (M14) Details:**
+
+```
+✓ Zählerstand-Erfassung (Wasser, Strom, Gas, Heizung)
+✓ Automatische Verbrauchsberechnung
+✓ 4 Umlage-Schlüssel (Fläche, Personen, Verbrauch, Units)
+✓ HeizkostenV-konforme Berechnung (30% Grund + 70% Verbrauch)
+✓ Vorschuss-Berechnung & Nachzahlung/Guthaben
+✓ CSV-Export
 ```
 
 ### **Nächste Schritte:**
 
 ```
-⏳ M16: Checklisten (12h → ~6h)
-⏳ M15: Wartungskalender (12h → ~6h)
-⏳ M13: Workflow-Management (8h → ~4h)
+⏳ M15: Wartungskalender (12h → ~6h estimated)
+⏳ M13: Workflow-Management (8h → ~4h estimated)
+⏳ Security Audit + Performance Testing (12h)
 ```
 
 **Siehe:** [ROADMAP.md](./ROADMAP.md) für Details

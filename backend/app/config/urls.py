@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import include, path
 from landlord import (
+    views_checklist,
     views_contracts,
     views_documents,
     views_payments,
@@ -104,6 +105,14 @@ urlpatterns = [
     path("portal/utility/readings/create", views_utility.utility_reading_create, name="portal_utility_reading_create"),
     path("portal/utility/calculation/", views_utility.utility_calculation_preview, name="portal_utility_calculation"),
     path("portal/utility/export/<int:property_id>/<str:start_date>/<str:end_date>/", views_utility.utility_billing_export, name="portal_utility_export"),
+    # Checklisten (M16)
+    path("portal/checklists/", views_checklist.checklists_list, name="portal_checklists"),
+    path("portal/checklists/templates/", views_checklist.checklist_templates_list, name="portal_checklist_templates"),
+    path("portal/checklists/create", views_checklist.checklist_create, name="portal_checklist_create"),
+    path("portal/checklists/<int:pk>/", views_checklist.checklist_detail, name="portal_checklist_detail"),
+    path("portal/checklists/<int:pk>/complete", views_checklist.checklist_complete, name="portal_checklist_complete"),
+    path("portal/checklists/<int:pk>/pdf", views_checklist.checklist_export_pdf, name="portal_checklist_pdf"),
+    path("portal/checklists/items/<int:pk>/update", views_checklist.checklist_item_update, name="portal_checklist_item_update"),
     # Reports & KPI (M9)
     path("portal/reports/", views_reports.reports_kpi, name="portal_reports"),
     path("portal/reports/export", views_reports.export_kpi_csv, name="portal_reports_export"),

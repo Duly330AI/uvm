@@ -1,0 +1,260 @@
+{% extends "portal/base.html" %}
+
+{% block title %}{{ checklist.title }} - M16{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <a href="{% url 'portal_checklists' %}" class="text-sm text-blue-600 hover:underline mb-2 inline-block">
+            ← Zurück zu Checklisten
+        </a>
+        
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{{ checklist.title }}</h1>
+                <div class="mt-2 flex items-center space-x-4 text-sm text-gray-600">
+                    <span>📅 {{ checklist.checklist_date }}</span>
+                    <span>🚪 {{ checklist.unit.unit_label }}</span>
+                    {% if checklist.tenant %}
+                    <span>👤 {{ checklist.tenant.primary_email }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="flex space-x-2">
+                {% if checklist.status != 'completed' %}
+                <a href="{% url 'portal_checklist_complete' checklist.id %}" 
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                    ✓ Abschließen
+                </a>
+                {% else %}
+                <a href="{% url 'portal_checklist_pdf' checklist.id %}" target="_blank"
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                    📄 PDF Export
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Status & Progress -->
+    <div class="bg-white shadow rounded-lg p-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div>
+                <div class="text-sm font-medium text-gray-500">Status</div>
+                <div class="mt-1">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                        {% if checklist.status == 'completed' %}bg-green-100 text-green-800
+                        {% elif checklist.status == 'in_progress' %}bg-blue-100 text-blue-800
+                        {% elif checklist.status == 'draft' %}bg-gray-100 text-gray-800
+                        {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                        {{ checklist.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            
+            <div>
+                <div class="text-sm font-medium text-gray-500">Typ</div>
+                <div class="mt-1 text-lg font-semibold text-gray-900">
+                    {% if checklist.checklist_type == 'move_in' %}🏠
+                    {% elif checklist.checklist_type == 'move_out' %}📦
+                    {% elif checklist.checklist_type == 'inspection' %}🔍
+                    {% elif checklist.checklist_type == 'maintenance' %}🔧
+                    {% else %}📋{% endif %}
+                    {{ checklist.get_checklist_type_display }}
+                </div>
+            </div>
+            
+            <div>
+                <div class="text-sm font-medium text-gray-500">Durchgeführt von</div>
+                <div class="mt-1 text-lg font-semibold text-gray-900">
+                    {{ checklist.conducted_by.username|default:"Nicht zugewiesen" }}
+                </div>
+            </div>
+            
+            <div>
+                <div class="text-sm font-medium text-gray-500">Fortschritt</div>
+                <div class="mt-1">
+                    <div class="text-2xl font-bold text-blue-600">
+                        {{ checklist.completion_percentage|floatformat:0 }}%
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        {{ checked_items }} von {{ total_items }} Punkte
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="mt-6">
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div class="bg-blue-600 h-3 rounded-full transition-all" 
+                     style="width: {{ checklist.completion_percentage }}%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checklist Items -->
+    {% for category, items in items_by_category.items %}
+    <div class="bg-white shadow rounded-lg mb-6">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h2 class="text-lg font-semibold text-gray-900">{{ category }}</h2>
+        </div>
+        
+        <div class="p-6">
+            <div class="space-y-4">
+                {% for item in items %}
+                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-start space-x-4">
+                        <!-- Checkbox -->
+                        <div class="flex-shrink-0 pt-1">
+                            <input type="checkbox" 
+                                   {% if item.is_checked %}checked{% endif %}
+                                   {% if checklist.status == 'completed' %}disabled{% endif %}
+                                   class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                   onchange="toggleItem({{ item.id }}, this.checked)">
+                        </div>
+                        
+                        <!-- Item Content -->
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-base font-medium text-gray-900 {% if item.is_checked %}line-through text-gray-500{% endif %}">
+                                        {{ item.name }}
+                                    </h3>
+                                    
+                                    {% if item.condition %}
+                                    <div class="mt-1">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                            {% if item.condition == 'excellent' %}bg-green-100 text-green-800
+                                            {% elif item.condition == 'good' %}bg-blue-100 text-blue-800
+                                            {% elif item.condition == 'fair' %}bg-yellow-100 text-yellow-800
+                                            {% elif item.condition == 'poor' %}bg-orange-100 text-orange-800
+                                            {% elif item.condition == 'damaged' %}bg-red-100 text-red-800
+                                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                            {{ item.get_condition_display }}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if item.notes %}
+                                    <p class="mt-2 text-sm text-gray-600">
+                                        💬 {{ item.notes }}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if item.photo %}
+                                <div class="ml-4">
+                                    <a href="{{ item.photo.url }}" target="_blank" class="block">
+                                        <img src="{{ item.photo.url }}" alt="{{ item.name }}" 
+                                             class="h-16 w-16 object-cover rounded-md border border-gray-300">
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            {% if checklist.status != 'completed' %}
+                            <!-- Quick Edit (collapsed by default) -->
+                            <div class="mt-3 border-t border-gray-200 pt-3" id="edit-{{ item.id }}" style="display: none;">
+                                <form action="{% url 'portal_checklist_item_update' item.id %}" method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-700">Zustand</label>
+                                            <select name="condition" class="mt-1 block w-full text-sm rounded-md border-gray-300">
+                                                <option value="">Nicht bewertet</option>
+                                                {% for value, label in item.Condition.choices %}
+                                                <option value="{{ value }}" {% if item.condition == value %}selected{% endif %}>
+                                                    {{ label }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-700">Notiz</label>
+                                            <input type="text" name="notes" value="{{ item.notes }}" 
+                                                   class="mt-1 block w-full text-sm rounded-md border-gray-300">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-700">Foto</label>
+                                            <input type="file" name="photo" accept="image/*" 
+                                                   class="mt-1 block w-full text-xs text-gray-500">
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="hidden" name="is_checked" value="{% if item.is_checked %}true{% else %}false{% endif %}">
+                                    
+                                    <div class="mt-3 flex justify-end space-x-2">
+                                        <button type="button" onclick="toggleEdit({{ item.id }})"
+                                                class="px-3 py-1 text-xs border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                            Abbrechen
+                                        </button>
+                                        <button type="submit"
+                                                class="px-3 py-1 text-xs border border-transparent rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                                            Speichern
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <button type="button" onclick="toggleEdit({{ item.id }})"
+                                    class="mt-2 text-xs text-blue-600 hover:text-blue-700">
+                                ✏️ Bearbeiten
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="bg-white shadow rounded-lg p-12 text-center">
+        <p class="text-gray-500 mb-4">Noch keine Prüfpunkte vorhanden.</p>
+        <p class="text-sm text-gray-400">Items können über den Django Admin hinzugefügt werden.</p>
+    </div>
+    {% endfor %}
+
+    <!-- General Notes -->
+    {% if checklist.general_notes %}
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Allgemeine Anmerkungen</h3>
+        <p class="text-gray-700">{{ checklist.general_notes }}</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function toggleItem(itemId, checked) {
+    fetch(`/portal/checklists/items/${itemId}/update`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: `is_checked=${checked}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Refresh page to update progress
+            location.reload();
+        }
+    });
+}
+
+function toggleEdit(itemId) {
+    const editDiv = document.getElementById(`edit-${itemId}`);
+    if (editDiv.style.display === 'none') {
+        editDiv.style.display = 'block';
+    } else {
+        editDiv.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}
