@@ -13,8 +13,7 @@ document.name }}{% endblock %}
   <div class="text-lg text-slate-700">{{ document.name }}</div>
   <div class="text-sm text-slate-500 mt-2">
     Kategorie: {{ document.get_category_display }} • {% if document.unit %} 🚪
-    {{ document.unit.unit_label }} @ {{ document.unit.property.name }} {% elif
-    document.property %} 🏢 {{ document.property.name }} {% elif document.tenant %} 👤 {{ document.tenant.primary_email }} {% endif %}
+    {{ document.unit.unit_label }} @ {{ document.unit.property.name }} {% elif     document.property %} 🏢 {{ document.property.name }} {% elif document.tenant %} 👤 {{ document.tenant.primary_email }} {% endif %}
   </div>
 </div>
 

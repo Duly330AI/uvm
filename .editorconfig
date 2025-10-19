@@ -1,0 +1,44 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# Top-most EditorConfig file
+root = true
+
+# All files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Python files
+[*.py]
+indent_style = space
+indent_size = 4
+
+# HTML/Django Templates - CRITICAL!
+[*.html]
+indent_style = space
+indent_size = 2
+# Prevent line wrapping in template tags
+max_line_length = 200
+# Keep template tags on single lines
+ij_html_do_not_indent_children_of_tag_list = html,body,thead,tbody,tfoot
+
+# JavaScript
+[*.js]
+indent_style = space
+indent_size = 2
+
+# JSON
+[*.json]
+indent_style = space
+indent_size = 2
+
+# YAML
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false

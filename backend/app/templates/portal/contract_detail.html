@@ -1,6 +1,5 @@
 {% extends "portal/base.html" %}
-{% block title %}Vertrag #{{ contract.id }}{%
-endblock %}
+{% block title %}Vertrag #{{ contract.id }}{% endblock %}
 {% block portal %}
 <div class="mb-4">
   <a href="{% url 'portal_contracts' %}" class="text-blue-600 hover:underline">
@@ -303,8 +302,7 @@ endblock %}
       <div>
         <div class="text-xs text-slate-500">Letzte Zahlung</div>
         <div class="font-semibold">
-          {% if payments.0 %} {{ payments.0.transaction_date|date:"d.m.Y" }} {%
-          else %} - {% endif %}
+          {% if payments.0 %} {{ payments.0.transaction_date|date:"d.m.Y" }} {% else %} - {% endif %}
         </div>
       </div>
     </div>
@@ -339,8 +337,7 @@ endblock %}
         href="{% url 'portal_payments' %}?contract={{ contract.id }}"
         class="text-sm text-blue-600 hover:underline"
       >
-        + {{ payments|length|add:"-5" }} weitere Zahlung{% if
-        payments|length|add:"-5" != 1 %}en{% endif %} anzeigen
+        + {{ payments|length|add:"-5" }} weitere Zahlung{% if         payments|length|add:"-5" != 1 %}en{% endif %} anzeigen
       </a>
     </div>
     {% endif %}

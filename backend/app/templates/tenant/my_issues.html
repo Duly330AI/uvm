@@ -1,7 +1,6 @@
 {% extends "_base_front.html" %}
 {% block title %}Meine Tickets{% endblock %}
-{%
-block header_right %}
+{% block header_right %}
 <nav class="flex gap-4 text-sm">
   <span class="text-slate-600">{{ tenant.primary_email }}</span>
   <a class="hover:underline" href="{% url 'chat_page' %}">Neue Meldung</a>

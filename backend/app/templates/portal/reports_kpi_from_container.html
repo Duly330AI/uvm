@@ -1,7 +1,6 @@
 {% extends "portal/base.html" %}
 {% block title %}Reports & KPI{% endblock %}
-{%
-block portal %}
+{% block portal %}
 <div class="flex justify-between items-center mb-4">
   <h1 class="text-2xl font-semibold">Reports & KPI</h1>
   <a
@@ -25,8 +24,7 @@ block portal %}
     <div class="text-sm text-slate-500 mb-1">├ÿ Zeit bis erste Reaktion</div>
     <div class="text-3xl font-bold">
       {% if avg_response_by_category %} {{
-      avg_response_by_category.0.avg_hours|floatformat:1 }}h {% else %} - {%
-      endif %}
+      avg_response_by_category.0.avg_hours|floatformat:1 }}h {% else %} - {% endif %}
     </div>
     <div class="text-sm text-slate-600 mt-1">Letzte 30 Tage</div>
   </div>
@@ -35,8 +33,7 @@ block portal %}
     <div class="text-sm text-slate-500 mb-1">├ÿ Zeit bis L├Âsung</div>
     <div class="text-3xl font-bold">
       {% if avg_resolution_by_severity %} {{
-      avg_resolution_by_severity.0.avg_hours|floatformat:1 }}h {% else %} - {%
-      endif %}
+      avg_resolution_by_severity.0.avg_hours|floatformat:1 }}h {% else %} - {% endif %}
     </div>
     <div class="text-sm text-slate-600 mt-1">Letzte 30 Tage</div>
   </div>
