@@ -29,8 +29,7 @@ class DocumentModelM11bTest(TestCase):
         self.tenant = Tenant.objects.create(
             unit=self.unit,
             primary_email="test@example.com",
-            first_name="Max",
-            last_name="Mustermann"
+            is_active=True
         )
 
     def test_document_create_with_property(self):
