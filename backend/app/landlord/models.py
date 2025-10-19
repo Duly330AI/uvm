@@ -545,6 +545,25 @@ class Contract(TimeStampedModel):
         db_index=True
     )
 
+    # M14: Nebenkostenabrechnung - Umlage-Schlüssel
+    class AllocationKey(models.TextChoices):
+        AREA = 'area', 'Nach Fläche (m²)'
+        PERSONS = 'persons', 'Nach Personenzahl'
+        CONSUMPTION = 'consumption', 'Nach Verbrauch'
+        UNITS = 'units', 'Nach Anzahl Wohnungen (gleichmäßig)'
+
+    allocation_key = models.CharField(
+        max_length=20,
+        choices=AllocationKey.choices,
+        default=AllocationKey.AREA,
+        help_text='Wie werden Nebenkosten umgelegt? (M14)'
+    )
+    occupants_count = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text='Anzahl der Bewohner (für Personen-Umlage, M14)'
+    )
+
     # Additional Info
     notes = models.TextField(
         blank=True,
@@ -695,5 +714,109 @@ class PaymentTransaction(TimeStampedModel):
         if self.due_date and self.status == self.Status.PENDING:
             return self.due_date < timezone.now().date()
         return False
+
+
+# ============================================================================
+# M14: NEBENKOSTENABRECHNUNG (UTILITY BILLING)
+# ============================================================================
+
+class UtilityReading(TimeStampedModel):
+    """
+    Zählerstand für Versorgungsleistungen (Strom, Wasser, Gas, Heizung).
+    M14: Nebenkostenabrechnung
+    """
+
+    class MeterType(models.TextChoices):
+        WATER_COLD = 'water_cold', 'Kaltwasser'
+        WATER_HOT = 'water_hot', 'Warmwasser'
+        ELECTRICITY = 'electricity', 'Strom'
+        GAS = 'gas', 'Gas'
+        HEATING = 'heating', 'Heizung'
+
+    unit = models.ForeignKey(
+        Unit,
+        on_delete=models.CASCADE,
+        related_name='utility_readings',
+        help_text='Wohnung für die der Zählerstand erfasst wird'
+    )
+    meter_type = models.CharField(
+        max_length=20,
+        choices=MeterType.choices,
+        help_text='Art des Zählers'
+    )
+    reading_date = models.DateField(
+        help_text='Datum der Ablesung'
+    )
+    meter_number = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text='Zählernummer (optional)'
+    )
+    current_value = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text='Aktueller Zählerstand'
+    )
+    previous_value = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text='Vorheriger Zählerstand (optional, wird automatisch gesetzt)'
+    )
+    consumption = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text='Verbrauch (current - previous, wird automatisch berechnet)'
+    )
+    notes = models.TextField(
+        blank=True,
+        help_text='Notizen zur Ablesung'
+    )
+    recorded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='utility_readings',
+        help_text='Wer hat den Zählerstand erfasst?'
+    )
+
+    class Meta:
+        ordering = ['-reading_date', '-created_at']
+        indexes = [
+            models.Index(fields=['unit', 'meter_type', 'reading_date']),
+            models.Index(fields=['reading_date']),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['unit', 'meter_type', 'reading_date'],
+                name='unique_reading_per_unit_type_date'
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.get_meter_type_display()} - {self.unit.unit_label} ({self.reading_date}): {self.current_value}"
+
+    def save(self, *args, **kwargs):
+        """Auto-calculate consumption if previous_value is set"""
+        if self.previous_value is not None:
+            self.consumption = self.current_value - self.previous_value
+
+        # Auto-set previous_value from last reading if not provided
+        if self.previous_value is None and self.pk is None:
+            last_reading = UtilityReading.objects.filter(
+                unit=self.unit,
+                meter_type=self.meter_type,
+                reading_date__lt=self.reading_date
+            ).order_by('-reading_date').first()
+
+            if last_reading:
+                self.previous_value = last_reading.current_value
+                self.consumption = self.current_value - self.previous_value
+
+        super().save(*args, **kwargs)
 
 

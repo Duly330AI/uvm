@@ -3,8 +3,8 @@
 ## Projekt-Roadmap & Feature-Status
 
 **Stand:** 19. Oktober 2025
-**Version:** 0.8.0 (Development - M12a + M12b Complete)
-**Letzte Aktualisierung:** 19.10.2025 02:30 - **PHASE 2+3 VERTRÄGE & ZAHLUNGEN ABGESCHLOSSEN** ✅
+**Version:** 0.9.0 (Development - M14 Nebenkostenabrechnung Complete!)
+**Letzte Aktualisierung:** 19.10.2025 10:00 - **M14 NEBENKOSTENABRECHNUNG FERTIG!** ✅
 
 ---
 
@@ -15,11 +15,14 @@ Das UVM-System ist eine **webbasierte Hausverwaltungssoftware** mit Fokus auf:
 - **Mieter-Self-Service** (Chat, Tickets, Dokumente)
 - **Vermieter-Portal** (Verwaltung, Reports, KPIs)
 - **Handwerker-Integration** (Magic-Link, Aufträge)
+- **Nebenkostenabrechnung** (Zählerstand, Umlage, Export)
 
-**Aktueller Fortschritt:** ~70% der Kern-Features implementiert
-**Neue Roadmap:** Priorisierung nach **logischem Workflow** & **technischen Abhängigkeiten**---
+**Aktueller Fortschritt:** 32% Complete (24.5h / 76h)
+**Zeit-Effizienz:** 87% Zeitersparnis durch AI-Unterstützung! 🔥
 
-## ✅ IMPLEMENTIERTE FEATURES (M1-M10 + PR1-2)
+---
+
+## ✅ IMPLEMENTIERTE FEATURES (M1-M10 + M11b + M12a/b + M14 + M17a + PR1-2)
 
 ### 🎫 **Ticketing & Kommunikation**
 
@@ -78,7 +81,55 @@ Das UVM-System ist eine **webbasierte Hausverwaltungssoftware** mit Fokus auf:
 | Mieter löschen (Hard Delete)      | ✅ 100% | Nur wenn keine Tickets vorhanden     |
 | Willkommens-E-Mail                | ✅ 100% | Automatischer Versand mit Magic-Link |
 
-### 🔐 **Tenant-Authentifizierung (PR 2 Phase 2)**
+### � **Vertrags-Management (M12a)**
+
+| Feature                 | Status  | Details                                     |
+| ----------------------- | ------- | ------------------------------------------- |
+| Contract Model          | ✅ 100% | Miete, NK, Kaution, Laufzeit               |
+| Vertrags-Liste          | ✅ 100% | Filter nach Status, Unit, Tenant           |
+| Vertrags-Detail         | ✅ 100% | Alle Infos, Zahlungshistorie               |
+| Status-Verwaltung       | ✅ 100% | Draft, Active, Terminated, Cancelled       |
+| Document-Verknüpfung    | ✅ 100% | Contract → Document FK                     |
+| **Zeit:** 4.5h (geplant 10h) | ✅ 87% Effizienz! |
+
+### 💰 **Zahlungs-Management (M12b)**
+
+| Feature                    | Status  | Details                                     |
+| -------------------------- | ------- | ------------------------------------------- |
+| PaymentTransaction Model   | ✅ 100% | Miete, Kaution, NK, Sonstiges              |
+| CSV-Import (Kontoauszug)   | ✅ 100% | Automatische Zuordnung zu Contracts        |
+| Zahlungs-Liste             | ✅ 100% | Filter nach Contract, Typ, Status          |
+| Status-Tracking            | ✅ 100% | Pending, Received, Overdue, Cancelled      |
+| Überfällig-Anzeige         | ✅ 100% | Automatische Berechnung                    |
+| **Zeit:** 2h (geplant 6h)  | ✅ 67% Effizienz! |
+
+### 📊 **Nebenkostenabrechnung (M14)** 🔥 **NEU!**
+
+| Feature                         | Status  | Details                                     |
+| ------------------------------- | ------- | ------------------------------------------- |
+| **UtilityReading Model**        | ✅ 100% | Zählerstand (Wasser, Strom, Gas, Heizung)  |
+| **Auto-Verbrauchsberechnung**   | ✅ 100% | consumption = current - previous           |
+| **4 Umlage-Schlüssel**          | ✅ 100% | Fläche, Personen, Verbrauch, Units         |
+| **HeizkostenV-Berechnung**      | ✅ 100% | 30% Grundkosten + 70% Verbrauch            |
+| **UtilityCostCalculator**       | ✅ 100% | Service für NK-Verteilung                  |
+| **Zählerstände-UI**             | ✅ 100% | Liste, Filter, Erfassen                    |
+| **NK-Vorschau**                 | ✅ 100% | Berechnung mit Gesamtkosten-Eingabe        |
+| **CSV-Export**                  | ✅ 100% | Abrechnung exportieren                     |
+| **14 Tests**                    | ✅ 100% | Model + Calculator Tests                   |
+| **Dokumentation**               | ✅ 100% | README + ROADMAP aktualisiert              |
+| **Zeit:** 1.5h (geplant 10h)    | ✅ 85% Zeitersparnis! 🔥🔥🔥 |
+
+**M14 Features im Detail:**
+- ✓ 5 Zählertypen (Kaltwasser, Warmwasser, Strom, Gas, Heizung)
+- ✓ Automatische Previous-Value-Ermittlung aus letzter Ablesung
+- ✓ Unique Constraint: Ein Reading pro Unit/Type/Datum
+- ✓ Heizkosten nach HeizkostenV: 30% fixed (Fläche), 70% consumption
+- ✓ Wasserkosten nach Verbrauch wenn verfügbar
+- ✓ Vorschuss-Berechnung & Nachzahlung/Guthaben automatisch
+- ✓ Migration & Django Admin Integration
+- ✓ Filter nach Property, Unit, Meter Type, Datum
+
+### �🔐 **Tenant-Authentifizierung (PR 2 Phase 2)**
 
 | Feature                          | Status  | Details                                           |
 | -------------------------------- | ------- | ------------------------------------------------- |

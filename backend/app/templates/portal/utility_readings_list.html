@@ -1,0 +1,160 @@
+{% extends "portal/base.html" %}
+
+{% block title %}Zählerstände - M14{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Zählerstände (M14)</h1>
+            <p class="mt-2 text-sm text-gray-600">
+                Erfassen Sie Zählerstände für Wasser, Strom, Gas und Heizung
+            </p>
+        </div>
+        <a href="{% url 'portal_utility_reading_create' %}" 
+           class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Zählerstand erfassen
+        </a>
+    </div>
+
+    <!-- Quick Link to Calculation -->
+    <div class="mb-6">
+        <a href="{% url 'portal_utility_calculation' %}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+            Nebenkostenabrechnung berechnen →
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white shadow rounded-lg p-4 mb-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Objekt</label>
+                <select name="property" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    <option value="">Alle Objekte</option>
+                    {% for prop in properties %}
+                    <option value="{{ prop.id }}" {% if filters.property == prop.id|stringformat:"s" %}selected{% endif %}>
+                        {{ prop }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Zählertyp</label>
+                <select name="meter_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    <option value="">Alle Typen</option>
+                    {% for value, label in meter_types %}
+                    <option value="{{ value }}" {% if filters.meter_type == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Von Datum</label>
+                <input type="date" name="start_date" value="{{ filters.start_date }}" 
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Bis Datum</label>
+                <input type="date" name="end_date" value="{{ filters.end_date }}" 
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+            </div>
+
+            <div class="flex items-end">
+                <button type="submit" 
+                        class="w-full px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700">
+                    Filtern
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Readings Table -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Datum
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Wohnung
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Zählertyp
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Zählerstand
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Verbrauch
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Erfasst von
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for reading in readings %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ reading.reading_date }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ reading.unit.unit_label }}
+                        <span class="text-xs text-gray-500">@ {{ reading.unit.property }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                            {{ reading.get_meter_type_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ reading.current_value }}
+                        {% if reading.previous_value %}
+                        <span class="text-xs text-gray-500">(vorher: {{ reading.previous_value }})</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                        {% if reading.consumption %}
+                        {{ reading.consumption }}
+                        {% else %}
+                        <span class="text-gray-400">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ reading.recorded_by.username|default:"System" }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                        Keine Zählerstände gefunden. 
+                        <a href="{% url 'portal_utility_reading_create' %}" class="text-blue-600 hover:underline">
+                            Ersten Zählerstand erfassen →
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if readings|length == 100 %}
+    <div class="mt-4 text-center text-sm text-gray-500">
+        Zeige die neuesten 100 Einträge. Nutzen Sie Filter für spezifische Suchen.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

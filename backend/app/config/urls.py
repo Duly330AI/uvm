@@ -11,6 +11,7 @@ from landlord import (
     views_public,
     views_reports,
     views_tenant,
+    views_utility,
     views_vendor,
 )
 from landlord.admin_views import issue_report
@@ -98,6 +99,11 @@ urlpatterns = [
     # Payments (M12b)
     path("portal/payments/", views_payments.payments_list, name="portal_payments"),
     path("portal/payments/upload", views_payments.payment_csv_upload, name="portal_payment_csv_upload"),
+    # Utility Billing (M14)
+    path("portal/utility/readings/", views_utility.utility_readings_list, name="portal_utility_readings"),
+    path("portal/utility/readings/create", views_utility.utility_reading_create, name="portal_utility_reading_create"),
+    path("portal/utility/calculation/", views_utility.utility_calculation_preview, name="portal_utility_calculation"),
+    path("portal/utility/export/<int:property_id>/<str:start_date>/<str:end_date>/", views_utility.utility_billing_export, name="portal_utility_export"),
     # Reports & KPI (M9)
     path("portal/reports/", views_reports.reports_kpi, name="portal_reports"),
     path("portal/reports/export", views_reports.export_kpi_csv, name="portal_reports_export"),

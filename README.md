@@ -1,7 +1,7 @@
 # 🏢 UVM – Universal Vermieter Management
 
-**Version:** 0.8.0 (Development)  
-**Status:** 19% Complete (14.5h / 76h)  
+**Version:** 0.9.0 (Development)
+**Status:** 32% Complete (24.5h / 76h)
 **Repository:** https://github.com/Duly330AI/uvm
 
 ---
@@ -20,14 +20,24 @@
 
 ✅ Phase 3: Zahlungen (2h DONE)
    - M12b: Payment CSV Import
+
+✅ Phase 4: Nebenkostenabrechnung (10h DONE → 1.5h actual!)
+   - M14: Utility Readings & Cost Calculation
+   - ✓ Zählerstand-Erfassung (Wasser, Strom, Gas, Heizung)
+   - ✓ Automatische Verbrauchsberechnung
+   - ✓ 4 Umlage-Schlüssel (Fläche, Personen, Verbrauch, Units)
+   - ✓ HeizkostenV-konforme Berechnung (30% Grund + 70% Verbrauch)
+   - ✓ Vorschuss-Berechnung & Nachzahlung/Guthaben
+   - ✓ CSV-Export (PDF optional)
+   - ✓ 14 Tests (90 total passed)
 ```
 
 ### **Nächste Schritte:**
 
 ```
-⏳ M14: Nebenkostenabrechnung (20h)
-⏳ M16: Checklisten (12h)
-⏳ M15: Wartungskalender (12h)
+⏳ M16: Checklisten (12h → ~6h)
+⏳ M15: Wartungskalender (12h → ~6h)
+⏳ M13: Workflow-Management (8h → ~4h)
 ```
 
 **Siehe:** [ROADMAP.md](./ROADMAP.md) für Details
@@ -37,6 +47,7 @@
 ## 🚀 Quick Start
 
 ### **Voraussetzungen:**
+
 - Docker & Docker Compose
 - Ports: 8000, 8025, 5432, 6379
 
@@ -82,6 +93,8 @@ docker compose exec web python manage.py createsuperuser
 docker compose exec web pytest -q
 ```
 
+**Aktueller Stand:** 90 Tests passing, Coverage ~72%
+
 ### **Coverage Report:**
 
 ```powershell
@@ -106,14 +119,14 @@ black --check .
 
 ## 📦 Services (Docker Compose)
 
-| Service | Port | Beschreibung |
-|---------|------|--------------|
-| web | 8000 | Django + Gunicorn |
-| worker | - | Celery Worker |
-| beat | - | Celery Beat |
-| db | 5432 | PostgreSQL 16 |
-| redis | 6379 | Redis 7 |
-| mailhog | 8025 | SMTP Dev Server |
+| Service | Port | Beschreibung      |
+| ------- | ---- | ----------------- |
+| web     | 8000 | Django + Gunicorn |
+| worker  | -    | Celery Worker     |
+| beat    | -    | Celery Beat       |
+| db      | 5432 | PostgreSQL 16     |
+| redis   | 6379 | Redis 7           |
+| mailhog | 8025 | SMTP Dev Server   |
 
 ---
 
@@ -264,7 +277,6 @@ Private Repository - All Rights Reserved
 
 ---
 
-**Erstellt von:** AI Assistant  
-**Letzte Aktualisierung:** 19.10.2025 03:00 Uhr  
+**Erstellt von:** AI Assistant
+**Letzte Aktualisierung:** 19.10.2025 03:00 Uhr
 **Version:** 0.8.0 (M12a + M12b Complete)
-

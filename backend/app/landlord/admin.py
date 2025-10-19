@@ -186,6 +186,10 @@ class ContractAdmin(admin.ModelAdmin):
 		("Finanzielle Konditionen", {
 			"fields": ("rent_amount", "additional_costs", "deposit_amount", "payment_day")
 		}),
+		("Nebenkostenabrechnung (M14)", {
+			"fields": ("allocation_key", "occupants_count"),
+			"description": "Umlage-Schlüssel für Nebenkosten-Verteilung"
+		}),
 		("Berechnete Felder (readonly)", {
 			"fields": ("total_rent", "is_active", "is_unlimited"),
 			"classes": ("collapse",)
@@ -261,4 +265,58 @@ class PaymentTransactionAdmin(admin.ModelAdmin):
 		"""Display if payment is overdue"""
 		return "✗ Überfällig" if obj.is_overdue else "✓ OK"
 	is_overdue.short_description = "Überfällig?"
+
+
+# ============================================================================
+# M14: NEBENKOSTENABRECHNUNG (UTILITY BILLING)
+# ============================================================================
+
+@admin.register(models.UtilityReading)
+class UtilityReadingAdmin(admin.ModelAdmin):
+	"""Admin für Zählerstände (M14)"""
+	list_display = (
+		"id",
+		"reading_date",
+		"unit",
+		"meter_type",
+		"current_value",
+		"previous_value",
+		"consumption",
+		"recorded_by"
+	)
+	list_filter = (
+		"meter_type",
+		"reading_date",
+		"unit__property"
+	)
+	search_fields = (
+		"unit__unit_label",
+		"meter_number",
+		"notes"
+	)
+	autocomplete_fields = ["unit", "recorded_by"]
+	date_hierarchy = "reading_date"
+	readonly_fields = ("consumption", "created_at", "updated_at")
+
+	fieldsets = (
+		("Zählerstand (M14)", {
+			"fields": ("unit", "meter_type", "reading_date", "meter_number")
+		}),
+		("Werte", {
+			"fields": ("current_value", "previous_value", "consumption")
+		}),
+		("Notizen", {
+			"fields": ("notes", "recorded_by")
+		}),
+		("System", {
+			"fields": ("created_at", "updated_at"),
+			"classes": ("collapse",)
+		}),
+	)
+
+	def save_model(self, request, obj, form, change):
+		"""Auto-set recorded_by to current user"""
+		if not obj.recorded_by:
+			obj.recorded_by = request.user
+		super().save_model(request, obj, form, change)
 
