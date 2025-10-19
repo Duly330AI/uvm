@@ -72,3 +72,6 @@ coverage.xml
 # Logs
 *.log
 logs/
+
+# Cookies & Session files (dev tools)
+cookies.txt

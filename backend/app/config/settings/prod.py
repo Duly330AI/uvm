@@ -1,11 +1,23 @@
 from .base import *  # noqa
 from . import base as _base
 import os
+import dj_database_url
 
 DEBUG = False
 
 # Set your production hosts via env DJANGO_ALLOWED_HOSTS (comma separated) or configure here
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",") if os.getenv("DJANGO_ALLOWED_HOSTS") else []
+
+# Database: Override with SSL enforcement in production
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL, 
+            conn_max_age=600, 
+            ssl_require=True  # Enforce SSL in production!
+        )
+    }
 
 # Security hardening placeholders
 SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "true").lower() in {"1","true","yes"}

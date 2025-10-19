@@ -191,7 +191,9 @@ if _hosts:
 # via environment variables when needed for staging/prod.
 if not DEBUG:
     SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = "Lax"  # Prevent CSRF attacks via cross-site requests
     CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_SAMESITE = "Lax"  # Additional CSRF protection
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = "DENY"
@@ -203,4 +205,6 @@ if not DEBUG:
 else:
     # Development-safe defaults
     SESSION_COOKIE_SECURE = False
+    SESSION_COOKIE_SAMESITE = "Lax"  # Still set SameSite in dev for consistency
     CSRF_COOKIE_SECURE = False
+    CSRF_COOKIE_SAMESITE = "Lax"
