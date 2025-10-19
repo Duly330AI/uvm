@@ -87,7 +87,7 @@ class Migration(migrations.Migration):
             model_name='document',
             index=models.Index(fields=['valid_from', 'valid_to'], name='landlord_do_valid_idx'),
         ),
-        
+
         # Create DocumentVersion model
         migrations.CreateModel(
             name='DocumentVersion',
