@@ -1,153 +1,209 @@
-{% extends "portal/base.html" %}
-
-{% block title %}Neue Checkliste - M16{% endblock %}
-
-{% block content %}
+{% extends "portal/base.html" %} {% block title %}Neue Checkliste - M16{%
+endblock %} {% block content %}
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Header -->
-    <div class="mb-8">
-        <a href="{% url 'portal_checklists' %}" class="text-sm text-blue-600 hover:underline mb-2 inline-block">
-            ← Zurück zu Checklisten
-        </a>
-        <h1 class="text-3xl font-bold text-gray-900">Neue Checkliste erstellen (M16)</h1>
-        <p class="mt-2 text-sm text-gray-600">
-            Wähle eine Vorlage oder erstelle eine leere Checkliste
-        </p>
+  <!-- Header -->
+  <div class="mb-8">
+    <a
+      href="{% url 'portal_checklists' %}"
+      class="text-sm text-blue-600 hover:underline mb-2 inline-block"
+    >
+      ← Zurück zu Checklisten
+    </a>
+    <h1 class="text-3xl font-bold text-gray-900">
+      Neue Checkliste erstellen (M16)
+    </h1>
+    <p class="mt-2 text-sm text-gray-600">
+      Wähle eine Vorlage oder erstelle eine leere Checkliste
+    </p>
+  </div>
+
+  <!-- Form -->
+  <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-6">
+    {% csrf_token %}
+
+    <!-- Template Selection -->
+    <div class="border-b border-gray-200 pb-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">
+        Vorlage wählen (optional)
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Vorlage</label
+          >
+          <select
+            name="template"
+            id="template-select"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="">Keine Vorlage (leere Checkliste)</option>
+            {% for template in templates %}
+            <option
+              value="{{ template.id }}"
+              data-type="{{ template.template_type }}"
+            >
+              {{ template.name }} ({{ template.default_items|length }} Punkte)
+            </option>
+            {% endfor %}
+          </select>
+          <p class="mt-1 text-xs text-gray-500">
+            Vorlagen erstellen automatisch Prüfpunkte
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Checklisten-Typ *</label
+          >
+          <select
+            name="checklist_type"
+            id="type-select"
+            required
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            {% for value, label in types %}
+            <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
     </div>
 
-    <!-- Form -->
-    <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-6">
-        {% csrf_token %}
-        
-        <!-- Template Selection -->
-        <div class="border-b border-gray-200 pb-6">
-            <h2 class="text-lg font-medium text-gray-900 mb-4">Vorlage wählen (optional)</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Vorlage</label>
-                    <select name="template" id="template-select" 
-                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value="">Keine Vorlage (leere Checkliste)</option>
-                        {% for template in templates %}
-                        <option value="{{ template.id }}" data-type="{{ template.template_type }}">
-                            {{ template.name }} ({{ template.default_items|length }} Punkte)
-                        </option>
-                        {% endfor %}
-                    </select>
-                    <p class="mt-1 text-xs text-gray-500">
-                        Vorlagen erstellen automatisch Prüfpunkte
-                    </p>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Checklisten-Typ *</label>
-                    <select name="checklist_type" id="type-select" required
-                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        {% for value, label in types %}
-                        <option value="{{ value }}">{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
+    <!-- Basic Info -->
+    <div class="space-y-4">
+      <h2 class="text-lg font-medium text-gray-900">Basis-Informationen</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Titel *</label>
+          <input
+            type="text"
+            name="title"
+            required
+            placeholder="z.B. Einzug Wohnung A1 - Max Mustermann"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          />
         </div>
 
-        <!-- Basic Info -->
-        <div class="space-y-4">
-            <h2 class="text-lg font-medium text-gray-900">Basis-Informationen</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Titel *</label>
-                    <input type="text" name="title" required
-                           placeholder="z.B. Einzug Wohnung A1 - Max Mustermann"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Datum *</label>
-                    <input type="date" name="checklist_date" value="{{ today }}" required
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                </div>
-            </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Datum *</label>
+          <input
+            type="date"
+            name="checklist_date"
+            value="{{ today }}"
+            required
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Assignment -->
+    <div class="space-y-4">
+      <h2 class="text-lg font-medium text-gray-900">Zuordnung</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700"
+            >Wohnung *</label
+          >
+          <select
+            name="unit"
+            required
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="">Wohnung wählen...</option>
+            {% for unit in units %}
+            <option value="{{ unit.id }}">
+              {{ unit.unit_label }} - {{ unit.property }}
+            </option>
+            {% endfor %}
+          </select>
         </div>
 
-        <!-- Assignment -->
-        <div class="space-y-4">
-            <h2 class="text-lg font-medium text-gray-900">Zuordnung</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Wohnung *</label>
-                    <select name="unit" required
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value="">Wohnung wählen...</option>
-                        {% for unit in units %}
-                        <option value="{{ unit.id }}">
-                            {{ unit.unit_label }} - {{ unit.property }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Mieter (optional)</label>
-                    <select name="tenant"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value="">Kein Mieter zugeordnet</option>
-                        {% for tenant in tenants %}
-                        <option value="{{ tenant.id }}">
-                            {{ tenant.primary_email }} ({{ tenant.unit.unit_label }})
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700"
+            >Mieter (optional)</label
+          >
+          <select
+            name="tenant"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="">Kein Mieter zugeordnet</option>
+            {% for tenant in tenants %}
+            <option value="{{ tenant.id }}">
+              {{ tenant.primary_email }} ({{ tenant.unit.unit_label }})
+            </option>
+            {% endfor %}
+          </select>
         </div>
+      </div>
+    </div>
 
-        <!-- Info Box -->
-        <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <h3 class="text-sm font-medium text-blue-800">Hinweis</h3>
-                    <div class="mt-2 text-sm text-blue-700">
-                        <ul class="list-disc list-inside space-y-1">
-                            <li>Wenn du eine Vorlage wählst, werden automatisch Prüfpunkte erstellt</li>
-                            <li>Du kannst nach dem Erstellen weitere Punkte hinzufügen oder bearbeiten</li>
-                            <li>Fotos können bei jedem Prüfpunkt hochgeladen werden</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+    <!-- Info Box -->
+    <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg
+            class="h-5 w-5 text-blue-400"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
         </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-blue-800">Hinweis</h3>
+          <div class="mt-2 text-sm text-blue-700">
+            <ul class="list-disc list-inside space-y-1">
+              <li>
+                Wenn du eine Vorlage wählst, werden automatisch Prüfpunkte
+                erstellt
+              </li>
+              <li>
+                Du kannst nach dem Erstellen weitere Punkte hinzufügen oder
+                bearbeiten
+              </li>
+              <li>Fotos können bei jedem Prüfpunkt hochgeladen werden</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <!-- Actions -->
-        <div class="flex justify-end space-x-3 pt-4">
-            <a href="{% url 'portal_checklists' %}" 
-               class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                Abbrechen
-            </a>
-            <button type="submit" 
-                    class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                Checkliste erstellen →
-            </button>
-        </div>
-    </form>
+    <!-- Actions -->
+    <div class="flex justify-end space-x-3 pt-4">
+      <a
+        href="{% url 'portal_checklists' %}"
+        class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+      >
+        Abbrechen
+      </a>
+      <button
+        type="submit"
+        class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      >
+        Checkliste erstellen →
+      </button>
+    </div>
+  </form>
 </div>
 
 <script>
-// Auto-sync template type with checklist_type
-document.getElementById('template-select').addEventListener('change', function() {
-    const selectedOption = this.options[this.selectedIndex];
-    const templateType = selectedOption.getAttribute('data-type');
-    if (templateType) {
-        document.getElementById('type-select').value = templateType;
-    }
-});
+  // Auto-sync template type with checklist_type
+  document
+    .getElementById("template-select")
+    .addEventListener("change", function () {
+      const selectedOption = this.options[this.selectedIndex];
+      const templateType = selectedOption.getAttribute("data-type");
+      if (templateType) {
+        document.getElementById("type-select").value = templateType;
+      }
+    });
 </script>
 {% endblock %}

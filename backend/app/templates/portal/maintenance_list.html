@@ -1,0 +1,167 @@
+{% extends "portal/base.html" %}
+{% load static %}
+
+{% block title %}Wartungskalender - UVM{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">🔧 Wartungskalender</h1>
+            <p class="text-gray-600 mt-1">Geplante Wartungsaufgaben & Inspektionen</p>
+        </div>
+        <a href="{% url 'portal_maintenance_create' %}"
+           class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition flex items-center gap-2">
+            <span>➕</span> Neue Wartung
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select name="status" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                    <option value="">Alle</option>
+                    {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Kategorie</label>
+                <select name="category" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                    <option value="">Alle</option>
+                    {% for value, label in categories %}
+                    <option value="{{ value }}" {% if filters.category == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Objekt</label>
+                <select name="property" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                    <option value="">Alle</option>
+                    {% for prop in properties %}
+                    <option value="{{ prop.id }}" {% if filters.property == prop.id|stringformat:"s" %}selected{% endif %}>{{ prop }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="flex items-end">
+                <button type="submit" class="w-full bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg">
+                    🔍 Filtern
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Items List -->
+    {% if items %}
+    <div class="space-y-4">
+        {% for item in items %}
+        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition overflow-hidden {% if item.is_overdue_flag %}border-l-4 border-red-500{% endif %}">
+            <div class="p-6">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <h3 class="text-xl font-bold text-gray-900">{{ item.title }}</h3>
+
+                            <!-- Status Badge -->
+                            {% if item.status == 'pending' %}
+                                {% if item.is_overdue_flag %}
+                                <span class="bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full font-semibold">
+                                    ⚠️ ÜBERFÄLLIG
+                                </span>
+                                {% else %}
+                                <span class="bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full font-semibold">
+                                    ⏳ Ausstehend
+                                </span>
+                                {% endif %}
+                            {% elif item.status == 'completed' %}
+                            <span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-semibold">
+                                ✓ Erledigt
+                            </span>
+                            {% elif item.status == 'cancelled' %}
+                            <span class="bg-gray-100 text-gray-800 text-xs px-3 py-1 rounded-full font-semibold">
+                                ✗ Abgebrochen
+                            </span>
+                            {% endif %}
+
+                            <!-- Category Badge -->
+                            <span class="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded">
+                                {{ item.get_category_display }}
+                            </span>
+                        </div>
+
+                        {% if item.description %}
+                        <p class="text-gray-600 mb-3">{{ item.description|truncatewords:30 }}</p>
+                        {% endif %}
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-500">📅 Fällig:</span>
+                                <span class="font-semibold {% if item.is_overdue_flag %}text-red-600{% else %}text-gray-900{% endif %}">
+                                    {{ item.due_date|date:"d.m.Y" }}
+                                </span>
+                            </div>
+
+                            <div>
+                                <span class="text-gray-500">📍 Ort:</span>
+                                <span class="text-gray-900 font-medium">
+                                    {% if item.property %}
+                                        🏠 {{ item.property }}
+                                    {% elif item.unit %}
+                                        🚪 {{ item.unit }}
+                                    {% else %}
+                                        Allgemein
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            {% if item.assigned_to %}
+                            <div>
+                                <span class="text-gray-500">👤 Zuständig:</span>
+                                <span class="text-gray-900">{{ item.assigned_to.get_full_name|default:item.assigned_to.username }}</span>
+                            </div>
+                            {% endif %}
+
+                            {% if item.estimated_cost %}
+                            <div>
+                                <span class="text-gray-500">💰 Kosten:</span>
+                                <span class="text-gray-900 font-medium">~€{{ item.estimated_cost }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <a href="{% url 'portal_maintenance_detail' item.id %}"
+                       class="ml-4 text-blue-600 hover:text-blue-800 font-semibold">
+                        Details →
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-gray-50 rounded-lg p-12 text-center">
+        <div class="text-6xl mb-4">🔧</div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">Keine Wartungsaufgaben gefunden</h3>
+        <p class="text-gray-600 mb-6">
+            {% if filters.status or filters.category or filters.property %}
+            Versuchen Sie andere Filter oder
+            {% else %}
+            Erstellen Sie die erste Wartungsaufgabe
+            {% endif %}
+        </p>
+        <a href="{% url 'portal_maintenance_create' %}"
+           class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+            ➕ Neue Wartung erstellen
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

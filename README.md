@@ -1,7 +1,7 @@
 # 🏢 UVM – Universal Vermieter Management
 
-**Version:** 0.10.0 (Development)
-**Status:** 38% Complete (36.5h / 96h)
+**Version:** 0.11.0 (Development)
+**Status:** 44% Complete (37.25h / 84h)
 **Repository:** https://github.com/Duly330AI/uvm
 
 ---
@@ -32,6 +32,21 @@
    - ✓ Print-to-PDF Export (Browser-native)
    - ✓ 8 Tests (106 total passed)
    - ✓ Django Admin mit Inlines
+
+✅ Phase 4: Wartungskalender (12h planned → 0.75h actual!) 🔥🔥🔥
+   - M15: Maintenance Calendar System
+   - ✓ MaintenanceItem Model (Simplified, no recurring)
+   - ✓ 6 Categories (Rauchmelder, Heizung, Aufzug, Feuerlöscher, Begehung, Sonstiges)
+   - ✓ 3 Status (Pending, Completed, Cancelled)
+   - ✓ Property OR Unit Assignment
+   - ✓ Due Date Tracking + Overdue Detection
+   - ✓ Cost Tracking (Estimated vs Actual)
+   - ✓ Staff Assignment + Completion Tracking
+   - ✓ 6 Views (List with Filters, Create, Detail, Complete, Edit, Delete)
+   - ✓ 6 Templates (Responsive UI with Overdue Warnings)
+   - ✓ Django Admin with Custom Display
+   - ✓ 11 Tests (109 total passed)
+   - ✓ Migration 0015
 ```
 
 ### **Nebenkostenabrechnung (M14) Details:**
@@ -48,7 +63,7 @@
 ### **Nächste Schritte:**
 
 ```
-⏳ M15: Wartungskalender (12h → ~6h estimated)
+⏳ M13: Workflow-Management (8h → ~4h estimated)
 ⏳ M13: Workflow-Management (8h → ~4h estimated)
 ⏳ Security Audit + Performance Testing (12h)
 ```

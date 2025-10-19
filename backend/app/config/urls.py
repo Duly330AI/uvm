@@ -7,6 +7,7 @@ from landlord import (
     views_checklist,
     views_contracts,
     views_documents,
+    views_maintenance,
     views_payments,
     views_portal,
     views_public,
@@ -113,6 +114,13 @@ urlpatterns = [
     path("portal/checklists/<int:pk>/complete", views_checklist.checklist_complete, name="portal_checklist_complete"),
     path("portal/checklists/<int:pk>/pdf", views_checklist.checklist_export_pdf, name="portal_checklist_pdf"),
     path("portal/checklists/items/<int:pk>/update", views_checklist.checklist_item_update, name="portal_checklist_item_update"),
+    # M15: Wartungskalender
+    path("portal/maintenance/", views_maintenance.maintenance_list, name="portal_maintenance_list"),
+    path("portal/maintenance/create", views_maintenance.maintenance_create, name="portal_maintenance_create"),
+    path("portal/maintenance/<int:pk>/", views_maintenance.maintenance_detail, name="portal_maintenance_detail"),
+    path("portal/maintenance/<int:pk>/complete", views_maintenance.maintenance_complete, name="portal_maintenance_complete"),
+    path("portal/maintenance/<int:pk>/edit", views_maintenance.maintenance_edit, name="portal_maintenance_edit"),
+    path("portal/maintenance/<int:pk>/delete", views_maintenance.maintenance_delete, name="portal_maintenance_delete"),
     # Reports & KPI (M9)
     path("portal/reports/", views_reports.reports_kpi, name="portal_reports"),
     path("portal/reports/export", views_reports.export_kpi_csv, name="portal_reports_export"),

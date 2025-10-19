@@ -1,203 +1,253 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>{{ checklist.title }} - Übergabeprotokoll</title>
     <style>
-        @media print {
-            body { margin: 0; padding: 20px; }
-            .no-print { display: none; }
-        }
+      @media print {
         body {
-            font-family: Arial, sans-serif;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px;
-            color: #333;
-        }
-        header {
-            border-bottom: 3px solid #2563eb;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-        h1 { color: #1f2937; margin: 0 0 10px 0; }
-        .meta { color: #6b7280; font-size: 14px; margin-bottom: 5px; }
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin: 30px 0;
-            padding: 20px;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-        }
-        .info-item { margin-bottom: 10px; }
-        .info-label { font-weight: bold; color: #4b5563; }
-        .category {
-            margin-top: 30px;
-            page-break-inside: avoid;
-        }
-        .category-title {
-            background: #2563eb;
-            color: white;
-            padding: 10px 15px;
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        .item {
-            border: 1px solid #e5e7eb;
-            padding: 15px;
-            margin-bottom: 10px;
-            page-break-inside: avoid;
-        }
-        .item-name {
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        .item-checked { color: #059669; }
-        .item-unchecked { color: #dc2626; }
-        .item-condition {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-        .condition-excellent { background: #d1fae5; color: #065f46; }
-        .condition-good { background: #dbeafe; color: #1e40af; }
-        .condition-fair { background: #fef3c7; color: #92400e; }
-        .condition-poor { background: #fed7aa; color: #9a3412; }
-        .condition-damaged { background: #fecaca; color: #991b1b; }
-        .notes {
-            color: #6b7280;
-            font-style: italic;
-            margin-top: 5px;
-        }
-        .signatures {
-            margin-top: 50px;
-            page-break-inside: avoid;
-        }
-        .signature-box {
-            border-top: 2px solid #000;
-            margin-top: 60px;
-            padding-top: 10px;
-        }
-        footer {
-            margin-top: 50px;
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
-            text-align: center;
-            color: #6b7280;
-            font-size: 12px;
+          margin: 0;
+          padding: 20px;
         }
         .no-print {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #2563eb;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          display: none;
         }
-        .no-print:hover { background: #1d4ed8; }
+      }
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px;
+        color: #333;
+      }
+      header {
+        border-bottom: 3px solid #2563eb;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+      }
+      h1 {
+        color: #1f2937;
+        margin: 0 0 10px 0;
+      }
+      .meta {
+        color: #6b7280;
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 30px 0;
+        padding: 20px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+      }
+      .info-item {
+        margin-bottom: 10px;
+      }
+      .info-label {
+        font-weight: bold;
+        color: #4b5563;
+      }
+      .category {
+        margin-top: 30px;
+        page-break-inside: avoid;
+      }
+      .category-title {
+        background: #2563eb;
+        color: white;
+        padding: 10px 15px;
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+      .item {
+        border: 1px solid #e5e7eb;
+        padding: 15px;
+        margin-bottom: 10px;
+        page-break-inside: avoid;
+      }
+      .item-name {
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+      .item-checked {
+        color: #059669;
+      }
+      .item-unchecked {
+        color: #dc2626;
+      }
+      .item-condition {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        margin-bottom: 5px;
+      }
+      .condition-excellent {
+        background: #d1fae5;
+        color: #065f46;
+      }
+      .condition-good {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+      .condition-fair {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .condition-poor {
+        background: #fed7aa;
+        color: #9a3412;
+      }
+      .condition-damaged {
+        background: #fecaca;
+        color: #991b1b;
+      }
+      .notes {
+        color: #6b7280;
+        font-style: italic;
+        margin-top: 5px;
+      }
+      .signatures {
+        margin-top: 50px;
+        page-break-inside: avoid;
+      }
+      .signature-box {
+        border-top: 2px solid #000;
+        margin-top: 60px;
+        padding-top: 10px;
+      }
+      footer {
+        margin-top: 50px;
+        padding-top: 20px;
+        border-top: 1px solid #e5e7eb;
+        text-align: center;
+        color: #6b7280;
+        font-size: 12px;
+      }
+      .no-print {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #2563eb;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .no-print:hover {
+        background: #1d4ed8;
+      }
     </style>
-</head>
-<body>
-    <button class="no-print" onclick="window.print()">🖨️ Drucken / PDF speichern</button>
-    
+  </head>
+  <body>
+    <button class="no-print" onclick="window.print()">
+      🖨️ Drucken / PDF speichern
+    </button>
+
     <header>
-        <h1>{{ checklist.title }}</h1>
-        <div class="meta">
-            <div>📅 Datum: {{ checklist.checklist_date }}</div>
-            <div>🏠 Typ: {{ checklist.get_checklist_type_display }}</div>
-            <div>🚪 Wohnung: {{ checklist.unit.unit_label }} ({{ checklist.unit.property }})</div>
-            {% if checklist.tenant %}
-            <div>👤 Mieter: {{ checklist.tenant.primary_email }}</div>
-            {% endif %}
-            {% if checklist.conducted_by %}
-            <div>✍️ Durchgeführt von: {{ checklist.conducted_by.get_full_name|default:checklist.conducted_by.username }}</div>
-            {% endif %}
+      <h1>{{ checklist.title }}</h1>
+      <div class="meta">
+        <div>📅 Datum: {{ checklist.checklist_date }}</div>
+        <div>🏠 Typ: {{ checklist.get_checklist_type_display }}</div>
+        <div>
+          🚪 Wohnung: {{ checklist.unit.unit_label }} ({{
+          checklist.unit.property }})
         </div>
+        {% if checklist.tenant %}
+        <div>👤 Mieter: {{ checklist.tenant.primary_email }}</div>
+        {% endif %} {% if checklist.conducted_by %}
+        <div>
+          ✍️ Durchgeführt von: {{
+          checklist.conducted_by.get_full_name|default:checklist.conducted_by.username
+          }}
+        </div>
+        {% endif %}
+      </div>
     </header>
 
     <div class="info-grid">
-        <div>
-            <div class="info-item">
-                <span class="info-label">Status:</span> {{ checklist.get_status_display }}
-            </div>
-            <div class="info-item">
-                <span class="info-label">Abgeschlossen am:</span> 
-                {{ checklist.completed_at|date:"d.m.Y H:i"|default:"Noch nicht abgeschlossen" }}
-            </div>
+      <div>
+        <div class="info-item">
+          <span class="info-label">Status:</span> {{
+          checklist.get_status_display }}
         </div>
-        <div>
-            <div class="info-item">
-                <span class="info-label">Geprüfte Punkte:</span> 
-                {{ checklist.items.filter(is_checked=True).count }} von {{ checklist.items.count }}
-            </div>
-            <div class="info-item">
-                <span class="info-label">Fortschritt:</span> 
-                {{ checklist.completion_percentage|floatformat:0 }}%
-            </div>
+        <div class="info-item">
+          <span class="info-label">Abgeschlossen am:</span>
+          {{ checklist.completed_at|date:"d.m.Y H:i"|default:"Noch nicht
+          abgeschlossen" }}
         </div>
+      </div>
+      <div>
+        <div class="info-item">
+          <span class="info-label">Geprüfte Punkte:</span>
+          {{ checklist.items.filter(is_checked=True).count }} von {{
+          checklist.items.count }}
+        </div>
+        <div class="info-item">
+          <span class="info-label">Fortschritt:</span>
+          {{ checklist.completion_percentage|floatformat:0 }}%
+        </div>
+      </div>
     </div>
 
     {% for category, items in items_by_category.items %}
     <div class="category">
-        <div class="category-title">{{ category }}</div>
-        
-        {% for item in items %}
-        <div class="item">
-            <div class="item-name">
-                {% if item.is_checked %}
-                <span class="item-checked">✓</span>
-                {% else %}
-                <span class="item-unchecked">✗</span>
-                {% endif %}
-                {{ item.name }}
-            </div>
-            
-            {% if item.condition %}
-            <div class="item-condition condition-{{ item.condition }}">
-                Zustand: {{ item.get_condition_display }}
-            </div>
-            {% endif %}
-            
-            {% if item.notes %}
-            <div class="notes">
-                💬 {{ item.notes }}
-            </div>
-            {% endif %}
-        </div>
-        {% endfor %}
-    </div>
-    {% endfor %}
+      <div class="category-title">{{ category }}</div>
 
-    {% if checklist.general_notes %}
-    <div style="margin-top: 30px; padding: 20px; background: #fef3c7; border: 1px solid #fbbf24; border-radius: 6px;">
-        <strong>Allgemeine Anmerkungen:</strong><br>
-        {{ checklist.general_notes }}
+      {% for item in items %}
+      <div class="item">
+        <div class="item-name">
+          {% if item.is_checked %}
+          <span class="item-checked">✓</span>
+          {% else %}
+          <span class="item-unchecked">✗</span>
+          {% endif %} {{ item.name }}
+        </div>
+
+        {% if item.condition %}
+        <div class="item-condition condition-{{ item.condition }}">
+          Zustand: {{ item.get_condition_display }}
+        </div>
+        {% endif %} {% if item.notes %}
+        <div class="notes">💬 {{ item.notes }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %} {% if checklist.general_notes %}
+    <div
+      style="
+        margin-top: 30px;
+        padding: 20px;
+        background: #fef3c7;
+        border: 1px solid #fbbf24;
+        border-radius: 6px;
+      "
+    >
+      <strong>Allgemeine Anmerkungen:</strong><br />
+      {{ checklist.general_notes }}
     </div>
     {% endif %}
 
     <div class="signatures">
-        <div class="signature-box">
-            <strong>Unterschrift Mieter:</strong><br>
-            Datum: _______________
-        </div>
-        
-        <div class="signature-box">
-            <strong>Unterschrift Vermieter/Verwalter:</strong><br>
-            Datum: _______________
-        </div>
+      <div class="signature-box">
+        <strong>Unterschrift Mieter:</strong><br />
+        Datum: _______________
+      </div>
+
+      <div class="signature-box">
+        <strong>Unterschrift Vermieter/Verwalter:</strong><br />
+        Datum: _______________
+      </div>
     </div>
 
     <footer>
-        <p>Erstellt mit UVM - Universal Vermieter Management (M16)</p>
-        <p>Generiert am {{ "now"|date:"d.m.Y H:i" }} Uhr</p>
+      <p>Erstellt mit UVM - Universal Vermieter Management (M16)</p>
+      <p>Generiert am {{ "now"|date:"d.m.Y H:i" }} Uhr</p>
     </footer>
-</body>
+  </body>
 </html>

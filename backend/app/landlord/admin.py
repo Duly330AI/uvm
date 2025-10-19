@@ -339,7 +339,7 @@ class ChecklistTemplateAdmin(admin.ModelAdmin):
 	list_filter = ("template_type", "is_active")
 	search_fields = ("name", "description")
 	readonly_fields = ("created_at", "updated_at")
-	
+
 	fieldsets = (
 		("Vorlage (M16)", {
 			"fields": ("name", "template_type", "description", "is_active")
@@ -353,7 +353,7 @@ class ChecklistTemplateAdmin(admin.ModelAdmin):
 			"classes": ("collapse",)
 		}),
 	)
-	
+
 	def item_count(self, obj):
 		"""Display number of default items"""
 		return len(obj.default_items) if obj.default_items else 0
@@ -398,7 +398,7 @@ class ChecklistAdmin(admin.ModelAdmin):
 	date_hierarchy = "checklist_date"
 	readonly_fields = ("completed_at", "created_at", "updated_at", "completion_percentage")
 	inlines = [ChecklistItemInline]
-	
+
 	fieldsets = (
 		("Checkliste (M16)", {
 			"fields": ("template", "title", "checklist_type", "checklist_date")
@@ -417,7 +417,7 @@ class ChecklistAdmin(admin.ModelAdmin):
 			"classes": ("collapse",)
 		}),
 	)
-	
+
 	def completion_display(self, obj):
 		"""Display completion percentage"""
 		percentage = obj.completion_percentage
@@ -456,7 +456,7 @@ class ChecklistItemAdmin(admin.ModelAdmin):
 	)
 	autocomplete_fields = ["checklist"]
 	readonly_fields = ("created_at", "updated_at")
-	
+
 	fieldsets = (
 		("Prüfpunkt (M16)", {
 			"fields": ("checklist", "category", "name", "order")
@@ -469,9 +469,107 @@ class ChecklistItemAdmin(admin.ModelAdmin):
 			"classes": ("collapse",)
 		}),
 	)
-	
+
 	def has_photo(self, obj):
 		"""Display if item has photo"""
 		return "📷 Ja" if obj.photo else "○ Nein"
 	has_photo.short_description = "Foto"
 
+
+# ============================================================================
+# M15: WARTUNGSKALENDER ADMIN
+# ============================================================================
+
+@admin.register(models.MaintenanceItem)
+class MaintenanceItemAdmin(admin.ModelAdmin):
+	"""Admin für Wartungsaufgaben (M15)"""
+
+	list_display = [
+		'title',
+		'category',
+		'due_date',
+		'status',
+		'location',
+		'assigned_to',
+		'estimated_cost',
+		'is_overdue_display',
+	]
+	list_filter = [
+		'status',
+		'category',
+		'due_date',
+		'property',
+	]
+	search_fields = [
+		'title',
+		'description',
+		'property__name',
+		'unit__unit_label',
+	]
+	readonly_fields = [
+		'created_at',
+		'updated_at',
+		'completed_at',
+		'completed_by',
+	]
+	autocomplete_fields = [
+		'property',
+		'unit',
+		'assigned_to',
+	]
+
+	fieldsets = (
+		('Basis-Info', {
+			'fields': (
+				'title',
+				'description',
+				'category',
+			)
+		}),
+		('Zuordnung', {
+			'fields': (
+				'property',
+				'unit',
+				'assigned_to',
+			)
+		}),
+		('Termine & Status', {
+			'fields': (
+				'due_date',
+				'status',
+				'completed_at',
+				'completed_by',
+			)
+		}),
+		('Kosten', {
+			'fields': (
+				'estimated_cost',
+				'actual_cost',
+			)
+		}),
+		('Notizen', {
+			'fields': ('notes',),
+			'classes': ('collapse',),
+		}),
+		('Timestamps', {
+			'fields': ('created_at', 'updated_at'),
+			'classes': ('collapse',),
+		}),
+	)
+
+	def location(self, obj):
+		"""Display location"""
+		if obj.property:
+			return f"🏠 {obj.property}"
+		elif obj.unit:
+			return f"🚪 {obj.unit}"
+		return "—"
+	location.short_description = "Ort"
+
+	def is_overdue_display(self, obj):
+		"""Display if overdue"""
+		from datetime import date
+		if obj.status == models.MaintenanceItem.Status.PENDING and obj.due_date < date.today():
+			return "⚠️ Überfällig"
+		return "—"
+	is_overdue_display.short_description = "Status"

@@ -9,7 +9,7 @@
         <a href="{% url 'portal_checklists' %}" class="text-sm text-blue-600 hover:underline mb-2 inline-block">
             ← Zurück zu Checklisten
         </a>
-        
+
         <div class="flex justify-between items-start">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">{{ checklist.title }}</h1>
@@ -21,10 +21,10 @@
                     {% endif %}
                 </div>
             </div>
-            
+
             <div class="flex space-x-2">
                 {% if checklist.status != 'completed' %}
-                <a href="{% url 'portal_checklist_complete' checklist.id %}" 
+                <a href="{% url 'portal_checklist_complete' checklist.id %}"
                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
                     ✓ Abschließen
                 </a>
@@ -53,7 +53,7 @@
                     </span>
                 </div>
             </div>
-            
+
             <div>
                 <div class="text-sm font-medium text-gray-500">Typ</div>
                 <div class="mt-1 text-lg font-semibold text-gray-900">
@@ -65,14 +65,14 @@
                     {{ checklist.get_checklist_type_display }}
                 </div>
             </div>
-            
+
             <div>
                 <div class="text-sm font-medium text-gray-500">Durchgeführt von</div>
                 <div class="mt-1 text-lg font-semibold text-gray-900">
                     {{ checklist.conducted_by.username|default:"Nicht zugewiesen" }}
                 </div>
             </div>
-            
+
             <div>
                 <div class="text-sm font-medium text-gray-500">Fortschritt</div>
                 <div class="mt-1">
@@ -85,11 +85,11 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Progress Bar -->
         <div class="mt-6">
             <div class="w-full bg-gray-200 rounded-full h-3">
-                <div class="bg-blue-600 h-3 rounded-full transition-all" 
+                <div class="bg-blue-600 h-3 rounded-full transition-all"
                      style="width: {{ checklist.completion_percentage }}%"></div>
             </div>
         </div>
@@ -101,7 +101,7 @@
         <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
             <h2 class="text-lg font-semibold text-gray-900">{{ category }}</h2>
         </div>
-        
+
         <div class="p-6">
             <div class="space-y-4">
                 {% for item in items %}
@@ -109,13 +109,13 @@
                     <div class="flex items-start space-x-4">
                         <!-- Checkbox -->
                         <div class="flex-shrink-0 pt-1">
-                            <input type="checkbox" 
+                            <input type="checkbox"
                                    {% if item.is_checked %}checked{% endif %}
                                    {% if checklist.status == 'completed' %}disabled{% endif %}
                                    class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                    onchange="toggleItem({{ item.id }}, this.checked)">
                         </div>
-                        
+
                         <!-- Item Content -->
                         <div class="flex-1">
                             <div class="flex justify-between items-start">
@@ -123,7 +123,7 @@
                                     <h3 class="text-base font-medium text-gray-900 {% if item.is_checked %}line-through text-gray-500{% endif %}">
                                         {{ item.name }}
                                     </h3>
-                                    
+
                                     {% if item.condition %}
                                     <div class="mt-1">
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
@@ -137,24 +137,24 @@
                                         </span>
                                     </div>
                                     {% endif %}
-                                    
+
                                     {% if item.notes %}
                                     <p class="mt-2 text-sm text-gray-600">
                                         💬 {{ item.notes }}
                                     </p>
                                     {% endif %}
                                 </div>
-                                
+
                                 {% if item.photo %}
                                 <div class="ml-4">
                                     <a href="{{ item.photo.url }}" target="_blank" class="block">
-                                        <img src="{{ item.photo.url }}" alt="{{ item.name }}" 
+                                        <img src="{{ item.photo.url }}" alt="{{ item.name }}"
                                              class="h-16 w-16 object-cover rounded-md border border-gray-300">
                                     </a>
                                 </div>
                                 {% endif %}
                             </div>
-                            
+
                             {% if checklist.status != 'completed' %}
                             <!-- Quick Edit (collapsed by default) -->
                             <div class="mt-3 border-t border-gray-200 pt-3" id="edit-{{ item.id }}" style="display: none;">
@@ -172,22 +172,22 @@
                                                 {% endfor %}
                                             </select>
                                         </div>
-                                        
+
                                         <div>
                                             <label class="block text-xs font-medium text-gray-700">Notiz</label>
-                                            <input type="text" name="notes" value="{{ item.notes }}" 
+                                            <input type="text" name="notes" value="{{ item.notes }}"
                                                    class="mt-1 block w-full text-sm rounded-md border-gray-300">
                                         </div>
-                                        
+
                                         <div>
                                             <label class="block text-xs font-medium text-gray-700">Foto</label>
-                                            <input type="file" name="photo" accept="image/*" 
+                                            <input type="file" name="photo" accept="image/*"
                                                    class="mt-1 block w-full text-xs text-gray-500">
                                         </div>
                                     </div>
-                                    
+
                                     <input type="hidden" name="is_checked" value="{% if item.is_checked %}true{% else %}false{% endif %}">
-                                    
+
                                     <div class="mt-3 flex justify-end space-x-2">
                                         <button type="button" onclick="toggleEdit({{ item.id }})"
                                                 class="px-3 py-1 text-xs border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50">
@@ -200,7 +200,7 @@
                                     </div>
                                 </form>
                             </div>
-                            
+
                             <button type="button" onclick="toggleEdit({{ item.id }})"
                                     class="mt-2 text-xs text-blue-600 hover:text-blue-700">
                                 ✏️ Bearbeiten

@@ -1,13 +1,17 @@
 """
 Tests for Checklist Models (M16)
 """
-import pytest
 from datetime import date
-from django.contrib.auth import get_user_model
 
+import pytest
+from django.contrib.auth import get_user_model
 from landlord.models import (
-    Property, Unit, Tenant,
-    ChecklistTemplate, Checklist, ChecklistItem
+    Checklist,
+    ChecklistItem,
+    ChecklistTemplate,
+    Property,
+    Tenant,
+    Unit,
 )
 
 User = get_user_model()
@@ -29,7 +33,7 @@ class TestChecklistModels:
                 {"name": "Herd", "category": "Küche", "order": 3},
             ]
         )
-        
+
         assert template.pk is not None
         assert template.name == "Standard Einzug"
         assert template.template_type == ChecklistTemplate.TemplateType.MOVE_IN
@@ -43,7 +47,7 @@ class TestChecklistModels:
         )
         unit = Unit.objects.create(property=prop, unit_label="A1")
         user = User.objects.create_user(username='staff', password='test123')
-        
+
         checklist = Checklist.objects.create(
             unit=unit,
             title="Einzug A1 - Mustermann",
@@ -52,7 +56,7 @@ class TestChecklistModels:
             conducted_by=user,
             status=Checklist.Status.DRAFT
         )
-        
+
         assert checklist.pk is not None
         assert checklist.unit == unit
         assert checklist.status == Checklist.Status.DRAFT
@@ -64,17 +68,17 @@ class TestChecklistModels:
             street="Test St", postal_code="12345", city="Test"
         )
         unit = Unit.objects.create(property=prop, unit_label="A1")
-        
+
         checklist = Checklist.objects.create(
             unit=unit,
             title="Test Checklist",
             checklist_type=ChecklistTemplate.TemplateType.INSPECTION,
             checklist_date=date.today()
         )
-        
+
         # No items = 0%
         assert checklist.completion_percentage == 0.0
-        
+
         # Create 4 items
         for i in range(4):
             ChecklistItem.objects.create(
@@ -83,28 +87,28 @@ class TestChecklistModels:
                 name=f"Item {i+1}",
                 order=i
             )
-        
+
         # None checked = 0%
         # Re-fetch to get fresh queryset
         checklist = Checklist.objects.get(pk=checklist.pk)
         assert checklist.completion_percentage == 0.0
-        
+
         # Check 2 items = 50%
         items = list(checklist.items.all())
         items[0].is_checked = True
         items[0].save()
         items[1].is_checked = True
         items[1].save()
-        
+
         # Re-fetch to get updated counts
         checklist = Checklist.objects.get(pk=checklist.pk)
         assert checklist.completion_percentage == 50.0
-        
+
         # Check all = 100%
         for item in ChecklistItem.objects.filter(checklist=checklist):
             item.is_checked = True
             item.save()
-        
+
         # Re-fetch to get final counts
         checklist = Checklist.objects.get(pk=checklist.pk)
         assert checklist.completion_percentage == 100.0
@@ -115,14 +119,14 @@ class TestChecklistModels:
             street="Test St", postal_code="12345", city="Test"
         )
         unit = Unit.objects.create(property=prop, unit_label="A1")
-        
+
         checklist = Checklist.objects.create(
             unit=unit,
             title="Test",
             checklist_type=ChecklistTemplate.TemplateType.MOVE_OUT,
             checklist_date=date.today()
         )
-        
+
         item = ChecklistItem.objects.create(
             checklist=checklist,
             category="Küche",
@@ -132,7 +136,7 @@ class TestChecklistModels:
             condition=ChecklistItem.Condition.GOOD,
             notes="Kleine Kratzer auf der Oberfläche"
         )
-        
+
         assert item.is_checked is True
         assert item.condition == ChecklistItem.Condition.GOOD
         assert "Kratzer" in item.notes
@@ -148,7 +152,7 @@ class TestChecklistModels:
             primary_email="tenant@example.com",
             is_active=True
         )
-        
+
         checklist = Checklist.objects.create(
             unit=unit,
             tenant=tenant,
@@ -156,7 +160,7 @@ class TestChecklistModels:
             checklist_type=ChecklistTemplate.TemplateType.MOVE_IN,
             checklist_date=date.today()
         )
-        
+
         assert checklist.tenant == tenant
         assert checklist.unit == unit
 
@@ -166,7 +170,7 @@ class TestChecklistModels:
             street="Test St", postal_code="12345", city="Test"
         )
         unit = Unit.objects.create(property=prop, unit_label="A1")
-        
+
         checklist = Checklist.objects.create(
             unit=unit,
             title="Test",
@@ -174,12 +178,12 @@ class TestChecklistModels:
             checklist_date=date.today(),
             status=Checklist.Status.DRAFT
         )
-        
+
         assert checklist.is_completed is False
-        
+
         checklist.status = Checklist.Status.COMPLETED
         checklist.save()
-        
+
         assert checklist.is_completed is True
 
     def test_checklist_ordering(self):
@@ -188,21 +192,21 @@ class TestChecklistModels:
             street="Test St", postal_code="12345", city="Test"
         )
         unit = Unit.objects.create(property=prop, unit_label="A1")
-        
+
         checklist1 = Checklist.objects.create(
             unit=unit,
             title="Old Checklist",
             checklist_type=ChecklistTemplate.TemplateType.INSPECTION,
             checklist_date=date(2024, 1, 1)
         )
-        
+
         checklist2 = Checklist.objects.create(
             unit=unit,
             title="New Checklist",
             checklist_type=ChecklistTemplate.TemplateType.INSPECTION,
             checklist_date=date(2025, 1, 1)
         )
-        
+
         checklists = list(Checklist.objects.all())
         assert checklists[0] == checklist2  # Newest first
         assert checklists[1] == checklist1
@@ -213,31 +217,31 @@ class TestChecklistModels:
             street="Test St", postal_code="12345", city="Test"
         )
         unit = Unit.objects.create(property=prop, unit_label="A1")
-        
+
         checklist = Checklist.objects.create(
             unit=unit,
             title="Test",
             checklist_type=ChecklistTemplate.TemplateType.INSPECTION,
             checklist_date=date.today()
         )
-        
+
         item_checked = ChecklistItem.objects.create(
             checklist=checklist,
             category="Bad",
             name="Dusche",
             is_checked=True
         )
-        
+
         item_unchecked = ChecklistItem.objects.create(
             checklist=checklist,
             category="Bad",
             name="WC",
             is_checked=False
         )
-        
+
         assert "✓" in str(item_checked)
         assert "Bad" in str(item_checked)
         assert "Dusche" in str(item_checked)
-        
+
         assert "○" in str(item_unchecked)
         assert "WC" in str(item_unchecked)

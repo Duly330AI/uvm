@@ -829,14 +829,14 @@ class ChecklistTemplate(TimeStampedModel):
     Template für Checklisten (z.B. Einzug, Auszug, Wartung).
     M16: Checklisten-System
     """
-    
+
     class TemplateType(models.TextChoices):
         MOVE_IN = 'move_in', 'Einzugsprotokoll'
         MOVE_OUT = 'move_out', 'Auszugsprotokoll'
         INSPECTION = 'inspection', 'Wohnungsbesichtigung'
         MAINTENANCE = 'maintenance', 'Wartungsprotokoll'
         CUSTOM = 'custom', 'Benutzerdefiniert'
-    
+
     name = models.CharField(
         max_length=200,
         help_text='Name der Vorlage (z.B. "Standard Einzugsprotokoll")'
@@ -854,19 +854,19 @@ class ChecklistTemplate(TimeStampedModel):
         default=True,
         help_text='Ist diese Vorlage aktiv?'
     )
-    
+
     # Template Items (stored as JSON for flexibility)
     default_items = models.JSONField(
         default=list,
         help_text='Standard-Prüfpunkte als JSON Array: [{"name": "...", "category": "...", "order": 1}]'
     )
-    
+
     class Meta:
         ordering = ['template_type', 'name']
         indexes = [
             models.Index(fields=['template_type', 'is_active']),
         ]
-    
+
     def __str__(self) -> str:
         return f"{self.get_template_type_display()}: {self.name}"
 
@@ -876,13 +876,13 @@ class Checklist(TimeStampedModel):
     Konkrete Checkliste für eine Wohnung (erstellt aus Template).
     M16: Checklisten-System
     """
-    
+
     class Status(models.TextChoices):
         DRAFT = 'draft', 'Entwurf'
         IN_PROGRESS = 'in_progress', 'In Bearbeitung'
         COMPLETED = 'completed', 'Abgeschlossen'
         ARCHIVED = 'archived', 'Archiviert'
-    
+
     template = models.ForeignKey(
         ChecklistTemplate,
         on_delete=models.SET_NULL,
@@ -905,7 +905,7 @@ class Checklist(TimeStampedModel):
         related_name='checklists',
         help_text='Mieter (bei Ein-/Auszug)'
     )
-    
+
     # Checklist Info
     title = models.CharField(
         max_length=200,
@@ -924,7 +924,7 @@ class Checklist(TimeStampedModel):
         choices=Status.choices,
         default=Status.DRAFT
     )
-    
+
     # Participants
     conducted_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -934,35 +934,35 @@ class Checklist(TimeStampedModel):
         related_name='conducted_checklists',
         help_text='Durchgeführt von (Staff)'
     )
-    
+
     # Notes
     general_notes = models.TextField(
         blank=True,
         help_text='Allgemeine Anmerkungen'
     )
-    
+
     # Completion
     completed_at = models.DateTimeField(
         null=True,
         blank=True,
         help_text='Wann wurde die Checkliste abgeschlossen?'
     )
-    
+
     class Meta:
         ordering = ['-checklist_date', '-created_at']
         indexes = [
             models.Index(fields=['unit', 'checklist_date']),
             models.Index(fields=['status', 'checklist_date']),
         ]
-    
+
     def __str__(self) -> str:
         return f"{self.title} - {self.unit.unit_label} ({self.checklist_date})"
-    
+
     @property
     def is_completed(self) -> bool:
         """Is checklist completed?"""
         return self.status == self.Status.COMPLETED
-    
+
     @property
     def completion_percentage(self) -> float:
         """Calculate completion percentage based on checked items"""
@@ -978,7 +978,7 @@ class ChecklistItem(TimeStampedModel):
     Einzelner Prüfpunkt in einer Checkliste.
     M16: Checklisten-System
     """
-    
+
     class Condition(models.TextChoices):
         EXCELLENT = 'excellent', 'Sehr gut'
         GOOD = 'good', 'Gut'
@@ -986,14 +986,14 @@ class ChecklistItem(TimeStampedModel):
         POOR = 'poor', 'Schlecht'
         DAMAGED = 'damaged', 'Beschädigt'
         NOT_APPLICABLE = 'n/a', 'Nicht zutreffend'
-    
+
     checklist = models.ForeignKey(
         Checklist,
         on_delete=models.CASCADE,
         related_name='items',
         help_text='Zugehörige Checkliste'
     )
-    
+
     # Item Info
     category = models.CharField(
         max_length=100,
@@ -1007,7 +1007,7 @@ class ChecklistItem(TimeStampedModel):
         default=0,
         help_text='Reihenfolge der Anzeige'
     )
-    
+
     # Check Status
     is_checked = models.BooleanField(
         default=False,
@@ -1019,7 +1019,7 @@ class ChecklistItem(TimeStampedModel):
         blank=True,
         help_text='Zustand des geprüften Elements'
     )
-    
+
     # Details
     notes = models.TextField(
         blank=True,
@@ -1031,15 +1031,109 @@ class ChecklistItem(TimeStampedModel):
         blank=True,
         help_text='Beweisfoto (optional)'
     )
-    
+
     class Meta:
         ordering = ['checklist', 'order', 'category', 'name']
         indexes = [
             models.Index(fields=['checklist', 'order']),
         ]
-    
+
     def __str__(self) -> str:
         status = "✓" if self.is_checked else "○"
         return f"{status} {self.category}: {self.name}"
 
+
+# ============================================================================
+# M15: WARTUNGSKALENDER (MAINTENANCE CALENDAR) - SIMPLIFIED
+# ============================================================================
+
+class MaintenanceItem(TimeStampedModel):
+    """
+    Wartungsaufgabe (z.B. Rauchmelder-Prüfung, Heizungswartung).
+    M15: Wartungskalender
+    """
+
+    class Category(models.TextChoices):
+        SMOKE_DETECTOR = 'smoke_detector', 'Rauchmelder'
+        HEATING = 'heating', 'Heizung'
+        ELEVATOR = 'elevator', 'Aufzug'
+        FIRE_EXTINGUISHER = 'fire_extinguisher', 'Feuerlöscher'
+        INSPECTION = 'inspection', 'Begehung'
+        OTHER = 'other', 'Sonstiges'
+
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Ausstehend'
+        COMPLETED = 'completed', 'Erledigt'
+        CANCELLED = 'cancelled', 'Abgebrochen'
+
+    # Basic Info
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    category = models.CharField(max_length=30, choices=Category.choices)
+
+    # Assignment (EITHER property OR unit)
+    property = models.ForeignKey(
+        'Property',
+        on_delete=models.CASCADE,
+        related_name='maintenance_items',
+        null=True,
+        blank=True
+    )
+    unit = models.ForeignKey(
+        'Unit',
+        on_delete=models.CASCADE,
+        related_name='maintenance_items',
+        null=True,
+        blank=True
+    )
+    assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_maintenance'
+    )
+
+    # Schedule
+    due_date = models.DateField()
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING
+    )
+    completed_at = models.DateTimeField(null=True, blank=True)
+    completed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='completed_maintenance'
+    )
+
+    # Cost
+    estimated_cost = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+    actual_cost = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+
+    notes = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['due_date', 'category']
+        indexes = [
+            models.Index(fields=['status', 'due_date']),
+            models.Index(fields=['property', 'due_date']),
+        ]
+
+    def __str__(self) -> str:
+        location = str(self.property) if self.property else (str(self.unit) if self.unit else "Allgemein")
+        return f"{self.title} - {location} ({self.due_date})"
 
