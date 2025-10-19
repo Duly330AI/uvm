@@ -26,11 +26,8 @@ class DocumentModelM11bTest(TestCase):
             rooms=3,
             area_sqm=75.5
         )
-        self.tenant = Tenant.objects.create(
-            unit=self.unit,
-            primary_email="test@example.com",
-            is_active=True
-        )
+        # Tenant removed from setUp to avoid PROTECT cascade issues
+        # Tests that need tenant should create it locally
 
     def test_document_create_with_property(self):
         """Dokument kann Objekt zugeordnet werden"""
@@ -63,15 +60,20 @@ class DocumentModelM11bTest(TestCase):
 
     def test_document_create_with_tenant(self):
         """Dokument kann Mieter zugeordnet werden"""
+        tenant = Tenant.objects.create(
+            unit=self.unit,
+            primary_email="test@example.com",
+            is_active=True
+        )
         doc = Document.objects.create(
             name="Personalausweis.pdf",
             category="sonstiges",
-            tenant=self.tenant,
+            tenant=tenant,
             size_bytes=512,
             content_type="application/pdf"
         )
 
-        assert doc.tenant == self.tenant
+        assert doc.tenant == tenant
         assert doc.property is None
         assert doc.unit is None
 
@@ -110,13 +112,18 @@ class DocumentModelM11bTest(TestCase):
 
     def test_document_related_name_tenant(self):
         """Related name 'documents' funktioniert für Tenant"""
+        tenant = Tenant.objects.create(
+            unit=self.unit,
+            primary_email="test@example.com",
+            is_active=True
+        )
         doc = Document.objects.create(
             name="Test.pdf",
-            tenant=self.tenant
+            tenant=tenant
         )
 
-        assert doc in self.tenant.documents.all()
-        assert self.tenant.documents.count() == 1
+        assert doc in tenant.documents.all()
+        assert tenant.documents.count() == 1
 
     def test_document_cascade_delete_property(self):
         """Dokument wird gelöscht wenn Property gelöscht wird"""
@@ -164,10 +171,7 @@ class DocumentUploadViewM11bTest(TestCase):
             unit_label="1.OG / Whg 1",
             floor="1"
         )
-        self.tenant = Tenant.objects.create(
-            unit=self.unit,
-            primary_email="upload@test.com"
-        )
+        # Tenant removed to avoid PROTECT cascade issues
 
     def test_document_upload_with_property(self):
         """Upload mit Property-Zuordnung"""
@@ -231,6 +235,13 @@ class DocumentUploadViewM11bTest(TestCase):
         """Upload mit Tenant-Zuordnung"""
         self.client.force_login(self.staff_user)
 
+        # Create tenant for this test
+        tenant = Tenant.objects.create(
+            unit=self.unit,
+            primary_email="upload@test.com",
+            is_active=True
+        )
+
         pdf_file = SimpleUploadedFile(
             "test_tenant.pdf",
             b"%PDF-1.4 fake",
@@ -239,14 +250,14 @@ class DocumentUploadViewM11bTest(TestCase):
 
         response = self.client.post('/portal/document/upload/', {
             'file': pdf_file,
-            'tenant': self.tenant.id,
+            'tenant': tenant.id,
             'category': 'sonstiges'
         })
 
         assert response.status_code == 302
 
         doc = Document.objects.last()
-        assert doc.tenant == self.tenant
+        assert doc.tenant == tenant
         assert doc.property is None
         assert doc.unit is None
 

@@ -52,7 +52,7 @@ def vendor_demo(db):
 def property_factory(db):
     """Factory for creating Property instances"""
     created_properties = []
-    
+
     def _create_property(**kwargs):
         defaults = {
             "name": "Test Property",
@@ -64,9 +64,9 @@ def property_factory(db):
         prop = Property.objects.create(**defaults)
         created_properties.append(prop)
         return prop
-    
+
     yield _create_property
-    
+
     # Cleanup
     for prop in created_properties:
         prop.delete()
@@ -76,11 +76,11 @@ def property_factory(db):
 def unit_factory(db, property_factory):
     """Factory for creating Unit instances"""
     created_units = []
-    
+
     def _create_unit(property=None, **kwargs):
         if property is None:
             property = property_factory()
-        
+
         defaults = {
             "property": property,
             "unit_label": f"Unit-{len(created_units) + 1}",
@@ -89,9 +89,9 @@ def unit_factory(db, property_factory):
         unit = Unit.objects.create(**defaults)
         created_units.append(unit)
         return unit
-    
+
     yield _create_unit
-    
+
     # Cleanup
     for unit in created_units:
         unit.delete()
@@ -102,11 +102,11 @@ def tenant_factory(db, unit_factory):
     """Factory for creating Tenant instances"""
     created_tenants = []
     counter = [0]  # Use list to allow modification in nested function
-    
+
     def _create_tenant(unit=None, **kwargs):
         if unit is None:
             unit = unit_factory()
-        
+
         counter[0] += 1
         defaults = {
             "unit": unit,
@@ -117,9 +117,9 @@ def tenant_factory(db, unit_factory):
         tenant = Tenant.objects.create(**defaults)
         created_tenants.append(tenant)
         return tenant
-    
+
     yield _create_tenant
-    
+
     # Cleanup
     for tenant in created_tenants:
         tenant.delete()
@@ -130,7 +130,7 @@ def vendor_factory(db):
     """Factory for creating Vendor instances"""
     created_vendors = []
     counter = [0]
-    
+
     def _create_vendor(**kwargs):
         counter[0] += 1
         defaults = {
@@ -142,9 +142,9 @@ def vendor_factory(db):
         vendor = Vendor.objects.create(**defaults)
         created_vendors.append(vendor)
         return vendor
-    
+
     yield _create_vendor
-    
+
     # Cleanup
     for vendor in created_vendors:
         vendor.delete()
@@ -155,7 +155,7 @@ def issue_factory(db, tenant_factory, unit_factory):
     """Factory for creating Issue instances"""
     created_issues = []
     counter = [0]
-    
+
     def _create_issue(tenant=None, unit=None, **kwargs):
         if tenant is None and unit is None:
             unit = unit_factory()
@@ -164,7 +164,7 @@ def issue_factory(db, tenant_factory, unit_factory):
             tenant = tenant_factory(unit=unit)
         elif unit is None:
             unit = tenant.unit
-        
+
         counter[0] += 1
         defaults = {
             "tenant": tenant,
@@ -178,9 +178,9 @@ def issue_factory(db, tenant_factory, unit_factory):
         issue = Issue.objects.create(**defaults)
         created_issues.append(issue)
         return issue
-    
+
     yield _create_issue
-    
+
     # Cleanup
     for issue in created_issues:
         issue.delete()

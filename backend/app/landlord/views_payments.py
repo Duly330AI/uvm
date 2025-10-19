@@ -43,6 +43,7 @@ def payments_list(request):
     context = {
         'payments': payments,
         'total_amount': total_amount,
+        'total_sum': total_amount,  # Alias for backwards compatibility with tests
         'contracts': Contract.objects.all(),
         'payment_type_choices': PaymentTransaction.Type.choices,
         'status_choices': PaymentTransaction.Status.choices,

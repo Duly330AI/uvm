@@ -1,10 +1,15 @@
-{% extends "_base_front.html" %} {% block title %}{{ issue.ticket_no }}{%
-endblock %} {% block header_right %}
+{% extends "_base_front.html" %}
+
+{% block title %}{{ issue.ticket_no }}{% endblock %}
+
+{% block header_right %}
 <nav class="flex gap-4 text-sm">
   <a class="hover:underline" href="{% url 'tenant_my_issues' %}">← Zurück</a>
   <a class="hover:underline" href="{% url 'tenant_logout' %}">Abmelden</a>
 </nav>
-{% endblock %} {% block content %}
+{% endblock %}
+
+{% block content %}
 <div class="max-w-4xl mx-auto">
   <div class="mb-4">
     <h1 class="text-2xl font-semibold mb-2">{{ issue.ticket_no }}</h1>
@@ -15,13 +20,15 @@ endblock %} {% block header_right %}
     </span>
   </div>
 
-  {% if messages %} {% for message in messages %}
+  {% if messages %}
+  {% for message in messages %}
   <div
     class="mb-4 p-3 rounded-lg {% if message.tags == 'success' %}bg-green-50 text-green-800{% elif message.tags == 'error' %}bg-red-50 text-red-800{% else %}bg-blue-50 text-blue-800{% endif %}"
   >
     {{ message }}
   </div>
-  {% endfor %} {% endif %}
+  {% endfor %}
+  {% endif %}
 
   <div class="grid md:grid-cols-3 gap-4">
     <section class="bg-white border rounded-xl p-4 md:col-span-2">
@@ -48,15 +55,15 @@ endblock %} {% block header_right %}
       {% endif %}
 
       <div class="text-sm text-slate-600 mb-3">
-        Ort: {{ issue.location_hint|default:"—" }} • Schwere {{ issue.severity
-        }} • Erstellt: {{ issue.created_at|date:"d.m.Y H:i" }}
+        Ort: {{ issue.location_hint|default:"—" }} • Schwere {{ issue.severity }} • Erstellt: {{ issue.created_at|date:"d.m.Y H:i" }}
       </div>
 
       {% if attachments %}
       <div class="mb-4">
         <h3 class="font-medium mb-2">Anhänge</h3>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-          {% for att in attachments %} {% if att.mime|slice:":5" == "image" %}
+          {% for att in attachments %}
+          {% if att.mime|slice:":5" == "image" %}
           <a
             href="{{ att.file.url }}"
             target="_blank"
@@ -76,7 +83,8 @@ endblock %} {% block header_right %}
           >
             📎 {{ att.file.name|slice:"10:" }}
           </a>
-          {% endif %} {% endfor %}
+          {% endif %}
+          {% endfor %}
         </div>
       </div>
       {% endif %}
@@ -87,11 +95,8 @@ endblock %} {% block header_right %}
         <div class="border rounded-lg p-3 bg-slate-50">
           <div class="text-sm">{{ note.text }}</div>
           <div class="text-xs text-slate-400 mt-1">
-            {{ note.created_at|date:"d.m.Y H:i" }} {% if note.author %} ·
-            <span class="font-medium"
-              >{{ note.author.get_full_name|default:note.author.username
-              }}</span
-            >
+            {{ note.created_at|date:"d.m.Y H:i" }}
+            {% if note.author %} · <span class="font-medium">{{ note.author.get_full_name|default:note.author.username }}</span>
             {% else %} · <span class="italic">Mieter</span>
             {% endif %}
           </div>
