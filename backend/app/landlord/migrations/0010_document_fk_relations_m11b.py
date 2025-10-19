@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('landlord', '0009_merge_20251018_1855'),
+        ('landlord', '0009b_add_document_model_m11b'),
     ]
 
     operations = [

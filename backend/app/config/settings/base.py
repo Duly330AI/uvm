@@ -178,3 +178,29 @@ SITE_DOMAIN = os.getenv("SITE_DOMAIN", "localhost:8000")
 CELERY_TASK_ROUTES = {
     "landlord.tasks.send_*": {"queue": "emails"},
 }
+
+# ---------------------------------------------------------------------------
+# Security settings (sensible defaults for production, keep dev friendly)
+# ---------------------------------------------------------------------------
+# ALLOWED_HOSTS can be provided as a comma-separated env var, default empty (dev)
+_hosts = os.getenv("ALLOWED_HOSTS", "")
+if _hosts:
+    ALLOWED_HOSTS = [h.strip() for h in _hosts.split(",") if h.strip()]
+
+# If DEBUG is False, enable stricter security defaults. These can be overridden
+# via environment variables when needed for staging/prod.
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"
+    # HSTS: default to 1 year; can be tuned via env
+    SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000"))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv("SECURE_HSTS_INCLUDE_SUBDOMAINS", "true").lower() in {"1","true","yes"}
+    SECURE_HSTS_PRELOAD = os.getenv("SECURE_HSTS_PRELOAD", "true").lower() in {"1","true","yes"}
+    SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "true").lower() in {"1","true","yes"}
+else:
+    # Development-safe defaults
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
