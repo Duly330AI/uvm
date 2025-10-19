@@ -22,22 +22,34 @@
       <!-- Unit Selection -->
       <div>
         <label for="unit_id" class="block text-sm font-medium text-slate-700 mb-1">
-          Wohneinheit *
+          Wohneinheit / Gebäude *
         </label>
         <select name="unit_id" id="unit_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-          <option value="">Wohneinheit wählen...</option>
-          {% for unit in units %}
-          <option value="{{ unit.id }}">{{ unit.property.name }} - {{ unit.unit_label }}</option>
-          {% endfor %}
+          <option value="">Wählen Sie...</option>
+          <optgroup label="🏢 Gebäudezähler">
+            {% for unit in units %}
+            {% if unit.unit_label == 'Allgemein' or unit.unit_label == 'Gebäude' %}
+            <option value="{{ unit.id }}">{{ unit.property.name }} - Allgemein (Treppenhaus, Garten, etc.)</option>
+            {% endif %}
+            {% endfor %}
+          </optgroup>
+          <optgroup label="🏠 Wohnungszähler">
+            {% for unit in units %}
+            {% if unit.unit_label != 'Allgemein' and unit.unit_label != 'Gebäude' %}
+            <option value="{{ unit.id }}">{{ unit.property.name }} - {{ unit.unit_label }}</option>
+            {% endif %}
+            {% endfor %}
+          </optgroup>
         </select>
-        <p class="text-xs text-slate-500 mt-1">Wohnung für die der Zählerstand erfasst wird</p>
+        <p class="text-xs text-slate-500 mt-1">
+          <strong>Gebäudezähler:</strong> Allgemeinstrom, Gartenwasser, Heizung Gesamt, etc.<br>
+          <strong>Wohnungszähler:</strong> Verbrauch einer einzelnen Wohnung
+        </p>
       </div>
 
       <!-- Meter Type -->
       <div>
-        <label for="meter_type" class="block text-sm font-medium text-slate-700 mb-1">
-          Zählertyp *
-        </label>
+        <label for="meter_type" class="block text-sm font-medium text-slate-700 mb-1"> Zählertyp * </label>
         <select name="meter_type" id="meter_type" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
           <option value="">Zählertyp wählen...</option>
           {% for value, label in meter_types %}
@@ -49,45 +61,42 @@
 
       <!-- Reading Date -->
       <div>
-        <label for="reading_date" class="block text-sm font-medium text-slate-700 mb-1">
-          Ablesedatum *
-        </label>
-        <input type="date" name="reading_date" id="reading_date" value="{{ today|date:'Y-m-d' }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+        <label for="reading_date" class="block text-sm font-medium text-slate-700 mb-1"> Ablesedatum * </label>
+        <input
+          type="date"
+          name="reading_date"
+          id="reading_date"
+          value="{{ today|date:'Y-m-d' }}"
+          required
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
         <p class="text-xs text-slate-500 mt-1">Datum der Ablesung</p>
       </div>
 
       <!-- Meter Number -->
       <div>
-        <label for="meter_number" class="block text-sm font-medium text-slate-700 mb-1">
-          Zählernummer
-        </label>
+        <label for="meter_number" class="block text-sm font-medium text-slate-700 mb-1"> Zählernummer </label>
         <input type="text" name="meter_number" id="meter_number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
         <p class="text-xs text-slate-500 mt-1">Zählernummer (optional)</p>
       </div>
 
       <!-- Current Value -->
       <div>
-        <label for="current_value" class="block text-sm font-medium text-slate-700 mb-1">
-          Aktueller Zählerstand *
-        </label>
+        <label for="current_value" class="block text-sm font-medium text-slate-700 mb-1"> Aktueller Zählerstand * </label>
         <input type="number" name="current_value" id="current_value" step="0.01" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
         <p class="text-xs text-slate-500 mt-1">Aktueller Zählerstand</p>
       </div>
 
       <!-- Previous Value (optional) -->
       <div>
-        <label for="previous_value" class="block text-sm font-medium text-slate-700 mb-1">
-          Vorheriger Zählerstand
-        </label>
+        <label for="previous_value" class="block text-sm font-medium text-slate-700 mb-1"> Vorheriger Zählerstand </label>
         <input type="number" name="previous_value" id="previous_value" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
         <p class="text-xs text-slate-500 mt-1">Optional - wird automatisch vom letzten Zählerstand übernommen</p>
       </div>
 
       <!-- Notes -->
       <div>
-        <label for="notes" class="block text-sm font-medium text-slate-700 mb-1">
-          Notizen
-        </label>
+        <label for="notes" class="block text-sm font-medium text-slate-700 mb-1"> Notizen </label>
         <textarea name="notes" id="notes" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
         <p class="text-xs text-slate-500 mt-1">Notizen zur Ablesung</p>
       </div>

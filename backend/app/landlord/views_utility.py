@@ -113,7 +113,12 @@ def utility_reading_create(request):
             return redirect('portal_utility_readings')
 
     # GET: Show form
-    units = Unit.objects.filter(is_active=True).select_related('property')
+    # Order: "Allgemein/Gebäude" units first, then regular units
+    units = Unit.objects.filter(is_active=True).select_related('property').order_by(
+        '-unit_label',  # "Allgemein" and "Gebäude" come first (reverse alphabetical)
+        'property__name',
+        'unit_label'
+    )
     context = {
         'units': units,
         'meter_types': UtilityReading.MeterType.choices,
