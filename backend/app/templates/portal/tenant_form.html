@@ -70,9 +70,7 @@
         <input
           type="checkbox"
           name="is_active"
-          {% if tenant.is_active %}checked{%
-          endif
-          %}
+          {% if tenant.is_active %}checked{% endif %}
           class="rounded"
         />
         <span class="text-sm">Aktiv (nicht ausgezogen)</span>
