@@ -337,11 +337,11 @@
         href="{% url 'portal_payments' %}?contract={{ contract.id }}"
         class="text-sm text-blue-600 hover:underline"
       >
-        + {{ payments|length|add:"-5" }} weitere Zahlung{% if         payments|length|add:"-5" != 1 %}en{% endif %} anzeigen
+        + {{ payments|length|add:"-5" }} weitere Zahlung{% if payments|length|add:"-5" != 1 %}en{% endif %} anzeigen
       </a>
     </div>
     {% endif %}
-{% else %}
+    {% else %}
     <div class="text-center py-6 text-slate-500">
       <div class="text-3xl mb-2">💰</div>
       <div>Noch keine Zahlungen erfasst</div>

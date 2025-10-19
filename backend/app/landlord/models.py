@@ -592,7 +592,9 @@ class Contract(TimeStampedModel):
     @property
     def total_rent(self) -> float:
         """Warmmiete (Kalt + NK)"""
-        return float(self.rent_amount) + float(self.additional_costs)
+        rent = float(self.rent_amount) if self.rent_amount is not None else 0.0
+        costs = float(self.additional_costs) if self.additional_costs is not None else 0.0
+        return rent + costs
 
     @property
     def is_active(self) -> bool:
