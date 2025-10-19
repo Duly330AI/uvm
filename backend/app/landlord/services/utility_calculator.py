@@ -133,7 +133,10 @@ class UtilityCostCalculator:
         return {
             'contract_id': contract.id,
             'unit': contract.unit.unit_label,
+            'unit_full': f"{contract.unit.property.name} - {contract.unit.unit_label}",
             'tenant': contract.tenant.primary_email,
+            'area_sqm': contract.unit.area_sqm,  # Add area for display
+            'occupants_count': contract.occupants_count,  # Add occupants for display
             'heating': heating_costs,
             'water': water_costs,
             'waste': waste_costs,

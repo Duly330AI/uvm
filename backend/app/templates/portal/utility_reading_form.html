@@ -1,28 +1,19 @@
-{% extends "portal/base.html" %}
-{% block title %}Zählerstand erfassen{% endblock %}
-
-{% block portal %}
+{% extends "portal/base.html" %} {% block title %}Zählerstand erfassen{% endblock %} {% block portal %}
 <div class="max-w-2xl mx-auto">
   <div class="mb-4">
-    <a href="{% url 'portal_utility_readings' %}" class="text-sm text-blue-600 hover:underline">
-      ← Zurück zu Zählerständen
-    </a>
+    <a href="{% url 'portal_utility_readings' %}" class="text-sm text-blue-600 hover:underline"> ← Zurück zu Zählerständen </a>
   </div>
 
   <h1 class="text-2xl font-semibold mb-6">📊 Neuen Zählerstand erfassen</h1>
 
   <form method="post" class="bg-white border rounded-lg p-6">
-    {% csrf_token %}
-
-    {% if form.errors %}
+    {% csrf_token %} {% if form.errors %}
     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
       <strong>Fehler beim Speichern:</strong>
       <ul class="list-disc list-inside mt-2">
-        {% for field, errors in form.errors.items %}
-          {% for error in errors %}
-          <li>{{ field }}: {{ error }}</li>
-          {% endfor %}
-        {% endfor %}
+        {% for field, errors in form.errors.items %} {% for error in errors %}
+        <li>{{ field }}: {{ error }}</li>
+        {% endfor %} {% endfor %}
       </ul>
     </div>
     {% endif %}
@@ -30,95 +21,81 @@
     <div class="space-y-4">
       <!-- Unit Selection -->
       <div>
-        <label for="{{ form.unit.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+        <label for="unit_id" class="block text-sm font-medium text-slate-700 mb-1">
           Wohneinheit *
         </label>
-        {{ form.unit }}
-        {% if form.unit.help_text %}
-        <p class="text-xs text-slate-500 mt-1">{{ form.unit.help_text }}</p>
-        {% endif %}
+        <select name="unit_id" id="unit_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option value="">Wohneinheit wählen...</option>
+          {% for unit in units %}
+          <option value="{{ unit.id }}">{{ unit.property.name }} - {{ unit.unit_label }}</option>
+          {% endfor %}
+        </select>
+        <p class="text-xs text-slate-500 mt-1">Wohnung für die der Zählerstand erfasst wird</p>
       </div>
 
       <!-- Meter Type -->
       <div>
-        <label for="{{ form.meter_type.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+        <label for="meter_type" class="block text-sm font-medium text-slate-700 mb-1">
           Zählertyp *
         </label>
-        {{ form.meter_type }}
-        {% if form.meter_type.help_text %}
-        <p class="text-xs text-slate-500 mt-1">{{ form.meter_type.help_text }}</p>
-        {% endif %}
+        <select name="meter_type" id="meter_type" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option value="">Zählertyp wählen...</option>
+          {% for value, label in meter_types %}
+          <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+        <p class="text-xs text-slate-500 mt-1">Art des Zählers</p>
       </div>
 
       <!-- Reading Date -->
       <div>
-        <label for="{{ form.reading_date.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+        <label for="reading_date" class="block text-sm font-medium text-slate-700 mb-1">
           Ablesedatum *
         </label>
-        {{ form.reading_date }}
-        {% if form.reading_date.help_text %}
-        <p class="text-xs text-slate-500 mt-1">{{ form.reading_date.help_text }}</p>
-        {% endif %}
+        <input type="date" name="reading_date" id="reading_date" value="{{ today|date:'Y-m-d' }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+        <p class="text-xs text-slate-500 mt-1">Datum der Ablesung</p>
       </div>
 
       <!-- Meter Number -->
       <div>
-        <label for="{{ form.meter_number.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+        <label for="meter_number" class="block text-sm font-medium text-slate-700 mb-1">
           Zählernummer
         </label>
-        {{ form.meter_number }}
-        {% if form.meter_number.help_text %}
-        <p class="text-xs text-slate-500 mt-1">{{ form.meter_number.help_text }}</p>
-        {% endif %}
+        <input type="text" name="meter_number" id="meter_number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+        <p class="text-xs text-slate-500 mt-1">Zählernummer (optional)</p>
       </div>
 
       <!-- Current Value -->
       <div>
-        <label for="{{ form.current_value.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+        <label for="current_value" class="block text-sm font-medium text-slate-700 mb-1">
           Aktueller Zählerstand *
         </label>
-        {{ form.current_value }}
-        {% if form.current_value.help_text %}
-        <p class="text-xs text-slate-500 mt-1">{{ form.current_value.help_text }}</p>
-        {% endif %}
+        <input type="number" name="current_value" id="current_value" step="0.01" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+        <p class="text-xs text-slate-500 mt-1">Aktueller Zählerstand</p>
       </div>
 
       <!-- Previous Value (optional) -->
       <div>
-        <label for="{{ form.previous_value.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+        <label for="previous_value" class="block text-sm font-medium text-slate-700 mb-1">
           Vorheriger Zählerstand
         </label>
-        {{ form.previous_value }}
-        <p class="text-xs text-slate-500 mt-1">
-          Optional - wird automatisch vom letzten Zählerstand übernommen
-        </p>
+        <input type="number" name="previous_value" id="previous_value" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+        <p class="text-xs text-slate-500 mt-1">Optional - wird automatisch vom letzten Zählerstand übernommen</p>
       </div>
 
       <!-- Notes -->
       <div>
-        <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+        <label for="notes" class="block text-sm font-medium text-slate-700 mb-1">
           Notizen
         </label>
-        {{ form.notes }}
-        {% if form.notes.help_text %}
-        <p class="text-xs text-slate-500 mt-1">{{ form.notes.help_text }}</p>
-        {% endif %}
+        <textarea name="notes" id="notes" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+        <p class="text-xs text-slate-500 mt-1">Notizen zur Ablesung</p>
       </div>
     </div>
 
     <div class="flex gap-3 mt-6">
-      <button
-        type="submit"
-        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-      >
-        💾 Speichern
-      </button>
-      <a
-        href="{% url 'portal_utility_readings' %}"
-        class="px-4 py-2 border border-slate-300 rounded hover:bg-slate-50"
-      >
-        Abbrechen
-      </a>
+      <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">💾 Speichern</button>
+      <a href="{% url 'portal_utility_readings' %}" class="px-4 py-2 border border-slate-300 rounded hover:bg-slate-50"> Abbrechen </a>
     </div>
   </form>
 
