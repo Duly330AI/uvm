@@ -114,23 +114,21 @@ class Command(BaseCommand):
     def create_tenants(self, units):
         """Create 8 tenants (1 per unit)"""
         tenant_data = [
-            ("Max", "Mustermann", "max.mustermann@email.de", "+49 30 12345678"),
-            ("Anna", "Schmidt", "anna.schmidt@email.de", "+49 30 23456789"),
-            ("Thomas", "Müller", "thomas.mueller@email.de", "+49 30 34567890"),
-            ("Julia", "Weber", "julia.weber@email.de", "+49 30 45678901"),
-            ("Michael", "Wagner", "michael.wagner@email.de", "+49 89 12345678"),
-            ("Sarah", "Becker", "sarah.becker@email.de", "+49 89 23456789"),
-            ("Daniel", "Schulz", "daniel.schulz@email.de", "+49 89 34567890"),
-            ("Laura", "Koch", "laura.koch@email.de", "+49 89 45678901"),
+            ("max.mustermann@email.de", "+49 30 12345678"),
+            ("anna.schmidt@email.de", "+49 30 23456789"),
+            ("thomas.mueller@email.de", "+49 30 34567890"),
+            ("julia.weber@email.de", "+49 30 45678901"),
+            ("michael.wagner@email.de", "+49 89 12345678"),
+            ("sarah.becker@email.de", "+49 89 23456789"),
+            ("daniel.schulz@email.de", "+49 89 34567890"),
+            ("laura.koch@email.de", "+49 89 45678901"),
         ]
         
         tenants = []
         for i, unit in enumerate(units):
-            first_name, last_name, email, phone = tenant_data[i]
+            email, phone = tenant_data[i]
             tenant = Tenant.objects.create(
                 unit=unit,
-                first_name=first_name,
-                last_name=last_name,
                 primary_email=email,
                 phone=phone,
                 is_active=True
