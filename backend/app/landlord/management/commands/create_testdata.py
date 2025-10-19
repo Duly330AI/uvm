@@ -94,8 +94,7 @@ class Command(BaseCommand):
                 unit_label=f"{i}.OG / Whg {i}",
                 floor=str(i),
                 rooms=2 + (i % 2),  # 2-3 rooms
-                area_sqm=Decimal(str(55 + i * 5)),  # 60-75 sqm
-                description=f"Moderne {2 + (i % 2)}-Zimmer-Wohnung mit Balkon"
+                area_sqm=Decimal(str(55 + i * 5))  # 60-75 sqm
             )
             units.append(unit)
         
@@ -106,8 +105,7 @@ class Command(BaseCommand):
                 unit_label=f"EG-{i}" if i <= 2 else f"OG-{i-2}",
                 floor="EG" if i <= 2 else "1",
                 rooms=3 + (i % 2),  # 3-4 rooms
-                area_sqm=Decimal(str(75 + i * 10)),  # 85-115 sqm
-                description=f"Exklusive {3 + (i % 2)}-Zimmer-Wohnung mit Garten" if i <= 2 else f"Penthouse-Wohnung"
+                area_sqm=Decimal(str(75 + i * 10))  # 85-115 sqm
             )
             units.append(unit)
         
@@ -164,22 +162,20 @@ class Command(BaseCommand):
     def create_vendors(self):
         """Create vendors for various services"""
         vendor_data = [
-            ("Elektro Blitz GmbH", "Elektrik", "service@elektroblitz.de", "+49 30 11111111"),
-            ("Sanitär Meister", "Sanitär", "info@sanitaermeister.de", "+49 30 22222222"),
-            ("Heizung & Klima Pro", "Heizung", "kontakt@heizungpro.de", "+49 30 33333333"),
-            ("Maler Farbwelt", "Maler", "anfrage@farbwelt.de", "+49 30 44444444"),
-            ("Hausmeister Service 24", "Allgemein", "service@hausmeister24.de", "+49 30 55555555"),
-            ("Garten & Grün", "Garten", "info@gartengruen.de", "+49 30 66666666"),
+            ("Elektro Blitz GmbH", "service@elektroblitz.de", "+49 30 11111111"),
+            ("Sanitär Meister", "info@sanitaermeister.de", "+49 30 22222222"),
+            ("Heizung & Klima Pro", "kontakt@heizungpro.de", "+49 30 33333333"),
+            ("Maler Farbwelt", "anfrage@farbwelt.de", "+49 30 44444444"),
+            ("Hausmeister Service 24", "service@hausmeister24.de", "+49 30 55555555"),
+            ("Garten & Grün", "info@gartengruen.de", "+49 30 66666666"),
         ]
         
         vendors = []
-        for name, service_type, email, phone in vendor_data:
+        for name, email, phone in vendor_data:
             vendor = Vendor.objects.create(
                 name=name,
-                service_type=service_type,
                 email=email,
-                phone=phone,
-                is_active=True
+                phone=phone
             )
             vendors.append(vendor)
         
@@ -243,10 +239,10 @@ class Command(BaseCommand):
             
             task = MaintenanceItem.objects.create(
                 unit=unit,
-                vendor=vendor,
-                title=f"Wartung {vendor.service_type}",
-                description=f"Reguläre Wartung für {unit.unit_label}",
-                scheduled_date=date.today() + timedelta(days=random.randint(7, 30)),
+                assigned_vendor=vendor,
+                title=f"Wartung in {unit.unit_label}",
+                description=f"Reguläre Wartungsarbeiten durch {vendor.name}",
+                due_date=date.today() + timedelta(days=random.randint(7, 30)),
                 status='planned'
             )
             tasks.append(task)
