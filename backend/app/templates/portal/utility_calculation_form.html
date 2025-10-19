@@ -1,23 +1,10 @@
-{% extends "portal/base.html" %}
-{% block title %}Nebenkostenabrechnung berechnen - M14{% endblock %}
-
-{% block portal %}
+{% extends "portal/base.html" %} {% block title %}Nebenkostenabrechnung berechnen - M14{% endblock %} {% block portal %}
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   <!-- Header -->
   <div class="mb-8">
-    <a
-      href="{% url 'portal_utility_readings' %}"
-      class="text-sm text-blue-600 hover:underline mb-2 inline-block"
-    >
-      ← Zurück zu Zählerständen
-    </a>
-    <h1 class="text-3xl font-bold text-gray-900">
-      Nebenkostenabrechnung berechnen (M14)
-    </h1>
-    <p class="mt-2 text-sm text-gray-600">
-      Geben Sie die Gesamtkosten ein und berechnen Sie die Verteilung auf die
-      Wohnungen
-    </p>
+    <a href="{% url 'portal_utility_readings' %}" class="text-sm text-blue-600 hover:underline mb-2 inline-block"> ← Zurück zu Zählerständen </a>
+    <h1 class="text-3xl font-bold text-gray-900">Nebenkostenabrechnung berechnen (M14)</h1>
+    <p class="mt-2 text-sm text-gray-600">Geben Sie die Gesamtkosten ein und berechnen Sie die Verteilung auf die Wohnungen</p>
   </div>
 
   <!-- Calculation Form -->
@@ -26,20 +13,12 @@
 
     <!-- Period Selection -->
     <div class="border-b border-gray-200 pb-6">
-      <h2 class="text-lg font-medium text-gray-900 mb-4">
-        Abrechnungszeitraum
-      </h2>
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Abrechnungszeitraum</h2>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700"
-            >Objekt *</label
-          >
-          <select
-            name="property"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
+          <label class="block text-sm font-medium text-gray-700">Objekt *</label>
+          <select name="property" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
             <option value="">Objekt wählen...</option>
             {% for prop in properties %}
             <option value="{{ prop.id }}">{{ prop }}</option>
@@ -49,24 +28,12 @@
 
         <div>
           <label class="block text-sm font-medium text-gray-700">Von *</label>
-          <input
-            type="date"
-            name="start_date"
-            value="{{ suggested_start }}"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
+          <input type="date" name="start_date" value="{{ suggested_start }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700">Bis *</label>
-          <input
-            type="date"
-            name="end_date"
-            value="{{ suggested_end }}"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
+          <input type="date" name="end_date" value="{{ suggested_end }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
         </div>
       </div>
     </div>
@@ -74,88 +41,47 @@
     <!-- Cost Inputs -->
     <div class="space-y-4">
       <h2 class="text-lg font-medium text-gray-900">Gesamtkosten eingeben</h2>
-      <p class="text-sm text-gray-600">
-        Geben Sie die Gesamtkosten für das gesamte Objekt ein. Die Verteilung
-        auf die Wohnungen erfolgt automatisch.
-      </p>
+      <p class="text-sm text-gray-600">Geben Sie die <strong>Jahresgesamtkosten</strong> für das gesamte Objekt und den Abrechnungszeitraum ein. Die Verteilung auf die Wohnungen erfolgt automatisch.</p>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700">
-            💨 Heizkosten (€)
-            <span class="text-xs text-gray-500"
-              >30% Grundkosten + 70% Verbrauch</span
-            >
+            💨 Heizkosten (€) <span class="text-red-600">*</span>
+            <span class="text-xs text-gray-500">Jahresbetrag | 30% Grundkosten + 70% Verbrauch</span>
           </label>
-          <input
-            type="number"
-            name="total_heating"
-            step="0.01"
-            value="0.00"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
+          <input type="number" name="total_heating" step="0.01" value="0.00" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700">
-            💧 Wasserkosten (€)
-            <span class="text-xs text-gray-500">Nach Verbrauch</span>
+            💧 Wasserkosten (€) <span class="text-red-600">*</span>
+            <span class="text-xs text-gray-500">Jahresbetrag | Nach Verbrauch</span>
           </label>
-          <input
-            type="number"
-            name="total_water"
-            step="0.01"
-            value="0.00"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
+          <input type="number" name="total_water" step="0.01" value="0.00" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700">
-            🗑️ Müllkosten (€)
-            <span class="text-xs text-gray-500">Nach Umlage-Schlüssel</span>
+            🗑️ Müllkosten (€) <span class="text-red-600">*</span>
+            <span class="text-xs text-gray-500">Jahresbetrag | Nach Umlage-Schlüssel</span>
           </label>
-          <input
-            type="number"
-            name="total_waste"
-            step="0.01"
-            value="0.00"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
+          <input type="number" name="total_waste" step="0.01" value="0.00" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700">
-            🏛️ Grundsteuer (€)
-            <span class="text-xs text-gray-500">Nach Fläche</span>
+            🏛️ Grundsteuer (€) <span class="text-red-600">*</span>
+            <span class="text-xs text-gray-500">Jahresbetrag | Nach Fläche</span>
           </label>
-          <input
-            type="number"
-            name="total_property_tax"
-            step="0.01"
-            value="0.00"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
+          <input type="number" name="total_property_tax" step="0.01" value="0.00" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
         </div>
 
         <div class="md:col-span-2">
           <label class="block text-sm font-medium text-gray-700">
             📋 Sonstige Kosten (€)
-            <span class="text-xs text-gray-500"
-              >Hausmeister, Versicherung, etc.</span
-            >
+            <span class="text-xs text-gray-500">Jahresbetrag | Hausmeister, Versicherung, etc.</span>
           </label>
-          <input
-            type="number"
-            name="total_other"
-            step="0.01"
-            value="0.00"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
+          <input type="number" name="total_other" step="0.01" value="0.00" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
         </div>
       </div>
     </div>
@@ -164,37 +90,18 @@
     <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
       <div class="flex">
         <div class="flex-shrink-0">
-          <svg
-            class="h-5 w-5 text-blue-400"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-              clip-rule="evenodd"
-            ></path>
+          <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
           </svg>
         </div>
         <div class="ml-3">
-          <h3 class="text-sm font-medium text-blue-800">
-            Hinweis zur Berechnung
-          </h3>
+          <h3 class="text-sm font-medium text-blue-800">Hinweis zur Berechnung</h3>
           <div class="mt-2 text-sm text-blue-700">
             <ul class="list-disc list-inside space-y-1">
-              <li>
-                Heizkosten werden nach HeizkostenV verteilt (30% Grundkosten
-                nach Fläche, 70% nach Verbrauch)
-              </li>
+              <li>Heizkosten werden nach HeizkostenV verteilt (30% Grundkosten nach Fläche, 70% nach Verbrauch)</li>
               <li>Wasserkosten werden nach erfasstem Verbrauch verteilt</li>
-              <li>
-                Andere Kosten werden nach dem im Vertrag festgelegten
-                Umlage-Schlüssel verteilt
-              </li>
-              <li>
-                Vorauszahlungen (NK-Vorauszahlungen aus Vertrag) werden
-                automatisch berücksichtigt
-              </li>
+              <li>Andere Kosten werden nach dem im Vertrag festgelegten Umlage-Schlüssel verteilt</li>
+              <li>Vorauszahlungen (NK-Vorauszahlungen aus Vertrag) werden automatisch berücksichtigt</li>
             </ul>
           </div>
         </div>
@@ -203,12 +110,7 @@
 
     <!-- Actions -->
     <div class="flex justify-end space-x-3">
-      <a
-        href="{% url 'portal_utility_readings' %}"
-        class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-      >
-        Abbrechen
-      </a>
+      <a href="{% url 'portal_utility_readings' %}" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"> Abbrechen </a>
       <button
         type="submit"
         class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
