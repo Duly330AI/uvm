@@ -198,8 +198,8 @@ def utility_calculation_preview(request):
 
     context = {
         'properties': properties,
-        'suggested_start': suggested_start,
-        'suggested_end': suggested_end,
+        'suggested_start': suggested_start.isoformat(),  # ISO format for HTML5 date input
+        'suggested_end': suggested_end.isoformat(),      # ISO format for HTML5 date input
     }
 
     return render(request, 'portal/utility_calculation_form.html', context)
