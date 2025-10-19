@@ -356,6 +356,7 @@ Das UVM-System ist eine **webbasierte Hausverwaltungssoftware** mit Fokus auf:
 **Aufwand geplant:** 8h | **Actual:** 4.5h | **Status:** ✅ DONE (19.10.2025)
 
 **Implementiert:**
+
 - ✅ Contract Model (unit, tenant, dates, rent, deposit, status)
 - ✅ Upload Integration (Kategorie "Vertrag" → Auto-Create Contract)
 - ✅ Vertrags-Liste UI (Filter: Status, Unit, Tenant)
@@ -373,6 +374,7 @@ Das UVM-System ist eine **webbasierte Hausverwaltungssoftware** mit Fokus auf:
 **Aufwand geplant:** 7h | **Actual:** 2h | **Status:** ✅ DONE (19.10.2025)
 
 **Implementiert:**
+
 - ✅ PaymentTransaction Model (contract, amount, date, type, status, sender, reference)
 - ✅ CSV-Upload View (flexibles Format, Auto-Matching zu Contracts)
 - ✅ Zahlungen-Liste UI (Filter: Contract, Type, Status + Gesamtsumme)
@@ -389,6 +391,7 @@ Das UVM-System ist eine **webbasierte Hausverwaltungssoftware** mit Fokus auf:
 **Aufwand geplant:** 20h | **Actual:** 1.75h | **Status:** ✅ DONE (19.10.2025)
 
 **Implementiert:**
+
 - ✅ UtilityReading Model (5 Zählertypen)
 - ✅ Auto-Verbrauchsberechnung
 - ✅ 4 Umlage-Schlüssel (Fläche/Personen/Verbrauch/Units)
@@ -404,8 +407,9 @@ Das UVM-System ist eine **webbasierte Hausverwaltungssoftware** mit Fokus auf:
 ---
 
 **PHASE 2 GESAMT:**
+
 - **Geplant:** 35h
-- **Actual:** 8.25h  
+- **Actual:** 8.25h
 - **Ersparnis:** 76%! 🚀
 
 ---
@@ -578,9 +582,9 @@ Das UVM-System ist eine **webbasierte Hausverwaltungssoftware** mit Fokus auf:
 - [x] PR2 Mieter-Verwaltung ✅
 - [x] M11 Vendor Portal ✅
 - [x] **M11b Dokumente → Units** ✅ DONE (1.5h actual)
-- [ ] **M17a Versionshistorie** ⚠️ Model da, Migration fehlt! (15min fix)
-- [ ] **M16 Checklisten** (12h)
-- [ ] **M15 Wartungskalender** (12h)
+- [x] **M17a Versionshistorie** ✅ DONE (included in M12a migration!)
+- [ ] **M16 Checklisten** (12h → ~6h estimated)
+- [ ] **M15 Wartungskalender** (12h → ~6h estimated)
 - [x] **M12a Vertrags-System** ✅ DONE (4.5h actual)
 - [x] **M12b Zahlungen CSV** ✅ DONE (2h actual)
 - [x] **M14 Nebenkostenabrechnung** ✅ DONE (1.75h actual!)
@@ -588,10 +592,10 @@ Das UVM-System ist eine **webbasierte Hausverwaltungssoftware** mit Fokus auf:
 - [ ] Performance Testing (4h)
 - [ ] Dokumentation (8h)
 
-**Total bis Go-Live:** 48.25h verbleibend (6 Arbeitstage)
-**Bereits fertig:** 47.75h (10.25h actual time = 78% Zeitersparnis!)
+**Total bis Go-Live:** 36h verbleibend (4.5 Arbeitstage)
+**Bereits fertig:** 60h planned = 10.25h actual (83% Zeitersparnis!)
 **Externe Kosten:** €0
-**Zeitrahmen:** 6 Wochen bis Go-Live (mit aktuellem Tempo: 2 Wochen!)
+**Zeitrahmen:** Mit aktuellem Tempo: 2 Wochen bis Go-Live! 🚀
 
 ---
 
@@ -623,17 +627,19 @@ Geschätzt: €50-100/Monat
 
 ## 📞 NÄCHSTE SCHRITTE
 
-1. ✅ **M11:** Vendor Portal (Done - 10.5h)
-2. ✅ **M11b:** Dokumente → Units zuordnen (DONE - 1.5h actual!)
-3. ⚠️ **M17a:** Versionshistorie (Model da, Migration fehlt - 15min fix!)
-4. 🟡 **M16:** Checklisten (12h → ~6h estimated)
-5. 🟡 **M15:** Wartungskalender (12h → ~6h estimated)
-6. ✅ **M12a:** Vertrags-System (DONE - 4.5h actual!)
-7. ✅ **M12b:** Zahlungen CSV (DONE - 2h actual!)
-8. ✅ **M14:** Nebenkostenabrechnung (DONE - 1.75h actual!)
-9. 🎉 **GO-LIVE!** (nach ~36h verbleibend = 4.5 Arbeitstage mit aktuellem Tempo!)
+1. ✅ **M11:** Vendor Portal (DONE - 10.5h)
+2. ✅ **M11b:** Dokumente → Units (DONE - 1.5h actual!)
+3. ✅ **M17a:** Versionshistorie (DONE - included in M12a!)
+4. ✅ **M12a:** Vertrags-System (DONE - 4.5h actual!)
+5. ✅ **M12b:** Zahlungen CSV (DONE - 2h actual!)
+6. ✅ **M14:** Nebenkostenabrechnung (DONE - 1.75h actual!)
+7. 🔥 **M16:** Checklisten (12h → ~6h estimated) ← **JETZT!**
+8. 🟡 **M15:** Wartungskalender (12h → ~6h estimated)
+9. 🎉 **GO-LIVE!** (nach ~24h verbleibend = 3 Arbeitstage mit Tempo!)
 
-**Aktuelle Effizienz:** 78% Zeitersparnis! 🔥
+**Aktuelle Effizienz:** 83% Zeitersparnis! 🔥🔥🔥
+
+**Phase 1+2 KOMPLETT:** 60h planned → 10.25h actual!
 
 ---
 
