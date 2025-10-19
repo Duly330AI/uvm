@@ -1,7 +1,7 @@
 {% extends "portal/base.html" %}
-{% block title %}Nebenkostenabrechnung
-berechnen - M14{% endblock %}
-{% block content %}
+{% block title %}Nebenkostenabrechnung berechnen - M14{% endblock %}
+
+{% block portal %}
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   <!-- Header -->
   <div class="mb-8">
@@ -21,7 +21,7 @@ berechnen - M14{% endblock %}
   </div>
 
   <!-- Calculation Form -->
-  <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-6">
+  <form method="post" action="{% url 'portal_utility_calculation' %}" class="bg-white shadow-md rounded-lg p-6 space-y-6">
     {% csrf_token %}
 
     <!-- Period Selection -->
