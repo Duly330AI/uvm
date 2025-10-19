@@ -1,45 +1,23 @@
-{% extends "portal/base.html" %}
-{% block title %}Vertrag #{{ contract.id }}{% endblock %}
-{% block portal %}
+{% extends "portal/base.html" %} {% block title %}Vertrag #{{ contract.id }}{% endblock %} {% block portal %}
 <div class="mb-4">
-  <a href="{% url 'portal_contracts' %}" class="text-blue-600 hover:underline">
-    ← Zurück zur Vertrags-Liste
-  </a>
+  <a href="{% url 'portal_contracts' %}" class="text-blue-600 hover:underline"> ← Zurück zur Vertrags-Liste </a>
 </div>
 
 <div class="bg-white border rounded-xl p-6 mb-6">
   <div class="flex justify-between items-start mb-4">
     <div>
       <h1 class="text-2xl font-semibold">📝 Mietvertrag #{{ contract.id }}</h1>
-      <div class="text-sm text-slate-500 mt-1">
-        Erstellt am {{ contract.created_at|date:"d.m.Y H:i" }} Uhr
-      </div>
+      <div class="text-sm text-slate-500 mt-1">Erstellt am {{ contract.created_at|date:"d.m.Y H:i" }} Uhr</div>
     </div>
     <div>
       {% if contract.status == 'active' %}
-      <span
-        class="px-3 py-1 bg-green-100 text-green-800 font-semibold rounded-full"
-      >
-        ✓ {{ contract.get_status_display }}
-      </span>
+      <span class="px-3 py-1 bg-green-100 text-green-800 font-semibold rounded-full"> ✓ {{ contract.get_status_display }} </span>
       {% elif contract.status == 'draft' %}
-      <span
-        class="px-3 py-1 bg-amber-100 text-amber-800 font-semibold rounded-full"
-      >
-        ✏️ {{ contract.get_status_display }}
-      </span>
+      <span class="px-3 py-1 bg-amber-100 text-amber-800 font-semibold rounded-full"> ✏️ {{ contract.get_status_display }} </span>
       {% elif contract.status == 'ended' %}
-      <span
-        class="px-3 py-1 bg-slate-100 text-slate-800 font-semibold rounded-full"
-      >
-        ⏹ {{ contract.get_status_display }}
-      </span>
+      <span class="px-3 py-1 bg-slate-100 text-slate-800 font-semibold rounded-full"> ⏹ {{ contract.get_status_display }} </span>
       {% else %}
-      <span
-        class="px-3 py-1 bg-red-100 text-red-800 font-semibold rounded-full"
-      >
-        {{ contract.get_status_display }}
-      </span>
+      <span class="px-3 py-1 bg-red-100 text-red-800 font-semibold rounded-full"> {{ contract.get_status_display }} </span>
       {% endif %}
     </div>
   </div>
@@ -53,14 +31,10 @@
       <div class="text-slate-600">{{ contract.unit.property.name }}</div>
       <div class="text-sm text-slate-500 mt-2">
         {{ contract.unit.property.street }}<br />
-        {{ contract.unit.property.postal_code }} {{ contract.unit.property.city
-        }}
+        {{ contract.unit.property.postal_code }} {{ contract.unit.property.city }}
       </div>
       {% if contract.unit.rooms %}
-      <div class="text-sm text-slate-500 mt-2">
-        🛏️ {{ contract.unit.rooms }} Zimmer {% if contract.unit.area_sqm %} • {{
-        contract.unit.area_sqm }} m² {% endif %}
-      </div>
+      <div class="text-sm text-slate-500 mt-2">🛏️ {{ contract.unit.rooms }} Zimmer {% if contract.unit.area_sqm %} • {{ contract.unit.area_sqm }} m² {% endif %}</div>
       {% endif %}
     </div>
 
@@ -71,31 +45,18 @@
       {% if contract.tenant.phone %}
       <div class="text-slate-600">📞 {{ contract.tenant.phone }}</div>
       {% endif %}
-      <div class="text-sm text-slate-500 mt-2">
-        Eingezogen: {{
-        contract.tenant.moved_in_at|date:"d.m.Y"|default:"Unbekannt" }}
-      </div>
+      <div class="text-sm text-slate-500 mt-2">Eingezogen: {{ contract.tenant.moved_in_at|date:"d.m.Y"|default:"Unbekannt" }}</div>
       {% if contract.tenant.is_active %}
-      <span
-        class="inline-block mt-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded"
-      >
-        ✓ Aktiv
-      </span>
+      <span class="inline-block mt-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded"> ✓ Aktiv </span>
       {% else %}
-      <span
-        class="inline-block mt-2 px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded"
-      >
-        Ausgezogen
-      </span>
+      <span class="inline-block mt-2 px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded"> Ausgezogen </span>
       {% endif %}
     </div>
   </div>
 
   <!-- Vertragslaufzeit -->
   <div class="border rounded-lg p-4 mb-6">
-    <h2 class="text-sm font-semibold text-slate-600 mb-3">
-      📅 Vertragslaufzeit
-    </h2>
+    <h2 class="text-sm font-semibold text-slate-600 mb-3">📅 Vertragslaufzeit</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
         <div class="text-sm text-slate-500">Vertragsbeginn</div>
@@ -112,9 +73,7 @@
       <div>
         <div class="text-sm text-slate-500">Kündigungsdatum</div>
         {% if contract.notice_date %}
-        <div class="font-medium text-red-600">
-          {{ contract.notice_date|date:"d.m.Y" }}
-        </div>
+        <div class="font-medium text-red-600">{{ contract.notice_date|date:"d.m.Y" }}</div>
         {% else %}
         <div class="text-slate-400">-</div>
         {% endif %}
@@ -124,29 +83,21 @@
 
   <!-- Finanzielle Konditionen -->
   <div class="border rounded-lg p-4 mb-6">
-    <h2 class="text-sm font-semibold text-slate-600 mb-3">
-      💰 Finanzielle Konditionen
-    </h2>
+    <h2 class="text-sm font-semibold text-slate-600 mb-3">💰 Finanzielle Konditionen</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
         <div class="space-y-2">
           <div class="flex justify-between">
             <span class="text-slate-600">Kaltmiete:</span>
-            <span class="font-medium"
-              >€{{ contract.rent_amount|floatformat:2 }}</span
-            >
+            <span class="font-medium">€{{ contract.rent_amount|floatformat:2 }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-slate-600">Nebenkosten:</span>
-            <span class="font-medium"
-              >€{{ contract.additional_costs|floatformat:2 }}</span
-            >
+            <span class="font-medium">€{{ contract.additional_costs|floatformat:2 }}</span>
           </div>
           <div class="flex justify-between pt-2 border-t">
             <span class="font-semibold">Warmmiete:</span>
-            <span class="font-semibold text-lg"
-              >€{{ contract.total_rent|floatformat:2 }}</span
-            >
+            <span class="font-semibold text-lg">€{{ contract.total_rent|floatformat:2 }}</span>
           </div>
         </div>
       </div>
@@ -154,15 +105,11 @@
         <div class="space-y-2">
           <div class="flex justify-between">
             <span class="text-slate-600">Kaution:</span>
-            <span class="font-medium"
-              >€{{ contract.deposit_amount|floatformat:2 }}</span
-            >
+            <span class="font-medium">€{{ contract.deposit_amount|floatformat:2 }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-slate-600">Zahlungstag:</span>
-            <span class="font-medium"
-              >{{ contract.payment_day }}. des Monats</span
-            >
+            <span class="font-medium">{{ contract.payment_day }}. des Monats</span>
           </div>
         </div>
       </div>
@@ -172,12 +119,7 @@
     <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded">
       <div class="text-sm text-amber-800">
         ⚠️ <strong>Entwurf:</strong> Bitte Konditionen im
-        <a
-          href="/admin/landlord/contract/{{ contract.id }}/change/"
-          class="underline"
-        >
-          Admin
-        </a>
+        <a href="/admin/landlord/contract/{{ contract.id }}/change/" class="underline"> Admin </a>
         ausfüllen!
       </div>
     </div>
@@ -187,72 +129,37 @@
   <!-- Dokument & Versionshistorie -->
   {% if contract.document %}
   <div class="border rounded-lg p-4">
-    <h2 class="text-sm font-semibold text-slate-600 mb-3">
-      📄 Vertrags-Dokument
-    </h2>
+    <h2 class="text-sm font-semibold text-slate-600 mb-3">📄 Vertrags-Dokument</h2>
 
     <!-- Aktuelles Dokument -->
-    <div
-      class="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded mb-3"
-    >
+    <div class="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded mb-3">
       <div>
         <div class="font-medium">{{ contract.document.name }}</div>
         <div class="text-sm text-slate-600">
-          Version {{ contract.document.current_version }} • {{
-          contract.document.size_bytes|filesizeformat }} • {{
-          contract.document.updated_at|date:"d.m.Y H:i" }} Uhr
+          Version {{ contract.document.current_version }} • {{ contract.document.size_bytes|filesizeformat }} • {{ contract.document.updated_at|date:"d.m.Y H:i" }} Uhr
         </div>
       </div>
       <div class="flex gap-2">
-        <a
-          href="{{ contract.document.file.url }}"
-          target="_blank"
-          class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          📥 Download
-        </a>
-        <a
-          href="{% url 'portal_document_history' contract.document.id %}"
-          class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50"
-        >
-          🔄 Historie
-        </a>
+        <a href="{{ contract.document.file.url }}" target="_blank" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"> 📥 Download </a>
+        <a href="{% url 'portal_document_history' contract.document.id %}" class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50"> 🔄 Historie </a>
       </div>
     </div>
 
     <!-- Versionshistorie -->
     {% if document_versions %}
     <details class="mt-3">
-      <summary
-        class="cursor-pointer text-sm text-slate-600 hover:text-slate-800"
-      >
-        📜 Versionshistorie anzeigen ({{ document_versions|length }} alte
-        Versionen)
-      </summary>
+      <summary class="cursor-pointer text-sm text-slate-600 hover:text-slate-800">📜 Versionshistorie anzeigen ({{ document_versions|length }} alte Versionen)</summary>
       <div class="mt-3 space-y-2">
         {% for version in document_versions %}
-        <div
-          class="flex items-center justify-between p-2 bg-slate-50 rounded text-sm"
-        >
+        <div class="flex items-center justify-between p-2 bg-slate-50 rounded text-sm">
           <div>
-            <span class="font-mono font-medium"
-              >v{{ version.version_number }}</span
-            >
-            <span class="text-slate-600 ml-2">
-              {{ version.created_at|date:"d.m.Y H:i" }}
-            </span>
+            <span class="font-mono font-medium">v{{ version.version_number }}</span>
+            <span class="text-slate-600 ml-2"> {{ version.created_at|date:"d.m.Y H:i" }} </span>
             {% if version.uploaded_by %}
-            <span class="text-slate-500 ml-2">
-              von {{ version.uploaded_by.username }}
-            </span>
+            <span class="text-slate-500 ml-2"> von {{ version.uploaded_by.username }} </span>
             {% endif %}
           </div>
-          <a
-            href="{% url 'portal_document_version_download' contract.document.id version.version_number %}"
-            class="text-blue-600 hover:underline"
-          >
-            Download
-          </a>
+          <a href="{% url 'portal_document_version_download' contract.document.id version.version_number %}" class="text-blue-600 hover:underline"> Download </a>
         </div>
         {% endfor %}
       </div>
@@ -264,12 +171,7 @@
     <div class="text-4xl mb-2">📄</div>
     <div>Kein Vertrags-Dokument vorhanden</div>
     <div class="text-sm mt-2">
-      <a
-        href="{% url 'portal_documents' %}"
-        class="text-blue-600 hover:underline"
-      >
-        Dokument hochladen
-      </a>
+      <a href="{% url 'portal_documents' %}" class="text-blue-600 hover:underline"> Dokument hochladen </a>
     </div>
   </div>
   {% endif %}
@@ -278,12 +180,7 @@
   <div class="border rounded-lg p-4 mt-6">
     <div class="flex justify-between items-center mb-3">
       <h2 class="text-sm font-semibold text-slate-600">💰 Zahlungshistorie</h2>
-      <a
-        href="{% url 'portal_payments' %}?contract={{ contract.id }}"
-        class="text-sm text-blue-600 hover:underline"
-      >
-        Alle anzeigen →
-      </a>
+      <a href="{% url 'portal_payments' %}?contract={{ contract.id }}" class="text-sm text-blue-600 hover:underline"> Alle anzeigen → </a>
     </div>
 
     {% if payments %}
@@ -291,9 +188,7 @@
     <div class="grid grid-cols-3 gap-4 mb-4 p-3 bg-slate-50 rounded">
       <div>
         <div class="text-xs text-slate-500">Gesamtsumme</div>
-        <div class="font-semibold text-green-600">
-          €{{ total_payments|floatformat:2 }}
-        </div>
+        <div class="font-semibold text-green-600">€{{ total_payments|floatformat:2 }}</div>
       </div>
       <div>
         <div class="text-xs text-slate-500">Anzahl Zahlungen</div>
@@ -301,31 +196,23 @@
       </div>
       <div>
         <div class="text-xs text-slate-500">Letzte Zahlung</div>
-        <div class="font-semibold">
-          {% if payments.0 %} {{ payments.0.transaction_date|date:"d.m.Y" }} {% else %} - {% endif %}
-        </div>
+        <div class="font-semibold">{% if payments.0 %} {{ payments.0.transaction_date|date:"d.m.Y" }} {% else %} - {% endif %}</div>
       </div>
     </div>
 
     <!-- Recent Payments -->
     <div class="space-y-2">
       {% for payment in payments|slice:":5" %}
-      <div
-        class="flex items-center justify-between p-3 bg-white border rounded hover:bg-slate-50"
-      >
+      <div class="flex items-center justify-between p-3 bg-white border rounded hover:bg-slate-50">
         <div class="flex-1">
           <div class="flex items-center gap-2">
             <span class="font-medium">€{{ payment.amount|floatformat:2 }}</span>
-            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">
-              {{ payment.get_payment_type_display }}
-            </span>
+            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded"> {{ payment.get_payment_type_display }} </span>
             {% if payment.status == 'received' %}
             <span class="text-green-600 text-xs">✓</span>
             {% endif %}
           </div>
-          <div class="text-xs text-slate-500 mt-1">
-            {{ payment.transaction_date|date:"d.m.Y" }} {% if payment.reference %} • {{ payment.reference|truncatechars:40 }}{% endif %}
-          </div>
+          <div class="text-xs text-slate-500 mt-1">{{ payment.transaction_date|date:"d.m.Y" }} {% if payment.reference %} • {{ payment.reference|truncatechars:40 }}{% endif %}</div>
         </div>
       </div>
       {% endfor %}
@@ -333,25 +220,16 @@
 
     {% if payments|length > 5 %}
     <div class="text-center mt-3">
-      <a
-        href="{% url 'portal_payments' %}?contract={{ contract.id }}"
-        class="text-sm text-blue-600 hover:underline"
-      >
+      <a href="{% url 'portal_payments' %}?contract={{ contract.id }}" class="text-sm text-blue-600 hover:underline">
         + {{ payments|length|add:"-5" }} weitere Zahlung{% if payments|length|add:"-5" != 1 %}en{% endif %} anzeigen
       </a>
     </div>
-    {% endif %}
-    {% else %}
+    {% endif %} {% else %}
     <div class="text-center py-6 text-slate-500">
       <div class="text-3xl mb-2">💰</div>
       <div>Noch keine Zahlungen erfasst</div>
       <div class="text-sm mt-2">
-        <a
-          href="{% url 'portal_payments' %}"
-          class="text-blue-600 hover:underline"
-        >
-          Jetzt CSV importieren
-        </a>
+        <a href="{% url 'portal_payments' %}" class="text-blue-600 hover:underline"> Jetzt CSV importieren </a>
       </div>
     </div>
     {% endif %}
@@ -368,18 +246,8 @@
 
 <!-- Actions -->
 <div class="flex gap-3">
-  <a
-    href="/admin/landlord/contract/{{ contract.id }}/change/"
-    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-  >
-    ✏️ Im Admin bearbeiten
-  </a>
-  <a
-    href="{% url 'portal_contracts' %}"
-    class="px-4 py-2 border rounded-lg hover:bg-slate-50"
-  >
-    ← Zurück zur Liste
-  </a>
+  <a href="/admin/landlord/contract/{{ contract.id }}/change/" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"> ✏️ Im Admin bearbeiten </a>
+  <a href="{% url 'portal_contracts' %}" class="px-4 py-2 border rounded-lg hover:bg-slate-50"> ← Zurück zur Liste </a>
 </div>
 
 {% endblock %}
