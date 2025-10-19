@@ -1,22 +1,18 @@
-{% extends "_base_front.html" %}
-{% block title %}Mieter-Login{% endblock %}
-{% block header_right %}
+{% extends "_base_front.html" %} {% block title %}Mieter-Login{% endblock %} {%
+block header_right %}
 <a class="text-sm hover:underline" href="{% url 'chat_page' %}">Neue Meldung</a>
-{% endblock %}
-{% block content %}
+{% endblock %} {% block content %}
 <div class="max-w-md mx-auto mt-12">
   <div class="bg-white border rounded-xl p-6 shadow-sm">
     <h1 class="text-2xl font-semibold mb-4">Mieter-Portal</h1>
 
-    {% if messages %}
-{% for message in messages %}
+    {% if messages %} {% for message in messages %}
     <div
       class="mb-4 p-3 rounded-lg {% if message.tags == 'success' %}bg-green-50 text-green-800{% elif message.tags == 'error' %}bg-red-50 text-red-800{% else %}bg-blue-50 text-blue-800{% endif %}"
     >
       {{ message }}
     </div>
-    {% endfor %}
-{% endif %}
+    {% endfor %} {% endif %}
 
     <p class="text-slate-600 mb-6">
       Geben Sie Ihre E-Mail-Adresse ein, um einen Anmelde-Link zu erhalten.
