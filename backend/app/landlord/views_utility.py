@@ -72,7 +72,7 @@ def utility_reading_create(request):
     M14: Neuen Zählerstand erfassen (HTMX)
     """
     if request.method == 'POST':
-        unit_id = request.POST.get('unit')
+        unit_id = request.POST.get('unit_id')  # Fixed: was 'unit', should be 'unit_id'
         meter_type = request.POST.get('meter_type')
         reading_date = request.POST.get('reading_date')
         current_value = request.POST.get('current_value')
