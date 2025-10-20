@@ -25,9 +25,37 @@ class Property(TimeStampedModel):
     geo_lat = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     geo_lng = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     notes = models.TextField(blank=True)
+    
+    # Archive fields (soft-delete)
+    is_archived = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text="Soft-delete flag for archived properties"
+    )
+    archived_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Timestamp when property was archived"
+    )
+    archived_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='archived_properties',
+        help_text="User who archived this property"
+    )
 
     def __str__(self) -> str:  # pragma: no cover - display only
         return self.name or f"{self.street}, {self.postal_code} {self.city}"
+    
+    def archive(self, user):
+        """Archive this property (soft-delete)"""
+        from django.utils import timezone
+        self.is_archived = True
+        self.archived_at = timezone.now()
+        self.archived_by = user
+        self.save(update_fields=['is_archived', 'archived_at', 'archived_by'])
 
 
 class Unit(TimeStampedModel):
@@ -726,7 +754,7 @@ class UtilityMeter(TimeStampedModel):
     """
     Zähler-Stammdaten für Versorgungsleistungen.
     M17: Default Meter Prefill
-    
+
     Speichert die physischen Zähler (Seriennummern) pro Property/Unit.
     Ermöglicht automatisches Vorbefüllen der Zählernummer beim Erfassen.
     """
@@ -747,7 +775,7 @@ class UtilityMeter(TimeStampedModel):
         choices=ScopeType.choices,
         help_text='Ist dies ein Gebäude- oder Wohnungszähler?'
     )
-    
+
     # FK to Property (if scope_type=property)
     property = models.ForeignKey(
         Property,
@@ -757,7 +785,7 @@ class UtilityMeter(TimeStampedModel):
         blank=True,
         help_text='Gebäude (nur wenn Gebäudezähler)'
     )
-    
+
     # FK to Unit (if scope_type=unit)
     unit = models.ForeignKey(
         Unit,
@@ -767,29 +795,29 @@ class UtilityMeter(TimeStampedModel):
         blank=True,
         help_text='Wohnung (nur wenn Wohnungszähler)'
     )
-    
+
     meter_type = models.CharField(
         max_length=20,
         choices=MeterType.choices,
         help_text='Art des Zählers (Medium)'
     )
-    
+
     serial_number = models.CharField(
         max_length=100,
         blank=True,
         help_text='Seriennummer des Versorgers (optional)'
     )
-    
+
     is_default = models.BooleanField(
         default=False,
         help_text='Standardzähler für automatisches Vorbefüllen (max. 1 pro Scope+Medium)'
     )
-    
+
     is_active = models.BooleanField(
         default=True,
         help_text='Ist der Zähler aktiv/installiert?'
     )
-    
+
     initial_reading_value = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -797,19 +825,19 @@ class UtilityMeter(TimeStampedModel):
         blank=True,
         help_text='Startwert bei Installation (wird einmalig als "vorheriger Stand" verwendet)'
     )
-    
+
     installed_at = models.DateField(
         null=True,
         blank=True,
         help_text='Installationsdatum'
     )
-    
+
     removed_at = models.DateField(
         null=True,
         blank=True,
         help_text='Datum der Entfernung/Deaktivierung'
     )
-    
+
     notes = models.TextField(
         blank=True,
         help_text='Notizen zum Zähler'
@@ -855,7 +883,7 @@ class UtilityMeter(TimeStampedModel):
     def clean(self):
         """Validate scope consistency and default uniqueness"""
         from django.core.exceptions import ValidationError
-        
+
         # Validate scope consistency
         if self.scope_type == 'property' and not self.property_id:
             raise ValidationError("Gebäudezähler benötigt eine Property-Zuordnung")
@@ -865,7 +893,7 @@ class UtilityMeter(TimeStampedModel):
             raise ValidationError("Gebäudezähler kann keine Unit haben")
         if self.scope_type == 'unit' and self.property_id:
             raise ValidationError("Wohnungszähler kann keine Property haben")
-        
+
         # Validate default uniqueness (only if setting is_default=True)
         if self.is_default:
             existing_defaults = UtilityMeter.objects.filter(
@@ -873,15 +901,15 @@ class UtilityMeter(TimeStampedModel):
                 meter_type=self.meter_type,
                 is_default=True
             )
-            
+
             if self.scope_type == 'property':
                 existing_defaults = existing_defaults.filter(property_id=self.property_id)
             else:
                 existing_defaults = existing_defaults.filter(unit_id=self.unit_id)
-            
+
             if self.pk:
                 existing_defaults = existing_defaults.exclude(pk=self.pk)
-            
+
             if existing_defaults.exists():
                 raise ValidationError(
                     "Pro Objekt/Wohnung und Medium ist nur ein Standardzähler zulässig."

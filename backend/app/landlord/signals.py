@@ -3,13 +3,12 @@ Django signals for:
 - Automatic SLA tracking (M9)
 - UtilityMeter cache invalidation (M17)
 """
-from django.db.models.signals import pre_save, post_save, post_delete
+from django.core.cache import cache
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
-from django.core.cache import cache
 
 from landlord.models import Issue, UtilityMeter
-
 
 # ============================================================================
 # M9: SLA TRACKING
@@ -49,7 +48,7 @@ def _get_meter_cache_key(scope_type: str, scope_id: int, meter_type: str) -> str
 def invalidate_meter_cache_on_save(sender, instance, **kwargs):
     """
     Invalidate cache when a UtilityMeter is saved.
-    
+
     Cache invalidation strategy (Spec Kap. 5):
     - Invalidate the specific cache key for the changed meter's scope+type
     - This ensures fresh data on next lookup after admin changes

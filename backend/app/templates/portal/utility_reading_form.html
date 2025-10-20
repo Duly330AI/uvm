@@ -162,11 +162,9 @@
       const parentOptgroup = selectedOption.parentElement;
       const isBuilding = parentOptgroup && parentOptgroup.label && parentOptgroup.label.includes("Gebäudezähler");
       const scopeType = isBuilding ? "property" : "unit";
-      
+
       // For building meters, use property_id; for unit meters, use unit_id
-      const scopeId = isBuilding 
-        ? selectedOption.dataset.propertyId 
-        : unitId;
+      const scopeId = isBuilding ? selectedOption.dataset.propertyId : unitId;
 
       // Convert meter_type from UtilityReading format to UtilityMeter format
       const meterTypeMap = {
