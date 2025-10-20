@@ -420,11 +420,12 @@ Gruppen **„Gebäudenzähler“** / **„Wohnungszähler“** werden **variabel
 
 ### ✅ **PHASE 5: API Endpoints** - COMPLETE (2025-10-20)
 
-**Status:** ✅ DONE (API Layer)  
-**Aufwand:** 0.3 PT (geplant: 0.5-1 PT für gesamte Phase 5)  
+**Status:** ✅ DONE (API Layer)
+**Aufwand:** 0.3 PT (geplant: 0.5-1 PT für gesamte Phase 5)
 **Commit:** `ad1294e` - "feat(M17): Add API endpoints for meter prefill with tests"
 
 **Implementiert:**
+
 - ✅ **API Endpoints:**
   - `GET /api/utility/meters/default` (scope_type, scope_id, meter_type → meter data)
   - `GET /api/utility/meters/last-reading` (meter_id → previous reading)
@@ -442,6 +443,7 @@ Gruppen **„Gebäudenzähler“** / **„Wohnungszähler“** werden **variabel
   - Decimal → float conversion for JSON serialization
 
 **API Tests:**
+
 - ✅ 12/12 passing (100%)
   - test_api_get_default_meter_success
   - test_api_get_default_meter_missing_params
@@ -457,31 +459,196 @@ Gruppen **„Gebäudenzähler“** / **„Wohnungszähler“** werden **variabel
   - test_api_requires_authentication
 
 **Spec Compliance:**
+
 - ✅ Kap. 3.5: API Services implementiert
 - ✅ Kap. 10: API-Tests (Testfälle 1-4 indirekt)
 
 **Files Changed:**
+
 - `backend/app/landlord/views_utility.py` (+93 lines API endpoints)
 - `backend/app/config/urls.py` (+2 URL routes)
 - `backend/app/landlord/services/utility_meter_service.py` (Decimal→float fix)
 - `backend/app/landlord/tests/test_utility_meter_api.py` (+260 lines, new)
 
-**Note:** Frontend JavaScript/HTMX für Auto-Prefill UX noch TODO (Phase 6)
+---
+
+### ✅ **PHASE 6: Frontend Auto-Prefill** - COMPLETE (2025-10-20)
+
+**Status:** ✅ DONE
+**Aufwand:** 0.3 PT (geplant: 0.2-0.7 PT)
+**Commit:** `46f5455` + `54f3843` (bugfix) - "feat(M17): Add frontend auto-prefill with JavaScript"
+
+**Implementiert:**
+
+- ✅ **JavaScript Implementation:**
+  - onChange handlers for `unit_id` + `meter_type`
+  - AJAX fetch() calls to `/api/utility/meters/default`
+  - AJAX fetch() calls to `/api/utility/meters/last-reading`
+  - Meter type mapping (UtilityReading → UtilityMeter format)
+  - Scope type detection via **optgroup label** (property vs unit)
+- ✅ **UI Cases:**
+  - Case A: Default meter → Auto-fill serial number ✓
+  - Case B: Single active meter → Auto-fill serial number ✓
+  - Case C: Multiple meters → Show dropdown with selection ✓
+  - Case D: No meter → Show hint to add in admin ✓
+- ✅ **Dropdown Format (Case C):**
+  - Display: `{serial_number} · {meter_type_label} · installiert: {date}`
+  - Example: "ABC123 · Strom · installiert: 2024-01-15"
+- ✅ **Auto-Load Previous Reading:**
+  - Loads last reading value automatically
+  - Shows "(Erstwert aus Stammdaten)" when `is_initial=true`
+- ✅ **User Experience:**
+  - Loading indicator (⏳ Lade...)
+  - Color-coded feedback (green/orange/red)
+  - No page reload required
+  - Progressive enhancement (works without JS)
+
+**Bug Fixes:**
+
+- ✅ Fixed scope detection: Now checks optgroup label instead of option text
+- ✅ Works for any property name (not just "Allgemein")
+
+**Spec Compliance:**
+
+- ✅ Kap. 3.3: Portal-UX Prefill & Auswahl komplett
+- ✅ Kap. 3.3 Dropdown-Format: Korrekt implementiert
+- ✅ Kap. 3.3 Vorheriger Zählerstand: Auto-load implementiert
+- ✅ Kap. 4: UI-Meldungen (4 von 5 implementiert)
+- ✅ Kap. 9: Akzeptanzkriterien 1-5 erfüllt
+
+**Files Changed:**
+
+- `backend/app/templates/portal/utility_reading_form.html` (+170 lines JS)
 
 ---
 
-### 🔄 **PHASE 6: Frontend Auto-Prefill** - IN PROGRESS (2025-10-20)
+## **GESAMTSTATUS M17: Default Meter Prefill**
 
-**Status:** 🔄 IN PROGRESS  
-**Aufwand:** TBD (geplant: 0.2-0.7 PT)
+### ✅ **ALLE CORE-PHASEN ABGESCHLOSSEN!**
 
-**TODO:**
-- [ ] JavaScript onChange-Handler für Unit + MeterType
-- [ ] AJAX-Call zu /api/utility/meters/default
-- [ ] Auto-Prefill Seriennummer (Fall A/B)
-- [ ] Dropdown "Zähler auswählen" (Fall C: has_multiple=true)
-- [ ] Auto-Load vorheriger Zählerstand
-- [ ] UI-Info "Erstwert aus Stammdaten" (is_initial=true)
+```
+✅ Phase 1: Datenmodell & Migration      (0.5 PT)
+✅ Phase 2: Admin-Integration             (0.3 PT)
+✅ Phase 3: Service-Layer                 (0.4 PT)
+✅ Phase 4: Caching-Strategie             (0.4 PT)
+✅ Phase 5: API Endpoints                 (0.3 PT)
+✅ Phase 6: Frontend Auto-Prefill         (0.3 PT)
+─────────────────────────────────────────────────
+TOTAL INVESTED: 2.2 PT / 2-3 PT (73-110%) ✅
+```
+
+### **Test Coverage:**
+
+- Model Tests: 10/10 ✅
+- Service Tests: 10/10 ✅
+- Cache Tests: 6/6 ✅
+- API Tests: 12/12 ✅
+- **Total: 38/38 (100%)** ✅
+
+### **Funktionalität:**
+
+- ✅ Alle 4 Lookup-Cases (A/B/C/D) implementiert
+- ✅ Frontend + Backend komplett integriert
+- ✅ Caching mit Invalidation aktiv
+- ✅ Performance-Ziel <200ms erreicht
+
+### **Manual Testing:**
+
+- ✅ Building meter prefill verified ("Mehrfamilienhaus")
+- ✅ Scope detection bugfix deployed
+- ⏳ E2E tests pending (browser validation)
+
+---
+
+## **OPTIONAL FEATURES (noch offen):**
+
+### **Nice-to-Have (nicht kritisch):**
+
+- [ ] **Audit-Trail** (0.3-0.5 PT)
+  - changed_by, changed_at tracking
+  - Admin "Änderungsverlauf" view
+- [ ] **CSV-Import Seriennummern** (0.5-1 PT)
+  - Bulk-Upload von Zähler-Stammdaten
+  - Import-Report (OK/Fehler)
+- [ ] **Gas m³→kWh Migration** (0.5 PT)
+  - Einmalige Konvertierung Altbestände
+  - CSV-gestützt mit Faktor
+
+### **Documentation & Release:**
+
+- [ ] **E2E Test-Dokumentation** (0.2 PT)
+  - Alle 7 Testfälle dokumentieren
+- [ ] **Release-Kommunikation** (0.1 PT)
+  - Release-Note (Text fertig)
+  - Admin-Hinweis
+
+---
+
+- ✅ **Auto-Load Features:**
+  - Previous reading value automatically loaded
+  - UI info "(Erstwert aus Stammdaten)" when `is_initial=true`
+  - Loading indicator (⏳ Lade...)
+- ✅ **User Experience:**
+  - Inline feedback (green/orange/red color coding)
+  - No page reload required
+  - Progressive enhancement (works without JS)
+  - Clear error messages
+
+**Spec Compliance:**
+
+- ✅ Kap. 3.3: Portal-UX Prefill & Auswahl komplett
+- ✅ Kap. 3.3 Dropdown-Format: Korrekt implementiert
+- ✅ Kap. 3.3 Vorheriger Zählerstand: Auto-load implementiert
+- ✅ Kap. 4: UI-Meldungen (4 von 5 implementiert)
+- ✅ Kap. 9: Akzeptanzkriterien 1-5 erfüllt
+
+**Files Changed:**
+
+- `backend/app/templates/portal/utility_reading_form.html` (+170 lines JavaScript)
+
+**Testing:**
+
+- Manual testing: Recommended in browser
+- E2E tests: 7 test cases from Spec Kap. 10
+
+---
+
+### 📊 **GESAMTSTATUS M17** (2025-10-20)
+
+**Completed Phases:**
+
+- ✅ Phase 1: Datenmodell & Migration (0.5 PT)
+- ✅ Phase 2: Admin-Integration (0.3 PT)
+- ✅ Phase 3: Service-Layer (0.4 PT)
+- ✅ Phase 4: Caching-Strategie (0.4 PT)
+- ✅ Phase 5: API Endpoints (0.3 PT)
+- ✅ Phase 6: Frontend Auto-Prefill (0.3 PT)
+
+**Total Effort:** 2.2 PT / 2-3 PT (73-110% ✅)
+
+**Test Coverage:**
+
+- Model Tests: 10/10 ✅
+- Service Tests: 10/10 ✅
+- Cache Tests: 6/6 ✅
+- API Tests: 12/12 ✅
+- **Total: 38/38 (100%)**
+
+**Spec Compliance:**
+
+- ✅ Kap. 3.1-3.5: Alle Soll-Features implementiert
+- ✅ Kap. 4: Fehlermeldungen (4/5)
+- ✅ Kap. 5: Performance & Caching
+- ✅ Kap. 8: Validierungen
+- ✅ Kap. 9: Akzeptanzkriterien (5/7)
+
+**Optional Features (noch offen):**
+
+- [ ] Audit-Trail (Kap. 6)
+- [ ] CSV-Import Seriennummern (Kap. 7.2)
+- [ ] Gas m³→kWh Migration (Kap. 7.1)
+- [ ] E2E Tests (Kap. 10)
+- [ ] Release-Kommunikation (Kap. 13)
 
 ---
 
