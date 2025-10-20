@@ -471,6 +471,7 @@ Hinweis: „Keine Code-Snippets" – daher nur Endpunkte, Parameter und Semantik
 - ✅ **TODO-Updates:** Implementation-Details für Custom Throttle `get_ident()` und Default-Delete-Tests ergänzt
 
 **Technische Details:**
+
 - Custom `get_ident()` in Throttle-Klassen für X-Forwarded-For Support
 - Nginx-Config: `proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;`
 - Test: `test_meter_delete_default_no_auto_reassign()` für explizites Verhalten

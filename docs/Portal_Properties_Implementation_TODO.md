@@ -45,17 +45,31 @@
 
 **File:** `backend/app/landlord/models.py`
 
-- [ ] 1.2.1 Add `geo_lat = DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)` to Property
-- [ ] 1.2.2 Add `geo_lng = DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)` to Property
-- [ ] 1.2.3 Create DB Check-Constraint: `geo_lat >= -90.0 AND geo_lat <= 90.0`
-- [ ] 1.2.4 Create DB Check-Constraint: `geo_lng >= -180.0 AND geo_lng <= 180.0`
-- [ ] 1.2.5 Add clean() method validation for geo_lat/geo_lng ranges
-- [ ] 1.2.6 Write unit test: `test_property_geo_lat_valid_range()`
-- [ ] 1.2.7 Write unit test: `test_property_geo_lat_invalid_range_raises()`
-- [ ] 1.2.8 Write unit test: `test_property_geo_lng_valid_range()`
-- [ ] 1.2.9 Write unit test: `test_property_geo_lng_invalid_range_raises()`
+**Status:** ✅ **COMPLETED** (2025-10-20)
 
-**Estimate:** 0.12 PT
+- [x] 1.2.1 Add `geo_lat = DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)` to Property ✅ (Already existed)
+- [x] 1.2.2 Add `geo_lng = DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)` to Property ✅ (Already existed)
+- [x] 1.2.3 Create DB Check-Constraint: `geo_lat >= -90.0 AND geo_lat <= 90.0` ✅
+- [x] 1.2.4 Create DB Check-Constraint: `geo_lng >= -180.0 AND geo_lng <= 180.0` ✅
+- [x] 1.2.5 Add field-level validators: `MinValueValidator/MaxValueValidator` ✅
+- [x] 1.2.6 Write unit test: `test_property_geo_lat_valid_range()` ✅
+- [x] 1.2.7 Write unit test: `test_property_geo_lat_invalid_range_raises()` ✅ (2 tests: too low, too high)
+- [x] 1.2.8 Write unit test: `test_property_geo_lng_valid_range()` ✅
+- [x] 1.2.9 Write unit test: `test_property_geo_lng_invalid_range_raises()` ✅ (2 tests: too low, too high)
+
+**Tests:** 8/8 passing ✅
+- `test_property_geo_lat_valid_range()` - Tests -90.0, 90.0, and Berlin coords
+- `test_property_geo_lat_invalid_too_low()` - Tests -90.1 → IntegrityError
+- `test_property_geo_lat_invalid_too_high()` - Tests 90.1 → IntegrityError
+- `test_property_geo_lng_valid_range()` - Tests -180.0, 180.0
+- `test_property_geo_lng_invalid_too_low()` - Tests -180.1 → IntegrityError
+- `test_property_geo_lng_invalid_too_high()` - Tests 180.1 → IntegrityError
+- `test_property_geo_coordinates_null_allowed()` - Tests NULL values OK
+- `test_property_full_call_clean_validators()` - Tests full_clean() validation
+
+**Migration:** `0019_add_geo_coordinate_constraints.py` ✅ Applied
+
+**Estimate:** 0.12 PT | **Actual:** 0.12 PT ✅
 
 ---
 

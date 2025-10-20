@@ -1,14 +1,18 @@
 """
 Property Model Extended Tests
-Tests for Phase 1, Task 1.1: Archive Fields
+Tests for Phase 1, Tasks 1.1 & 1.2
 
 Tests cover:
-- Archive field creation (is_archived, archived_at, archived_by)
-- archive() method behavior
-- Idempotency
+- Task 1.1: Archive fields (is_archived, archived_at, archived_by)
+- Task 1.1: archive() method behavior
+- Task 1.1: Idempotency
+- Task 1.2: Geo-coordinate validation (lat/lng ranges)
 """
 import pytest
+from decimal import Decimal
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.utils import timezone
 from landlord.models import Property
 
@@ -182,3 +186,143 @@ class TestPropertyArchiveFields:
         assert p1 in user.archived_properties.all()
         assert p2 in user.archived_properties.all()
         assert p3 not in user.archived_properties.all()
+
+
+@pytest.mark.django_db
+class TestPropertyGeoCoordinates:
+    """Test suite for Property geo-coordinate validation (Task 1.2)"""
+
+    def test_property_geo_lat_valid_range(self):
+        """Test 1.2.6: geo_lat accepts valid range -90.0 to +90.0"""
+        # Valid minimum
+        p1 = Property.objects.create(
+            name="North Pole",
+            street="Ice St",
+            postal_code="12345",
+            city="Arctic",
+            geo_lat=Decimal('-90.0'),
+            geo_lng=Decimal('0.0')
+        )
+        assert p1.geo_lat == Decimal('-90.0')
+        
+        # Valid maximum
+        p2 = Property.objects.create(
+            name="South Pole",
+            street="Ice St",
+            postal_code="12345",
+            city="Antarctic",
+            geo_lat=Decimal('90.0'),
+            geo_lng=Decimal('0.0')
+        )
+        assert p2.geo_lat == Decimal('90.0')
+        
+        # Valid middle
+        p3 = Property.objects.create(
+            name="Berlin",
+            street="Main St",
+            postal_code="12345",
+            city="Berlin",
+            geo_lat=Decimal('52.520008'),
+            geo_lng=Decimal('13.404954')
+        )
+        assert p3.geo_lat == Decimal('52.520008')
+
+    def test_property_geo_lat_invalid_too_low(self):
+        """Test 1.2.7: geo_lat < -90.0 raises IntegrityError"""
+        with pytest.raises(IntegrityError) as exc_info:
+            Property.objects.create(
+                name="Invalid Low",
+                street="St",
+                postal_code="12345",
+                city="City",
+                geo_lat=Decimal('-90.1')
+            )
+        assert 'property_geo_lat_valid_range' in str(exc_info.value)
+
+    def test_property_geo_lat_invalid_too_high(self):
+        """Test 1.2.7: geo_lat > 90.0 raises IntegrityError"""
+        with pytest.raises(IntegrityError) as exc_info:
+            Property.objects.create(
+                name="Invalid High",
+                street="St",
+                postal_code="12345",
+                city="City",
+                geo_lat=Decimal('90.1')
+            )
+        assert 'property_geo_lat_valid_range' in str(exc_info.value)
+
+    def test_property_geo_lng_valid_range(self):
+        """Test 1.2.8: geo_lng accepts valid range -180.0 to +180.0"""
+        # Valid minimum
+        p1 = Property.objects.create(
+            name="West Edge",
+            street="St",
+            postal_code="12345",
+            city="City",
+            geo_lat=Decimal('0.0'),
+            geo_lng=Decimal('-180.0')
+        )
+        assert p1.geo_lng == Decimal('-180.0')
+        
+        # Valid maximum
+        p2 = Property.objects.create(
+            name="East Edge",
+            street="St",
+            postal_code="12345",
+            city="City",
+            geo_lat=Decimal('0.0'),
+            geo_lng=Decimal('180.0')
+        )
+        assert p2.geo_lng == Decimal('180.0')
+
+    def test_property_geo_lng_invalid_too_low(self):
+        """Test 1.2.9: geo_lng < -180.0 raises IntegrityError"""
+        with pytest.raises(IntegrityError) as exc_info:
+            Property.objects.create(
+                name="Invalid Low",
+                street="St",
+                postal_code="12345",
+                city="City",
+                geo_lng=Decimal('-180.1')
+            )
+        assert 'property_geo_lng_valid_range' in str(exc_info.value)
+
+    def test_property_geo_lng_invalid_too_high(self):
+        """Test 1.2.9: geo_lng > 180.0 raises IntegrityError"""
+        with pytest.raises(IntegrityError) as exc_info:
+            Property.objects.create(
+                name="Invalid High",
+                street="St",
+                postal_code="12345",
+                city="City",
+                geo_lng=Decimal('180.1')
+            )
+        assert 'property_geo_lng_valid_range' in str(exc_info.value)
+
+    def test_property_geo_coordinates_null_allowed(self):
+        """Test that geo_lat/geo_lng can be NULL (optional fields)"""
+        p = Property.objects.create(
+            name="No Geo",
+            street="St",
+            postal_code="12345",
+            city="City"
+        )
+        assert p.geo_lat is None
+        assert p.geo_lng is None
+
+    def test_property_full_call_clean_validators(self):
+        """Test that model validators are called via full_clean()"""
+        p = Property(
+            name="Test",
+            street="St",
+            postal_code="12345",
+            city="City",
+            geo_lat=Decimal('91.0')  # Invalid!
+        )
+        
+        # full_clean() should raise ValidationError
+        with pytest.raises(ValidationError) as exc_info:
+            p.full_clean()
+        
+        # Check that geo_lat validation failed
+        assert 'geo_lat' in exc_info.value.error_dict

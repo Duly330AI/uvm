@@ -22,8 +22,22 @@ class Property(TimeStampedModel):
     postal_code = models.CharField(max_length=20)
     city = models.CharField(max_length=100)
     country = models.CharField(max_length=100, default="Deutschland")
-    geo_lat = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    geo_lng = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    geo_lat = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(-90.0), MaxValueValidator(90.0)],
+        help_text="Latitude (-90.0 to +90.0)"
+    )
+    geo_lng = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(-180.0), MaxValueValidator(180.0)],
+        help_text="Longitude (-180.0 to +180.0)"
+    )
     notes = models.TextField(blank=True)
     
     # Archive fields (soft-delete)
@@ -56,6 +70,18 @@ class Property(TimeStampedModel):
         self.archived_at = timezone.now()
         self.archived_by = user
         self.save(update_fields=['is_archived', 'archived_at', 'archived_by'])
+    
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(geo_lat__isnull=True) | (Q(geo_lat__gte=-90.0) & Q(geo_lat__lte=90.0)),
+                name='property_geo_lat_valid_range'
+            ),
+            models.CheckConstraint(
+                condition=Q(geo_lng__isnull=True) | (Q(geo_lng__gte=-180.0) & Q(geo_lng__lte=180.0)),
+                name='property_geo_lng_valid_range'
+            ),
+        ]
 
 
 class Unit(TimeStampedModel):

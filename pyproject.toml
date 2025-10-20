@@ -44,6 +44,42 @@ quote-style = "double"
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.dev"
 python_files = ["tests.py","test_*.py","*_tests.py"]
+addopts = """
+    --cov=landlord
+    --cov-report=term-missing
+    --cov-report=html
+    --cov-report=xml
+    --cov-config=pyproject.toml
+"""
+
+[tool.coverage.run]
+source = ["landlord"]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/virtualenv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "def __str__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+show_missing = true
+precision = 2
+
+[tool.coverage.html]
+directory = "htmlcov"
 [tool.black]
 line-length = 100
 target-version = ["py312"]
