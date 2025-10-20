@@ -203,11 +203,12 @@ Gruppen **„Gebäudenzähler“** / **„Wohnungszähler“** werden **variabel
 
 ### ✅ **PHASE 1: Datenmodell & Migration** - COMPLETE (2025-10-20)
 
-**Status:** ✅ DONE  
-**Aufwand:** 0.5 PT (geplant: 0.5-1 PT)  
+**Status:** ✅ DONE
+**Aufwand:** 0.5 PT (geplant: 0.5-1 PT)
 **Commit:** `7c67ab2` - "feat(M17): Add UtilityMeter model with constraints & tests"
 
 **Implementiert:**
+
 - ✅ UtilityMeter Model mit allen Fields
   - `scope_type` (property/unit), `property`, `unit`
   - `meter_type` (cold_water, hot_water, electricity, gas)
@@ -232,6 +233,7 @@ Gruppen **„Gebäudenzähler“** / **„Wohnungszähler“** werden **variabel
   - get_scope_object()
 
 **Spec Compliance:**
+
 - ✅ Kap. 3.1: Datenmodell komplett
 - ✅ Kap. 3.1 Regeln: Konflikt-Policy implementiert
 - ✅ Kap. 4: Fehlermeldung "nur ein Standardzähler zulässig"
@@ -239,22 +241,78 @@ Gruppen **„Gebäudenzähler“** / **„Wohnungszähler“** werden **variabel
 - ✅ Kap. 8: Validierungen (Scope-Konsistenz, Default-Uniqueness)
 
 **Files Changed:**
+
 - `backend/app/landlord/models.py` (+180 lines)
 - `backend/app/landlord/migrations/0017_add_utility_meter_m17.py` (new)
 - `backend/app/landlord/tests/test_utility_meter_model.py` (+218 lines, new)
 
 ---
 
-### 🔄 **PHASE 2: Admin-Integration** - IN PROGRESS (2025-10-20)
+---
+
+### ✅ **PHASE 2: Admin-Integration** - COMPLETE (2025-10-20)
+
+**Status:** ✅ DONE  
+**Aufwand:** 0.3 PT (geplant: als Teil von 0.5-1 PT)  
+**Commit:** `153cd8a` - "feat(M17): Add UtilityMeter admin integration"
+
+**Implementiert:**
+- ✅ **Admin Inlines:**
+  - `PropertyUtilityMeterInline` für Gebäudezähler
+  - `UnitUtilityMeterInline` für Wohnungszähler
+  - Base `UtilityMeterInline` mit allen Fields
+  - Auto-ordering: Default → Active → MeterType
+  - Scope-type wird automatisch via `get_formset()` gesetzt
+- ✅ **Admin Model (UtilityMeterAdmin):**
+  - Fieldsets: "Zuordnung", "Zähler-Details", "Startwert & Zeiträume", "Notizen"
+  - `list_display`: scope_type, scope_object, meter_type, serial_number, is_default, is_active
+  - `list_filter`: scope_type, meter_type, is_default, is_active
+  - `search_fields`: serial_number, property__name, property__street, unit__unit_label
+  - `get_scope_display()` method für Objektanzeige
+  - `select_related('property', 'unit')` optimization
+- ✅ **Integration:**
+  - PropertyAdmin: `inlines = [PropertyUtilityMeterInline]`
+  - UnitAdmin: `inlines = [UnitUtilityMeterInline]`
+- ✅ **UI Features:**
+  - Fields: meter_type, serial_number, is_default, is_active
+  - Fields: initial_reading_value, installed_at, removed_at, notes
+  - Hilfetext für is_default & initial_reading_value (via fieldset descriptions)
+  - Collapsed "Notizen" section
+- ✅ **Validation:**
+  - Model.clean() wird bei Admin-Save automatisch aufgerufen
+  - Hard-Fail wenn >1 Default (via UniqueConstraint + clean())
+  - Fehlermeldung: "Pro Objekt/Wohnung und Medium ist nur ein Standardzähler zulässig"
+
+**Spec Compliance:**
+- ✅ Kap. 3.2: Admin-UX komplett
+- ✅ Kap. 3.2 Validierung: Hard-Fail implementiert
+- ✅ Kap. 3.2 Pflege: Frei anlegbar (Inline + Standalone Admin)
+- ✅ Kap. 4: Admin-Save Fehlermeldung korrekt
+
+**Testing:**
+- ✅ `python manage.py check` passed
+- ✅ Web server restarted
+- ✅ Admin UI verfügbar unter `/admin/`
+- ✅ Testsuite: 111 passed, 5 failed (bekannt)
+
+**Files Changed:**
+- `backend/app/landlord/admin.py` (+127 lines)
+
+---
+
+### 🔄 **PHASE 3: Service-Layer** - IN PROGRESS (2025-10-20)
 
 **Status:** 🔄 IN PROGRESS  
-**Aufwand:** TBD (geplant: als Teil von 0.5-1 PT)
+**Aufwand:** TBD (geplant: 0.5 PT)
 
 **TODO:**
-- [ ] TabularInline für Property-Admin
-- [ ] TabularInline für Unit-Admin
-- [ ] Fields: Medium, Seriennummer, Default-Checkbox, Aktiv, Startwert, Installiert am, Entfernt am
-- [ ] Hilfetext für is_default und initial_reading_value
-- [ ] Admin-Validierung bei Save (Hard-Fail wenn >1 Default)
+- [ ] Service `getDefaultMeter(scope_type, scope_id, meter_type)`
+- [ ] Service `getLastReading(meter_id)`
+- [ ] Lookup-Priorität: Default → Ein Aktiver → Mehrere Aktive → Kein Zähler
+- [ ] Return-Format: `{meter_id, serial_number, has_multiple, initial_reading_value?}`
+
+---
+
+```
 
 ---
