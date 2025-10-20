@@ -506,27 +506,71 @@
   ```python
   class PortalMutatingThrottle(UserRateThrottle):
       scope = 'portal_mutating'
-      rate = '60/min'  # Per user + IP
+      
+      def get_rate(self):
+          # Staff gets higher limit for bulk operations
+          if self.request.user.is_staff:
+              return '600/min'
+          return '60/min'
+      
+      def get_ident(self, request):
+          # Use X-Forwarded-For if behind proxy, fallback to REMOTE_ADDR
+          xff = request.META.get('HTTP_X_FORWARDED_FOR')
+          if xff:
+              # Get first IP (client IP)
+              return xff.split(',')[0].strip()
+          return request.META.get('REMOTE_ADDR')
   ```
 - [ ] 2.9.2 Create `PortalReadThrottle(UserRateThrottle)`:
   ```python
   class PortalReadThrottle(UserRateThrottle):
       scope = 'portal_read'
       rate = '240/min'
+      
+      def get_ident(self, request):
+          # Same X-Forwarded-For logic
+          xff = request.META.get('HTTP_X_FORWARDED_FOR')
+          if xff:
+              return xff.split(',')[0].strip()
+          return request.META.get('REMOTE_ADDR')
+  ```
+- [ ] 2.9.2 Create `PortalReadThrottle(UserRateThrottle)`:
+  ```python
+  class PortalReadThrottle(UserRateThrottle):
+      scope = 'portal_read'
+      rate = '240/min'
+      
+      def get_ident(self, request):
+          # Same X-Forwarded-For logic
+          xff = request.META.get('HTTP_X_FORWARDED_FOR')
+          if xff:
+              return xff.split(',')[0].strip()
+          return request.META.get('REMOTE_ADDR')
   ```
 - [ ] 2.9.3 Add to `settings.py`:
   ```python
   REST_FRAMEWORK = {
       'DEFAULT_THROTTLE_RATES': {
           'portal_mutating': '60/min',
+          'portal_mutating_staff': '600/min',
           'portal_read': '240/min',
       }
   }
   ```
-- [ ] 2.9.4 Apply throttles to all API views
-- [ ] 2.9.5 Write unit test: `test_throttle_mutating_60_per_minute()`
-- [ ] 2.9.6 Write unit test: `test_throttle_read_240_per_minute()`
-- [ ] 2.9.7 Write unit test: `test_throttle_returns_429_with_retry_after()`
+- [ ] 2.9.4 Configure Nginx (if behind reverse proxy):
+  ```nginx
+  location / {
+      proxy_pass http://backend;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Real-IP $remote_addr;
+  }
+  ```
+- [ ] 2.9.5 Apply throttles to all API views
+- [ ] 2.9.6 Write unit test: `test_throttle_mutating_60_per_minute()`
+- [ ] 2.9.7 Write unit test: `test_throttle_staff_600_per_minute()`
+- [ ] 2.9.8 Write unit test: `test_throttle_read_240_per_minute()`
+- [ ] 2.9.9 Write unit test: `test_throttle_returns_429_with_retry_after()`
+- [ ] 2.9.10 Write unit test: `test_throttle_uses_x_forwarded_for()`
 
 **Estimate:** 0.10 PT
 
@@ -647,15 +691,17 @@
   - Error message: "Zähler kann nicht gelöscht werden, da bereits Zählerstände existieren. Bitte deaktivieren."
   - Suggest alternative: Deactivate via PATCH `is_active=false`
   - If no Readings: call `instance.delete()`
+  - **WICHTIG:** Beim Löschen eines Default-Zählers wird KEIN neuer Default automatisch gesetzt (explizites Verhalten)
 - [ ] 3.3.5 Write unit test: `test_meter_delete_no_readings_204()`
 - [ ] 3.3.6 Write unit test: `test_meter_delete_with_readings_409()`
 - [ ] 3.3.7 Write unit test: `test_meter_delete_409_suggests_deactivate()`
-- [ ] 3.3.8 Write unit test: `test_meter_delete_not_found_404()`
-- [ ] 3.3.9 Write unit test: `test_meter_delete_requires_permission()`
+- [ ] 3.3.8 Write unit test: `test_meter_delete_default_no_auto_reassign()`
+- [ ] 3.3.9 Write unit test: `test_meter_delete_not_found_404()`
+- [ ] 3.3.10 Write unit test: `test_meter_delete_requires_permission()`
 
 **URL:**
 
-- [ ] 3.3.10 Use same route as 3.2 (DELETE method)
+- [ ] 3.3.11 Use same route as 3.2 (DELETE method)
 
 **Estimate:** 0.15 PT
 
@@ -972,6 +1018,7 @@
 **Goal:** Implement Property detail/edit view with inline meter management (dynamic add/edit/remove).
 
 ### ✅ Task 5.1: Route /portal/properties/{id}/ (Detail/Edit View)
+
 **Files:** `backend/app/landlord/views.py`, `templates/portal/property_detail.html`
 
 - [ ] 5.1.1 Create `PropertyDetailView(LoginRequiredMixin, DetailView)` in `views.py`
@@ -991,6 +1038,7 @@
 ---
 
 ### ✅ Task 5.2: Property Form (All Fields)
+
 **Files:** `backend/app/landlord/forms.py`, `templates/portal/property_detail.html`
 
 - [ ] 5.2.1 Create `PropertyUpdateForm(ModelForm)` in `forms.py` with all fields from 3.1
@@ -1009,6 +1057,7 @@
 ---
 
 ### ✅ Task 5.3: Meter List Inline (Dynamic Add/Edit/Remove)
+
 **File:** `templates/portal/property_detail.html` + JavaScript
 
 - [ ] 5.3.1 Create meters table/cards in template
@@ -1031,6 +1080,7 @@
 ---
 
 ### ✅ Task 5.4: Meter Form Fields (All from 3.2)
+
 **File:** `templates/portal/property_detail.html` + `forms.py`
 
 - [ ] 5.4.1 Create `UtilityMeterForm(ModelForm)` in `forms.py` with all meter fields
@@ -1053,6 +1103,7 @@
 ---
 
 ### ✅ Task 5.5: Default-Badge UI
+
 **File:** `templates/portal/property_detail.html` + CSS
 
 - [ ] 5.5.1 Add badge display: `<span class="badge badge-primary">Standard</span>` if is_default
@@ -1068,6 +1119,7 @@
 ---
 
 ### ✅ Task 5.6: Active/Inactive Badge UI
+
 **File:** `templates/portal/property_detail.html` + CSS
 
 - [ ] 5.6.1 Add active badge: `<span class="badge badge-success">Aktiv</span>`
@@ -1084,6 +1136,7 @@
 ---
 
 ### ✅ Task 5.7: Sticky Action Bar (Save, Cancel, Archive, Delete)
+
 **File:** `templates/portal/property_detail.html` + CSS
 
 - [ ] 5.7.1 Create sticky footer bar with 4 buttons
@@ -1104,6 +1157,7 @@
 ---
 
 ### ✅ Task 5.8: Client-Side Validations
+
 **File:** `templates/portal/property_detail.html` + JavaScript
 
 - [ ] 5.8.1 Validate name: required, max 200 chars
@@ -1125,6 +1179,7 @@
 ---
 
 ### ✅ Task 5.9: Unsaved Changes Warning
+
 **File:** `templates/portal/property_detail.html` + JavaScript
 
 - [ ] 5.9.1 Track form changes: Set `hasUnsavedChanges = true` on input change
@@ -1148,6 +1203,7 @@
 **Goal:** Implement soft-delete (archive) and hard-delete with dependency checks.
 
 ### ✅ Task 6.1: Archive Action (Soft-Delete)
+
 **Files:** `backend/app/landlord/views.py`, `api/views.py`
 
 - [ ] 6.1.1 Create `PropertyArchiveView(View)` in `views.py`
@@ -1165,6 +1221,7 @@
 ---
 
 ### ✅ Task 6.2: Dependency Check for Hard-Delete
+
 **File:** `backend/app/landlord/api/views.py`
 
 - [ ] 6.2.1 Check Units: `property.unit_set.exists()`
@@ -1181,6 +1238,7 @@
 ---
 
 ### ✅ Task 6.3: 409 Conflict Handling (User-Friendly)
+
 **File:** `backend/app/landlord/api/views.py`
 
 - [ ] 6.3.1 Custom exception handler for 409
@@ -1195,6 +1253,7 @@
 ---
 
 ### ✅ Task 6.4: UI Confirmation Dialogs
+
 **File:** `templates/portal/property_detail.html` + JavaScript
 
 - [ ] 6.4.1 Create archive confirmation modal
@@ -1215,6 +1274,7 @@
 ---
 
 ### ✅ Task 6.5: Meter Delete with Reading Check
+
 **File:** `backend/app/landlord/api/views.py`
 
 - [ ] 6.5.1 Verify `PropertyMeterDeleteAPIView` checks for Readings
@@ -1231,6 +1291,7 @@
 ---
 
 ### ✅ Task 6.6: "Deaktivieren statt Löschen" Option
+
 **File:** `templates/portal/property_detail.html` + JavaScript
 
 - [ ] 6.6.1 On meter delete 409, show modal with deactivate option
@@ -1252,6 +1313,7 @@
 **Goal:** Implement CSRF, Rate-Limiting, XSS, RBAC, N+1 prevention, Caching.
 
 ### ✅ Task 7.1: CSRF Protection
+
 **Files:** `settings.py`, templates
 
 - [ ] 7.1.1 Verify `CsrfViewMiddleware` in `MIDDLEWARE`
@@ -1266,6 +1328,7 @@
 ---
 
 ### ✅ Task 7.2: Rate Limiting
+
 **Files:** `backend/app/landlord/throttles.py`
 
 - [ ] 7.2.1 Verify `PortalMutatingThrottle` (60/min)
@@ -1281,6 +1344,7 @@
 ---
 
 ### ✅ Task 7.3: XSS Protection
+
 **Files:** Templates, `settings.py`
 
 - [ ] 7.3.1 Verify auto-escaping in templates
@@ -1295,6 +1359,7 @@
 ---
 
 ### ✅ Task 7.4: RBAC Authorization Checks
+
 **Files:** `backend/app/landlord/views.py`, `api/views.py`
 
 - [ ] 7.4.1 Verify all views have `LoginRequiredMixin`
@@ -1312,6 +1377,7 @@
 ---
 
 ### ✅ Task 7.5: N+1 Query Prevention
+
 **Files:** `backend/app/landlord/views.py`
 
 - [ ] 7.5.1 List view: `annotate(meters_count=Count('utilitymeter'))`
@@ -1326,6 +1392,7 @@
 ---
 
 ### ✅ Task 7.6: Cache Strategy
+
 **Files:** `settings.py`, templates, `models.py`
 
 - [ ] 7.6.1 Configure Redis cache backend
@@ -1340,6 +1407,7 @@
 ---
 
 ### ✅ Task 7.7: DB Indexes Applied (Verify)
+
 **Files:** Migrations, PostgreSQL
 
 - [ ] 7.7.1 Run migrations: `python manage.py migrate`
@@ -1363,6 +1431,7 @@
 **Goal:** Achieve ≥85% backend coverage, ≥90% API coverage, comprehensive E2E tests, performance validation.
 
 ### ✅ Task 8.1: Backend Unit Tests (Models, Validators, Services)
+
 **File:** `backend/app/landlord/tests/`
 
 - [ ] 8.1.1 Test suite: `test_property_model_extended.py` (from Phase 1)
@@ -1386,6 +1455,7 @@
 ---
 
 ### ✅ Task 8.2: API Tests (All Endpoints, Error Cases)
+
 **File:** `backend/app/landlord/tests/test_property_api.py`, `test_meter_api.py`
 
 - [ ] 8.2.1 Test GET `/api/portal/properties/` (200, pagination, filters, sort)
@@ -1414,6 +1484,7 @@
 ---
 
 ### ✅ Task 8.3: E2E Test 1 - Create Property (Name Only) + Add Meter
+
 **File:** `backend/app/landlord/tests/test_e2e_property.py` (Selenium/Playwright)
 
 - [ ] 8.3.1 Setup E2E test environment (Selenium or Playwright)
@@ -1436,6 +1507,7 @@
 ---
 
 ### ✅ Task 8.4: E2E Test 2 - Double-Default Validation
+
 **File:** `backend/app/landlord/tests/test_e2e_property.py`
 
 - [ ] 8.4.1 Create Property with 1 default Kaltwasser meter
@@ -1453,6 +1525,7 @@
 ---
 
 ### ✅ Task 8.5: E2E Test 3 - Archive + Filter
+
 **File:** `backend/app/landlord/tests/test_e2e_property.py`
 
 - [ ] 8.5.1 Create 2 Properties: "Aktiv" and "Zu Archivieren"
@@ -1472,6 +1545,7 @@
 ---
 
 ### ✅ Task 8.6: E2E Test 4 - Hard-Delete Without Dependencies
+
 **File:** `backend/app/landlord/tests/test_e2e_property.py`
 
 - [ ] 8.6.1 Create Property with NO units, contracts, meters
@@ -1489,6 +1563,7 @@
 ---
 
 ### ✅ Task 8.7: E2E Test 5 - Mobile Smoke (iPhone/Pixel)
+
 **File:** `backend/app/landlord/tests/test_e2e_mobile.py`
 
 - [ ] 8.7.1 Configure Selenium with iPhone SE viewport (375x667)
@@ -1508,6 +1583,7 @@
 ---
 
 ### ✅ Task 8.8: Performance Smoke (1k Properties < 300ms P95)
+
 **File:** `backend/app/landlord/tests/test_performance.py`
 
 - [ ] 8.8.1 Create performance test with 1000 Properties
@@ -1528,6 +1604,7 @@
 ---
 
 ### ✅ Task 8.9: Coverage Report Generation
+
 **Files:** CI/CD, coverage reports
 
 - [ ] 8.9.1 Run full test suite: `pytest`
@@ -1546,6 +1623,7 @@
 ---
 
 ### ✅ Task 8.10: Fix All Failing Tests
+
 **Files:** Various test files
 
 - [ ] 8.10.1 Run full test suite: `pytest -v`
@@ -1572,6 +1650,7 @@
 **Goal:** Implement comprehensive audit trail and monitoring for Property/Meter CRUD operations.
 
 ### ✅ Task 9.1: Audit Trail - Property Create/Update/Archive/Delete
+
 **Files:** `backend/app/landlord/models.py`, `signals.py`
 
 - [ ] 9.1.1 Create `AuditLog` model:
@@ -1613,6 +1692,7 @@
 ---
 
 ### ✅ Task 9.2: Audit Trail - Meter Create/Update/Delete
+
 **Files:** `backend/app/landlord/signals.py`
 
 - [ ] 9.2.1 Create signal handler for UtilityMeter `post_save`
@@ -1628,6 +1708,7 @@
 ---
 
 ### ✅ Task 9.3: Field-Diff Logging (JSON Format)
+
 **Files:** `backend/app/landlord/utils/audit.py`
 
 - [ ] 9.3.1 Create `get_field_diff(instance)` function:
@@ -1657,6 +1738,7 @@
 ---
 
 ### ✅ Task 9.4: Error Logging Setup
+
 **Files:** `settings.py`, `config/logging.py`
 
 - [ ] 9.4.1 Configure Django logging in `settings.py`:
@@ -1703,16 +1785,18 @@
 ---
 
 ### ✅ Task 9.5: Metrics Collection (Requests, Latency, Errors)
+
 **Files:** `middleware.py`, `metrics.py`
 
 - [ ] 9.5.1 Create `MetricsMiddleware`:
+
   ```python
   class MetricsMiddleware:
       def __call__(self, request):
           start_time = time.time()
           response = self.get_response(request)
           duration = time.time() - start_time
-          
+
           metrics.record_request(
               path=request.path,
               method=request.method,
@@ -1721,13 +1805,16 @@
           )
           return response
   ```
+
 - [ ] 9.5.2 Create `metrics.py` with Prometheus integration (optional):
+
   ```python
   from prometheus_client import Counter, Histogram
-  
+
   request_count = Counter('http_requests_total', 'Total requests', ['method', 'path', 'status'])
   request_latency = Histogram('http_request_duration_seconds', 'Request latency', ['method', 'path'])
   ```
+
 - [ ] 9.5.3 Add middleware to `settings.py MIDDLEWARE`
 - [ ] 9.5.4 Expose metrics endpoint: `/metrics/` (Prometheus format)
 - [ ] 9.5.5 Track custom metrics:
@@ -1751,6 +1838,7 @@
 **Goal:** Prepare deployment artifacts, documentation, rollback plan, feature flag.
 
 ### ✅ Task 10.1: Migration Guide
+
 **File:** `docs/migrations/property_portal_v1_3.md`
 
 - [ ] 10.1.1 Document all migrations in order:
@@ -1785,6 +1873,7 @@
 ---
 
 ### ✅ Task 10.2: Rollback Plan
+
 **File:** `docs/migrations/property_portal_rollback.md`
 
 - [ ] 10.2.1 Document rollback steps:
@@ -1814,6 +1903,7 @@
 ---
 
 ### ✅ Task 10.3: Feature Flag Setup (Optional)
+
 **Files:** `settings.py`, `views.py`, `templates/`
 
 - [ ] 10.3.1 Add feature flag to settings:
@@ -1846,6 +1936,7 @@
 ---
 
 ### ✅ Task 10.4: User Documentation (README/Wiki)
+
 **File:** `docs/user_guide/property_management.md`
 
 - [ ] 10.4.1 Write user guide introduction
@@ -1865,6 +1956,7 @@
 ---
 
 ### ✅ Task 10.5: Code Review & Merge
+
 **Files:** Pull Request, CI/CD
 
 - [ ] 10.5.1 Create Pull Request: `feature/property-portal-v1.3` → `main`

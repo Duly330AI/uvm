@@ -10,15 +10,16 @@ Hinweis: **Units sind out of scope** (separate Spec). Django-Admin bleibt unver�
 
 ## 1) Ziel & Nutzen
 
-* Properties im Portal mobilfreundlich **anlegen/anzeigen/bearbeiten/archivieren/löschen**.
-* Je Property **beliebig viele Zähler** verwalten (add/edit/remove).
-* Zählerdaten dienen der **automatischen Vorbefüllung** im Zählerstands-Formular.
+- Properties im Portal mobilfreundlich **anlegen/anzeigen/bearbeiten/archivieren/löschen**.
+- Je Property **beliebig viele Zähler** verwalten (add/edit/remove).
+- Zählerdaten dienen der **automatischen Vorbefüllung** im Zählerstands-Formular.
 
 **Scope-Klarstellung:**
-* Diese Spec behandelt **Building-Level Meters** (Haus-Hauptzähler).
-* Unit-Level Meters (Wohnungszähler) folgen in separater Spec („Units CRUD").
-* Mapping zwischen Building-Meters und Unit-Readings erfolgt später (derzeit: Readings direkt an Unit).
-* **Future:** UtilityMeter mit `scope` (building|unit) für konsistente Hierarchie.
+
+- Diese Spec behandelt **Building-Level Meters** (Haus-Hauptzähler).
+- Unit-Level Meters (Wohnungszähler) folgen in separater Spec („Units CRUD").
+- Mapping zwischen Building-Meters und Unit-Readings erfolgt später (derzeit: Readings direkt an Unit).
+- **Future:** UtilityMeter mit `scope` (building|unit) für konsistente Hierarchie.
 
 ---
 
@@ -53,35 +54,36 @@ Hinweis: **Units sind out of scope** (separate Spec). Django-Admin bleibt unver�
 
 **Validierungen**
 
-* Name: max. 200 Zeichen.
-* Postal code: DE genau 5 Ziffern; sonst alphanumerisch bis 10 (künftige Länderspezifika möglich).
-* Geo lat: **DecimalField(9,6)**, Range −90.0 bis +90.0 (DB Check-Constraint)
-* Geo lng: **DecimalField(9,6)**, Range −180.0 bis +180.0 (DB Check-Constraint)
-* Notes: max. 2000 Zeichen.
+- Name: max. 200 Zeichen.
+- Postal code: DE genau 5 Ziffern; sonst alphanumerisch bis 10 (künftige Länderspezifika möglich).
+- Geo lat: **DecimalField(9,6)**, Range −90.0 bis +90.0 (DB Check-Constraint)
+- Geo lng: **DecimalField(9,6)**, Range −180.0 bis +180.0 (DB Check-Constraint)
+- Notes: max. 2000 Zeichen.
 
 ### 3.2 Zähler (Stammdaten) – pro Eintrag
 
-* Meter type (Kaltwasser, Warmwasser, Strom, Gas (kWh))
-* Serial number (optional; max. 50; Zeichen: A-Z, a-z, 0-9, Bindestrich, Slash)
+- Meter type (Kaltwasser, Warmwasser, Strom, Gas (kWh))
+- Serial number (optional; max. 50; Zeichen: A-Z, a-z, 0-9, Bindestrich, Slash)
   - **Storage:** Normalized uppercase (z.B. "ABC-123")
   - **Optional Future:** Unique-Index (property, meter_type, serial_number) für Duplicate-Prevention
-* Is default (max. 1 pro Property+Medium)
-* Is active
-* Initial reading value (optional; Decimal ≥ 0; einmalig als „vorheriger Stand", falls noch kein Reading existiert)
-* Installed at (Datum)
-* Removed at (Datum; muss ≥ Installed at sein oder leer)
-* Notes (max. 1000)
-* Aktion: Entfernen (Zeile löschen)
+- Is default (max. 1 pro Property+Medium)
+- Is active
+- Initial reading value (optional; Decimal ≥ 0; einmalig als „vorheriger Stand", falls noch kein Reading existiert)
+- Installed at (Datum)
+- Removed at (Datum; muss ≥ Installed at sein oder leer)
+- Notes (max. 1000)
+- Aktion: Entfernen (Zeile löschen)
 
 **Regeln**
 
-* Mehrere Zähler pro Medium erlaubt.
-* **Harte Validierung (DB-Constraint):** Postgres Partial Unique Constraint:
+- Mehrere Zähler pro Medium erlaubt.
+- **Harte Validierung (DB-Constraint):** Postgres Partial Unique Constraint:
   ```sql
   UNIQUE (property_id, meter_type) WHERE is_default = TRUE
   ```
-* **Transaktionale Default-Setzung:** Beim Setzen `is_default=true` werden alle anderen Defaults desselben Mediums auf `false` gesetzt.
-* Gas-Einheit systemweit **kWh**.
+- **Transaktionale Default-Setzung:** Beim Setzen `is_default=true` werden alle anderen Defaults desselben Mediums auf `false` gesetzt.
+- **Default-Meter Löschung:** Beim Löschen eines Default-Zählers wird **kein** neuer Default automatisch gesetzt. Property bleibt ohne Default für dieses Medium, bis User explizit einen anderen Meter als Default markiert.
+- Gas-Einheit systemweit **kWh**.
 
 ---
 
@@ -97,10 +99,10 @@ Hinweis: **Units sind out of scope** (separate Spec). Django-Admin bleibt unver�
 
 ## 5) Archivieren/Löschen (Policies)
 
-* Soft-Delete: Feld **is_archived** (Bool) + **archived_at**, **archived_by**.
-* Standardlisten blenden archivierte Properties aus; Checkbox „Archivierte anzeigen" blendet sie ein (ausgegraute Zeilen).
-* Hard-Delete nur ohne Abhängigkeiten (Units, Verträge, Zahlungen, Dokumente, Zähler, Readings). Bei Abhängigkeiten: Fehlermeldung und Option „Archivieren".
-* **Archiv-Propagation:** Archivierte Properties und deren Zähler werden in **allen** Auswahl-Dropdowns ausgefiltert:
+- Soft-Delete: Feld **is_archived** (Bool) + **archived_at**, **archived_by**.
+- Standardlisten blenden archivierte Properties aus; Checkbox „Archivierte anzeigen" blendet sie ein (ausgegraute Zeilen).
+- Hard-Delete nur ohne Abhängigkeiten (Units, Verträge, Zahlungen, Dokumente, Zähler, Readings). Bei Abhängigkeiten: Fehlermeldung und Option „Archivieren".
+- **Archiv-Propagation:** Archivierte Properties und deren Zähler werden in **allen** Auswahl-Dropdowns ausgefiltert:
   - Zählerstands-Formular (Readings)
   - Dokument-Zuweisung
   - Vertrags-Assistenten
@@ -111,6 +113,7 @@ Hinweis: **Units sind out of scope** (separate Spec). Django-Admin bleibt unver�
 ## 6) API-Spezifikation (MVP, REST; JSON)
 
 **API-Pfad-Konvention:** `/api/portal/properties/...`
+
 - Grund: Konsistenz mit bestehendem API-Layout (`/api/...` für JSON, `/portal/...` für HTML)
 - Permissions: `portal`-scoped (Session-based Auth wie übriges Portal)
 
@@ -203,16 +206,22 @@ Hinweis: „Keine Code-Snippets" – daher nur Endpunkte, Parameter und Semantik
   - **Lese-Endpoints (GET):** 240 Requests/Minute pro User + IP
   - **Burst:** Bis zu 10 Requests sofort, danach gleichmäßig geglättet
   - **Fehlercode:** 429 Too Many Requests mit `Retry-After` Header
+  - **Staff-Ausnahme:** Erhöhtes Limit für `is_staff=True` (600/min mutating) für Bulk-Operationen, Migrations, Load-Tests
+  - **IP-Erkennung:** Bei Reverse-Proxy/Load-Balancer muss `X-Forwarded-For` korrekt terminiert werden:
+    - Nginx: `proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;`
+    - Django: Custom Throttle mit `get_ident()` nutzt `X-Forwarded-For` Header
+    - Fallback: `REMOTE_ADDR` wenn kein Proxy
   - **DRF-Implementierung:**
     ```python
     # settings.py
     REST_FRAMEWORK = {
         'DEFAULT_THROTTLE_CLASSES': [
-            'landlord.throttles.PortalMutatingThrottle',  # 60/min
+            'landlord.throttles.PortalMutatingThrottle',  # 60/min (600/min für Staff)
             'landlord.throttles.PortalReadThrottle',      # 240/min
         ],
         'DEFAULT_THROTTLE_RATES': {
             'portal_mutating': '60/min',
+            'portal_mutating_staff': '600/min',
             'portal_read': '240/min',
         }
     }
@@ -441,8 +450,9 @@ Hinweis: „Keine Code-Snippets" – daher nur Endpunkte, Parameter und Semantik
 **Total Estimated Effort:** 8.1 PT (+0.4 PT vs. v1.2 due to clarifications)
 
 **Implementation Strategy:**
+
 1. **Backend-First:** Phases 1-3 (Models + API) = 3.4 PT
-2. **Frontend:** Phases 4-5 (Views + UI) = 1.9 PT  
+2. **Frontend:** Phases 4-5 (Views + UI) = 1.9 PT
 3. **Polish:** Phases 6-7 (Business Logic + Security) = 1.1 PT
 4. **Quality:** Phases 8-10 (Testing + Deployment) = 1.7 PT
 
@@ -450,9 +460,27 @@ Hinweis: „Keine Code-Snippets" – daher nur Endpunkte, Parameter und Semantik
 
 ## 16) Changelog
 
+### v1.3.1 (2025-10-20) - GPT-5 Review Clarifications ✅
+
+**Ergänzungen nach GPT-5 Code-Review:**
+
+- ✅ **Default-Meter Löschung:** Explizit dokumentiert, dass beim Löschen eines Default-Zählers KEIN automatisches Reassignment erfolgt (Kap. 3.2)
+- ✅ **X-Forwarded-For:** Throttling-Implementation nutzt `X-Forwarded-For` Header für korrekte IP-Erkennung hinter Reverse-Proxy/Load-Balancer (Kap. 8)
+- ✅ **Staff Throttle-Ausnahme:** Erhöhtes Limit (600/min) für `is_staff=True` User für Bulk-Operationen, Migrations, Load-Tests (Kap. 8)
+- ✅ **Nginx-Konfiguration:** Beispiel für `proxy_set_header X-Forwarded-For` dokumentiert (Kap. 8)
+- ✅ **TODO-Updates:** Implementation-Details für Custom Throttle `get_ident()` und Default-Delete-Tests ergänzt
+
+**Technische Details:**
+- Custom `get_ident()` in Throttle-Klassen für X-Forwarded-For Support
+- Nginx-Config: `proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;`
+- Test: `test_meter_delete_default_no_auto_reassign()` für explizites Verhalten
+
+---
+
 ### v1.3 (2025-10-20) - Final Spec - Production Ready ✅
 
 **Technical Clarifications:**
+
 - ✅ **Scope-Klarstellung:** Building-Level Meters only; Unit-Meters folgen in separater Spec
 - ✅ **Geo-Felder:** DecimalField(9,6) mit DB Check-Constraints (-90/+90, -180/+180)
 - ✅ **Serial Number:** Normalized uppercase storage; optional Unique-Index für Duplicate-Prevention
@@ -460,12 +488,14 @@ Hinweis: „Keine Code-Snippets" – daher nur Endpunkte, Parameter und Semantik
 - ✅ **Default-Setzung:** Transaktional (set others to false when setting new default)
 
 **API-Konvention:**
+
 - ✅ **Pfade:** `/api/portal/properties/...` (statt `/portal/api/...`)
 - ✅ **Begründung:** Konsistenz mit `/api/...` = JSON, `/portal/...` = HTML
 - ✅ **RBAC Details:** Endpoints pro Rolle dokumentiert (View/Create/Update/Archive/Delete)
 - ✅ **422 Status Code:** Durch `custom_exception_handler` gemappt (DRF Default = 400)
 
 **Performance & Security:**
+
 - ✅ **Trigram-Index:** Optional `GIN(name gin_trgm_ops)` für Fuzzy-Search bei >10k Properties
 - ✅ **Cache-Invalidierung:** Explizit bei Property.save(), .archive() und Meter CRUD
 - ✅ **N+1 Prevention:** `prefetch_related('utilitymeter_set')` dokumentiert
@@ -473,6 +503,7 @@ Hinweis: „Keine Code-Snippets" – daher nur Endpunkte, Parameter und Semantik
 - ✅ **Archiv-Propagation:** Alle QuerySets filtern `is_archived=False` in Dropdowns
 
 **Implementation Tracker:**
+
 - ✅ **Phase 1:** 11 tasks (statt 6) - +5 für Geo, Constraints, Normalization
 - ✅ **Phase 2:** 10 tasks (statt 8) - +2 für RBAC, Throttling
 - ✅ **Phase 3:** 7 tasks (statt 6) - +1 für Deactivate-Logic
@@ -480,6 +511,7 @@ Hinweis: „Keine Code-Snippets" – daher nur Endpunkte, Parameter und Semantik
 - ✅ **Strategy:** Backend-First (3.4 PT), Frontend (1.9 PT), Polish (1.1 PT), Quality (1.7 PT)
 
 **Recommendations Integrated:**
+
 1. ✅ Zähler-Ebene vs. Readings-Modell geklärt (Building-Level first)
 2. ✅ API-Pfadkonvention korrigiert (`/api/portal/...`)
 3. ✅ 422-Rückgaben technisch verankert (custom_exception_handler)

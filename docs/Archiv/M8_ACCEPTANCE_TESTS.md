@@ -102,7 +102,7 @@ docker compose restart web worker
 
 1. Lege im Admin einen **zweiten Tenant** an (andere Email, andere Unit)
 2. Erstelle ein Ticket für diesen zweiten Tenant (via Admin)
-3. Im Portal als `test@example.de` angemeldet:
+3. Im Portal als `duly330@outlook.de` angemeldet:
 4. Versuche URL direkt: `http://localhost:8000/tenant/issues/<fremde-ticket-id>/`
 
 **Erwartetes Ergebnis:**
