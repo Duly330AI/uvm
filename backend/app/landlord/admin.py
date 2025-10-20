@@ -42,7 +42,7 @@ class UtilityMeterInline(admin.TabularInline):
 	)
 	verbose_name = "Zähler (Stammdaten)"
 	verbose_name_plural = "Zähler (Stammdaten)"
-	
+
 	def get_queryset(self, request):
 		"""Order by: default first, then active, then meter type"""
 		qs = super().get_queryset(request)
@@ -51,13 +51,13 @@ class UtilityMeterInline(admin.TabularInline):
 
 class PropertyUtilityMeterInline(UtilityMeterInline):
 	"""Utility meters for Properties (building-level)"""
-	
+
 	def get_formset(self, request, obj=None, **kwargs):
 		formset = super().get_formset(request, obj, **kwargs)
 		# Set scope_type to 'property' for all forms
 		formset.form.base_fields['scope_type'].initial = 'property'
 		return formset
-	
+
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)
 		return qs.filter(scope_type='property')
@@ -65,13 +65,13 @@ class PropertyUtilityMeterInline(UtilityMeterInline):
 
 class UnitUtilityMeterInline(UtilityMeterInline):
 	"""Utility meters for Units (apartment-level)"""
-	
+
 	def get_formset(self, request, obj=None, **kwargs):
 		formset = super().get_formset(request, obj, **kwargs)
 		# Set scope_type to 'unit' for all forms
 		formset.form.base_fields['scope_type'].initial = 'unit'
 		return formset
-	
+
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)
 		return qs.filter(scope_type='unit')
@@ -358,7 +358,6 @@ class UtilityMeterAdmin(admin.ModelAdmin):
 	fieldsets = (
 		("Zuordnung", {
 			'fields': ('scope_type', 'property', 'unit'),
-			'description': 'Ist dies ein Gebäudezähler (Property) oder Wohnungszähler (Unit)?'
 		}),
 		("Zähler-Details", {
 			'fields': ('meter_type', 'serial_number', 'is_default', 'is_active'),
@@ -372,12 +371,12 @@ class UtilityMeterAdmin(admin.ModelAdmin):
 			'classes': ('collapse',),
 		}),
 	)
-	
+
 	def get_scope_display(self, obj):
 		"""Display the actual Property or Unit"""
 		return str(obj.get_scope_object())
 	get_scope_display.short_description = "Objekt/Wohnung"
-	
+
 	def get_queryset(self, request):
 		"""Optimize with select_related"""
 		qs = super().get_queryset(request)

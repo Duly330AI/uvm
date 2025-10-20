@@ -69,31 +69,19 @@
 
       <!-- Meter Number -->
       <div>
-        <label for="meter_number" class="block text-sm font-medium text-slate-700 mb-1"> 
-          Zählernummer 
+        <label for="meter_number" class="block text-sm font-medium text-slate-700 mb-1">
+          Zählernummer
           <span id="meter-loading" class="hidden ml-2 text-xs text-slate-400">
             <span class="animate-pulse">⏳ Lade...</span>
           </span>
         </label>
-        <input 
-          type="text" 
-          name="meter_number" 
-          id="meter_number" 
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" 
-        />
-        <p id="meter-info" class="text-xs text-slate-500 mt-1">
-          Zählernummer (wird automatisch vorgeschlagen)
-        </p>
-        
+        <input type="text" name="meter_number" id="meter_number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+        <p id="meter-info" class="text-xs text-slate-500 mt-1">Zählernummer (wird automatisch vorgeschlagen)</p>
+
         <!-- M17: Dropdown for multiple meters (Case C) -->
         <div id="meter-select-container" class="hidden mt-2">
-          <label for="meter_select" class="block text-xs font-medium text-slate-700 mb-1">
-            Mehrere Zähler vorhanden. Bitte wählen:
-          </label>
-          <select 
-            id="meter_select" 
-            class="block w-full rounded-md border-orange-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm"
-          >
+          <label for="meter_select" class="block text-xs font-medium text-slate-700 mb-1"> Mehrere Zähler vorhanden. Bitte wählen: </label>
+          <select id="meter_select" class="block w-full rounded-md border-orange-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm">
             <option value="">Zähler auswählen...</option>
           </select>
         </div>
@@ -140,166 +128,168 @@
 
 <!-- M17: Auto-Prefill JavaScript -->
 <script>
-(function() {
-  'use strict';
-  
-  const unitSelect = document.getElementById('unit_id');
-  const meterTypeSelect = document.getElementById('meter_type');
-  const meterNumberInput = document.getElementById('meter_number');
-  const meterInfo = document.getElementById('meter-info');
-  const meterLoading = document.getElementById('meter-loading');
-  const meterSelectContainer = document.getElementById('meter-select-container');
-  const meterSelectDropdown = document.getElementById('meter_select');
-  const previousValueInput = document.getElementById('previous_value');
-  
-  let currentMeterId = null;
-  
-  // Auto-prefill meter when unit + meter_type are selected
-  function loadDefaultMeter() {
-    const unitId = unitSelect.value;
-    const meterType = meterTypeSelect.value;
-    
-    if (!unitId || !meterType) {
-      return; // Need both values
-    }
-    
-    // Show loading
-    meterLoading.classList.remove('hidden');
-    meterInfo.textContent = 'Suche Zähler...';
-    meterSelectContainer.classList.add('hidden');
-    
-    // Determine scope_type (property vs unit)
-    const selectedOption = unitSelect.options[unitSelect.selectedIndex];
-    const isBuilding = selectedOption.text.includes('Allgemein');
-    const scopeType = isBuilding ? 'property' : 'unit';
-    
-    // Convert meter_type from UtilityReading format to UtilityMeter format
-    const meterTypeMap = {
-      'water_cold': 'cold_water',
-      'water_hot': 'hot_water',
-      'electricity': 'electricity',
-      'gas': 'gas',
-      'heating': 'gas'  // Assume heating = gas for now
-    };
-    const utilityMeterType = meterTypeMap[meterType] || meterType;
-    
-    // Call API
-    fetch(`/api/utility/meters/default?scope_type=${scopeType}&scope_id=${unitId}&meter_type=${utilityMeterType}`)
-      .then(response => response.json())
-      .then(data => {
-        meterLoading.classList.add('hidden');
-        
-        if (data.error) {
-          meterInfo.textContent = `Fehler: ${data.error}`;
-          meterInfo.className = 'text-xs text-red-600 mt-1';
-          return;
-        }
-        
-        // Case A/B: Default or single active meter
-        if (data.meter_id && !data.has_multiple) {
-          meterNumberInput.value = data.serial_number || '';
-          currentMeterId = data.meter_id;
-          
-          if (data.initial_reading_value !== null) {
-            meterInfo.innerHTML = `✓ Zähler gefunden: <strong>${data.serial_number || '(keine SN)'}</strong>`;
-          } else {
-            meterInfo.innerHTML = `✓ Zähler gefunden: <strong>${data.serial_number || '(keine SN)'}</strong>`;
+  (function () {
+    "use strict";
+
+    const unitSelect = document.getElementById("unit_id");
+    const meterTypeSelect = document.getElementById("meter_type");
+    const meterNumberInput = document.getElementById("meter_number");
+    const meterInfo = document.getElementById("meter-info");
+    const meterLoading = document.getElementById("meter-loading");
+    const meterSelectContainer = document.getElementById("meter-select-container");
+    const meterSelectDropdown = document.getElementById("meter_select");
+    const previousValueInput = document.getElementById("previous_value");
+
+    let currentMeterId = null;
+
+    // Auto-prefill meter when unit + meter_type are selected
+    function loadDefaultMeter() {
+      const unitId = unitSelect.value;
+      const meterType = meterTypeSelect.value;
+
+      if (!unitId || !meterType) {
+        return; // Need both values
+      }
+
+      // Show loading
+      meterLoading.classList.remove("hidden");
+      meterInfo.textContent = "Suche Zähler...";
+      meterSelectContainer.classList.add("hidden");
+
+      // Determine scope_type (property vs unit)
+      // Check if option is in "Gebäudezähler" optgroup
+      const selectedOption = unitSelect.options[unitSelect.selectedIndex];
+      const parentOptgroup = selectedOption.parentElement;
+      const isBuilding = parentOptgroup && parentOptgroup.label && parentOptgroup.label.includes("Gebäudezähler");
+      const scopeType = isBuilding ? "property" : "unit";
+
+      // Convert meter_type from UtilityReading format to UtilityMeter format
+      const meterTypeMap = {
+        water_cold: "cold_water",
+        water_hot: "hot_water",
+        electricity: "electricity",
+        gas: "gas",
+        heating: "gas", // Assume heating = gas for now
+      };
+      const utilityMeterType = meterTypeMap[meterType] || meterType;
+
+      // Call API
+      fetch(`/api/utility/meters/default?scope_type=${scopeType}&scope_id=${unitId}&meter_type=${utilityMeterType}`)
+        .then((response) => response.json())
+        .then((data) => {
+          meterLoading.classList.add("hidden");
+
+          if (data.error) {
+            meterInfo.textContent = `Fehler: ${data.error}`;
+            meterInfo.className = "text-xs text-red-600 mt-1";
+            return;
           }
-          meterInfo.className = 'text-xs text-green-600 mt-1';
-          
-          // Load last reading
-          loadLastReading(data.meter_id);
-          return;
-        }
-        
-        // Case C: Multiple active meters
-        if (data.has_multiple && data.meters && data.meters.length > 0) {
-          meterInfo.textContent = 'Mehrere Zähler vorhanden. Bitte wählen Sie einen Zähler aus.';
-          meterInfo.className = 'text-xs text-orange-600 mt-1';
-          
-          // Populate dropdown
-          meterSelectDropdown.innerHTML = '<option value="">Zähler auswählen...</option>';
-          data.meters.forEach(meter => {
-            const displayText = `${meter.serial_number || '(keine SN)'} · ${meter.meter_type_label} · installiert: ${meter.installed_at || '–'}`;
-            const option = document.createElement('option');
-            option.value = meter.meter_id;
-            option.textContent = displayText;
-            option.dataset.serialNumber = meter.serial_number || '';
-            meterSelectDropdown.appendChild(option);
-          });
-          
-          meterSelectContainer.classList.remove('hidden');
-          return;
-        }
-        
-        // Case D: No meter found
-        meterInfo.textContent = 'Für die Auswahl ist kein Zähler hinterlegt. Bitte Seriennummer eingeben oder im Admin einen Zähler anlegen.';
-        meterInfo.className = 'text-xs text-slate-500 mt-1';
-        meterNumberInput.value = '';
-        currentMeterId = null;
-      })
-      .catch(error => {
-        meterLoading.classList.add('hidden');
-        meterInfo.textContent = `Fehler beim Laden: ${error.message}`;
-        meterInfo.className = 'text-xs text-red-600 mt-1';
-      });
-  }
-  
-  // Load last reading for a meter
-  function loadLastReading(meterId) {
-    if (!meterId) return;
-    
-    fetch(`/api/utility/meters/last-reading?meter_id=${meterId}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.previous_value !== null) {
-          previousValueInput.value = data.previous_value;
-          
-          if (data.is_initial) {
-            // Show info that this is initial value from master data
-            const infoSpan = document.createElement('span');
-            infoSpan.className = 'text-xs text-blue-600 ml-2';
-            infoSpan.textContent = '(Erstwert aus Stammdaten)';
-            
-            const prevLabel = previousValueInput.previousElementSibling;
-            // Remove old info span if exists
-            const oldInfo = prevLabel.querySelector('span.text-blue-600');
-            if (oldInfo) oldInfo.remove();
-            prevLabel.appendChild(infoSpan);
+
+          // Case A/B: Default or single active meter
+          if (data.meter_id && !data.has_multiple) {
+            meterNumberInput.value = data.serial_number || "";
+            currentMeterId = data.meter_id;
+
+            if (data.initial_reading_value !== null) {
+              meterInfo.innerHTML = `✓ Zähler gefunden: <strong>${data.serial_number || "(keine SN)"}</strong>`;
+            } else {
+              meterInfo.innerHTML = `✓ Zähler gefunden: <strong>${data.serial_number || "(keine SN)"}</strong>`;
+            }
+            meterInfo.className = "text-xs text-green-600 mt-1";
+
+            // Load last reading
+            loadLastReading(data.meter_id);
+            return;
           }
-        }
-      })
-      .catch(error => {
-        console.error('Error loading last reading:', error);
-      });
-  }
-  
-  // Handle meter selection from dropdown (Case C)
-  meterSelectDropdown.addEventListener('change', function() {
-    const selectedOption = this.options[this.selectedIndex];
-    if (selectedOption.value) {
-      const serialNumber = selectedOption.dataset.serialNumber;
-      const meterId = parseInt(selectedOption.value);
-      
-      meterNumberInput.value = serialNumber;
-      currentMeterId = meterId;
-      
-      meterInfo.innerHTML = `✓ Zähler gewählt: <strong>${serialNumber || '(keine SN)'}</strong>`;
-      meterInfo.className = 'text-xs text-green-600 mt-1';
-      
-      // Load last reading for selected meter
-      loadLastReading(meterId);
+
+          // Case C: Multiple active meters
+          if (data.has_multiple && data.meters && data.meters.length > 0) {
+            meterInfo.textContent = "Mehrere Zähler vorhanden. Bitte wählen Sie einen Zähler aus.";
+            meterInfo.className = "text-xs text-orange-600 mt-1";
+
+            // Populate dropdown
+            meterSelectDropdown.innerHTML = '<option value="">Zähler auswählen...</option>';
+            data.meters.forEach((meter) => {
+              const displayText = `${meter.serial_number || "(keine SN)"} · ${meter.meter_type_label} · installiert: ${meter.installed_at || "–"}`;
+              const option = document.createElement("option");
+              option.value = meter.meter_id;
+              option.textContent = displayText;
+              option.dataset.serialNumber = meter.serial_number || "";
+              meterSelectDropdown.appendChild(option);
+            });
+
+            meterSelectContainer.classList.remove("hidden");
+            return;
+          }
+
+          // Case D: No meter found
+          meterInfo.textContent = "Für die Auswahl ist kein Zähler hinterlegt. Bitte Seriennummer eingeben oder im Admin einen Zähler anlegen.";
+          meterInfo.className = "text-xs text-slate-500 mt-1";
+          meterNumberInput.value = "";
+          currentMeterId = null;
+        })
+        .catch((error) => {
+          meterLoading.classList.add("hidden");
+          meterInfo.textContent = `Fehler beim Laden: ${error.message}`;
+          meterInfo.className = "text-xs text-red-600 mt-1";
+        });
     }
-  });
-  
-  // Attach event listeners
-  unitSelect.addEventListener('change', loadDefaultMeter);
-  meterTypeSelect.addEventListener('change', loadDefaultMeter);
-  
-  // Auto-trigger if both are already selected (e.g., form re-display after error)
-  if (unitSelect.value && meterTypeSelect.value) {
-    loadDefaultMeter();
-  }
-})();
+
+    // Load last reading for a meter
+    function loadLastReading(meterId) {
+      if (!meterId) return;
+
+      fetch(`/api/utility/meters/last-reading?meter_id=${meterId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.previous_value !== null) {
+            previousValueInput.value = data.previous_value;
+
+            if (data.is_initial) {
+              // Show info that this is initial value from master data
+              const infoSpan = document.createElement("span");
+              infoSpan.className = "text-xs text-blue-600 ml-2";
+              infoSpan.textContent = "(Erstwert aus Stammdaten)";
+
+              const prevLabel = previousValueInput.previousElementSibling;
+              // Remove old info span if exists
+              const oldInfo = prevLabel.querySelector("span.text-blue-600");
+              if (oldInfo) oldInfo.remove();
+              prevLabel.appendChild(infoSpan);
+            }
+          }
+        })
+        .catch((error) => {
+          console.error("Error loading last reading:", error);
+        });
+    }
+
+    // Handle meter selection from dropdown (Case C)
+    meterSelectDropdown.addEventListener("change", function () {
+      const selectedOption = this.options[this.selectedIndex];
+      if (selectedOption.value) {
+        const serialNumber = selectedOption.dataset.serialNumber;
+        const meterId = parseInt(selectedOption.value);
+
+        meterNumberInput.value = serialNumber;
+        currentMeterId = meterId;
+
+        meterInfo.innerHTML = `✓ Zähler gewählt: <strong>${serialNumber || "(keine SN)"}</strong>`;
+        meterInfo.className = "text-xs text-green-600 mt-1";
+
+        // Load last reading for selected meter
+        loadLastReading(meterId);
+      }
+    });
+
+    // Attach event listeners
+    unitSelect.addEventListener("change", loadDefaultMeter);
+    meterTypeSelect.addEventListener("change", loadDefaultMeter);
+
+    // Auto-trigger if both are already selected (e.g., form re-display after error)
+    if (unitSelect.value && meterTypeSelect.value) {
+      loadDefaultMeter();
+    }
+  })();
 </script>
 {% endblock %}
