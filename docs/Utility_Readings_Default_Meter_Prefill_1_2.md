@@ -1,0 +1,260 @@
+# UVM – Utility Readings: Default Meter Prefill
+
+**Version:** 1.1 (Spec + UX + Ops)
+**Datum:** 2025-10-20
+**Owner:** Landlord / Utility Domain
+**Geltungsbereich:** Portal `…/portal/utility/readings/create` („📊 Neuen Zählerstand erfassen“) + Django-Admin (Property/Unit)
+**Änderungen seit 1.0:** Fehlermeldungen konkretisiert, Dropdown-UX spezifiziert, Performance/Caching & Concurrency ergänzt, Audit-Trail, Migration/Import, Aufwandsschätzung.
+
+---
+
+## 1) Ziel & Nutzen (unverändert)
+
+Zählernummer (Seriennummer) beim Erfassen automatisch vorfüllen auf Basis des gewählten Scopes (Property/Unit) + Zählertyp (WW/KW/Strom/Gas; **Gas in kWh**). Mehrwert: schneller, weniger Fehler, konsistente Stammdaten.
+
+---
+
+## 2) Ist-Zustand (Kurz)
+
+- Zählernummer wird manuell eingetragen.
+- „Vorheriger Zählerstand“ kommt automatisch vom letzten Eintrag (UI-Hinweis vorhanden).
+
+---
+
+## 3) Soll-Zustand (Zielbild)
+
+### 3.1 Datenmodell (logisch)
+
+**UtilityMeter**
+
+- `scope_type`: `property` | `unit`
+- `scope_id`: FK → Property/Unit
+- `meter_type`: `hot_water` | `cold_water` | `electricity` | `gas`
+- `serial_number`: String (Seriennummer des Versorgers)
+- `reading_unit`: abgeleitet (Wasser=m³, Strom=kWh, **Gas=kWh**)
+- `is_default`: Bool — **max. 1 Default je (scope_type, scope_id, meter_type)**
+- `is_active`: Bool
+- `initial_reading_value` (optional)
+- `installed_at`, `removed_at` (optional)
+
+**Regeln**
+
+- Mehrere Zähler pro Medium erlaubt (komplexe Heizsysteme).
+- **Konflikt-Policy:** Admin verhindert >1 Default pro `(scope, meter_type)` (Hard Fail).
+
+### 3.2 Admin-UX
+
+- Property- & Unit-Admin: Inline „Zähler (Stammdaten)“.
+- Validierung:
+
+  - genau **ein** Default pro `(scope, type)` zulässig, sonst **Speichern verweigern**.
+  - Seriennummer darf leer sein → wird nicht vorbefüllt.
+
+- Pflege: **frei anlegbar**, Quick-Add für 4 Standardmedien optional.
+
+### 3.3 Portal-UX (Prefill & Auswahl)
+
+1. Nutzer wählt **Wohneinheit/Gebäude** + **Zählertyp**.
+2. Lookup-Priorität:
+
+   - **A)** Default vorhanden → Seriennummer **automatisch** vorfüllen.
+   - **B)** kein Default, **genau 1 aktiver** → vorfüllen.
+   - **C)** mehrere aktive, **kein Default** → zusätzliches Feld **„Zähler auswählen“**.
+   - **D)** kein Zähler → Seriennummer leer + Hinweis.
+
+**Dropdown „Zähler auswählen“ – Anzeigeformat**
+`{serial_number} · {meter_type_label} · installiert: {installed_at|–}`
+Beispiele:
+
+- `ABC123 · Strom · installiert: 2024-01-15`
+- `— (keine SN) · Warmwasser · installiert: –`
+
+**Vorheriger Zählerstand**
+
+- stammt immer vom **gleichen Meter** (Default/gewählter).
+- existiert kein Reading, aber `initial_reading_value` ist gesetzt → **einmalig** als „Vorheriger Zählerstand“ verwenden; UI-Info: „Erstwert aus Stammdaten“.
+
+### 3.4 Dynamische Gruppierung im Scope-Dropdown
+
+Gruppen **„Gebäudenzähler“** / **„Wohnungszähler“** werden **variabel** angezeigt (abhängig vom Bestand der Zähler pro Objekt).
+
+### 3.5 Services (logisch)
+
+- `getDefaultMeter(scope_type, scope_id, meter_type)` → `{meter_id, serial_number, has_multiple, initial_reading_value?}`
+- `getLastReading(meter_id)` → letzter Stand (sonst `initial_reading_value` wenn vorhanden)
+
+---
+
+## 4) Fehlermeldungen (UI-Copy)
+
+| Bedingung                    | Feld/Kontext          | Meldung (DE)                                                                                                      | Schwere |
+| ---------------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------- | ------- |
+| Aktueller < Vorheriger       | Aktueller Zählerstand | **„Aktueller Zählerstand muss größer oder gleich {wert} sein.“**                                                  | Fehler  |
+| Kein Zähler gefunden         | Seriennummer          | **„Für die Auswahl ist kein Zähler hinterlegt. Bitte Seriennummer eingeben oder im Admin einen Zähler anlegen.“** | Info    |
+| Mehrere Zähler, kein Default | Zähler auswählen      | **„Mehrere Zähler vorhanden. Bitte Zähler wählen.“**                                                              | Info    |
+| Doppelter Default im Admin   | Admin-Save            | **„Pro Objekt/Wohnung und Medium ist nur ein Standardzähler zulässig.“**                                          | Fehler  |
+| Einheit Gas falsch           | Import/Migration      | **„Gaswerte werden in kWh geführt. Bitte Einheit prüfen/konvertieren.“**                                          | Fehler  |
+
+---
+
+## 5) Performance & Concurrency
+
+**Ziele**
+
+- Prefill-Roundtrip **< 200 ms** lokal (Referenz: ≤ 10k Units, ≤ 40k Zähler).
+- P95 API-Antwort **< 300 ms**.
+
+**Strategie**
+
+- **Caching:** Key = `(scope_type, scope_id, meter_type)` → Meter-Summary; TTL 5 min; **Invalidation** on Admin-Save des betroffenen Scopes/Types.
+- **Batch-Loading:** Bei Seitenaufruf optional vorbereitendes Laden der relevanten Scopes.
+- **Concurrency:**
+
+  - DB-Constraint + Transaktion: **ein Default je (scope,type)**.
+  - Admin-Rennen: „Last-Writer wins“, Save schlägt fehl wenn Constraint verletzt.
+  - Optionale Optimistic-Lock-Prüfung via `updated_at` (Warnhinweis: „Datensatz wurde zwischenzeitlich geändert“).
+
+---
+
+## 6) Audit-Trail
+
+- **Was:** Anlegen/Ändern/Löschen von UtilityMeter, Wechsel `is_default`, Änderung `serial_number`.
+- **Meta:** `changed_by`, `changed_at`, `old_value` → minimaler Audit-Log.
+- **Sichtbarkeit:** Admin-Liste „Änderungsverlauf“ je Scope/Meter.
+- **DSGVO:** Seriennummern sind sachliche Gerätedaten; keine Personen-Datenverarbeitung.
+
+---
+
+## 7) Migration & Import
+
+**7.1 Gas m³ → kWh (Altbestände)**
+
+- **Standard:** keine Auto-Konvertierung. Alte Readings behalten ihre Einheit.
+- **Option (einmalig):** CSV-gestützte Konvertierung mit Faktor (z. B. Zustandszahl × Brennwert; Default-Faktor erlaubt, pro Datei überschreibbar). Ergebnis wird als **neues Reading in kWh** gespeichert, das alte bleibt historisch erhalten (Markierung `superseded`).
+
+**7.2 Seriennummern-Import (CSV)**
+
+- Spalten: `scope_type, scope_ref, meter_type, serial_number, is_default, is_active, initial_reading_value, installed_at`
+- `scope_ref`: Property-Name oder Unit-Label (eindeutig im System).
+- Validierung: Eindeutigkeit Default, Typ-Mapping, Datum/Dezimal-Check.
+- Ergebnis: Import-Report (OK/Fehler pro Zeile).
+
+---
+
+## 8) Validierungen (funktional, unverändert + präzisiert)
+
+- Aktueller Stand **≥** vorheriger Stand.
+- 1 Reading je `(Tag, Zählertyp, Meter)` (nicht nur Scope).
+- Einheitenset: Wasser=m³, Strom=kWh, **Gas=kWh**.
+- Vorheriger Stand bezieht sich **immer** auf denselben Meter.
+
+---
+
+## 9) Akzeptanzkriterien (ergänzt)
+
+- [ ] Default vorhanden → Seriennummer wird **ohne Zusatzinteraktion** vorbefüllt.
+- [ ] Mehrere aktive, kein Default → Feld **„Zähler auswählen“** erscheint; Anzeigeformat wie spezifiziert; Auswahl setzt Seriennummer.
+- [ ] Erstes Reading nutzt `initial_reading_value` **einmalig** als vorherigen Stand; UI-Info sichtbar.
+- [ ] Admin verhindert doppelte Defaults (Hard Fail + klare Meldung).
+- [ ] Prefill aktualisiert sich bei Wechsel von Scope/Typ/Zähler **ohne Reload**.
+- [ ] Caching aktiv; Invalidation nach Admin-Save messbar; P95 API < 300 ms.
+- [ ] Audit-Log zeigt Default-Wechsel mit `changed_by/changed_at`.
+
+---
+
+## 10) Testfälle (manuell/E2E – Auszug)
+
+1. **Default-Happy-Path** (Property/Strom) → Autoprefill + korrekter vorheriger Stand.
+2. **Ein aktiver, kein Default** (Unit/Kaltwasser) → Autoprefill.
+3. **Mehrere aktive, kein Default** (Unit/Warmwasser) → Auswahlfeld, korrekte Seriennummer & vorheriger Stand.
+4. **Kein Zähler** → leeres Feld + Hinweis.
+5. **Erstwert** → `initial_reading_value` als vorheriger Stand nur beim ersten Reading.
+6. **Admin-Race** → parallele Saves mit zwei Defaults → einer schlägt fehl mit definierter Meldung.
+7. **Cache-Invalidation** → Default ändern, sofort im Portal korrektes Prefill.
+
+---
+
+## 11) Aufwandsschätzung (grobe Richtwerte)
+
+- Datenmodell + Admin-Inlines + Validierungen: **0.5–1 PT**
+- Services (2x Read) + Cache + Invalidation: **0.5 PT**
+- Portal-UX (Prefill, Dropdown, Hinweise): **0.5–1 PT**
+- Tests (Model, API, E2E): **0.5–1 PT**
+- **Gesamt:** **2–3 PT** (ohne Migration/Import-Tool)
+- CSV-Import + Report: **0.5–1 PT** (optional)
+- Einmalige Gas-Konvertierung (CSV-gestützt): **0.5 PT** (optional)
+
+---
+
+## 12) Nicht-Ziele (unverändert)
+
+- Kein OCR/Foto-Import, kein externer Provider-Sync, kein Auto-Register-Match.
+
+---
+
+## 13) Release & Kommunikation
+
+- **Release-Note:** „Zählernummern werden beim Erfassen neuer Zählerstände automatisch vorbefüllt (Default/aktiver Zähler). Mehrzähler werden unterstützt. Gas in kWh."
+- **Admin-Hinweis:** „Bitte pro Objekt/Wohnung je Medium **genau einen** Standardzähler pflegen."
+
+---
+
+## 14) Umsetzungs-Fortschritt (LIVE LOG)
+
+### ✅ **PHASE 1: Datenmodell & Migration** - COMPLETE (2025-10-20)
+
+**Status:** ✅ DONE  
+**Aufwand:** 0.5 PT (geplant: 0.5-1 PT)  
+**Commit:** `7c67ab2` - "feat(M17): Add UtilityMeter model with constraints & tests"
+
+**Implementiert:**
+- ✅ UtilityMeter Model mit allen Fields
+  - `scope_type` (property/unit), `property`, `unit`
+  - `meter_type` (cold_water, hot_water, electricity, gas)
+  - `serial_number`, `is_default`, `is_active`
+  - `initial_reading_value`, `installed_at`, `removed_at`, `notes`
+- ✅ Methods: `get_scope_object()`, `get_reading_unit()`
+- ✅ DB-Constraints:
+  - UniqueConstraint: max 1 default per (scope_type, scope_id, meter_type)
+  - CheckConstraint: scope consistency (property XOR unit)
+- ✅ Validierung in `clean()`:
+  - Scope-Konsistenz (Property braucht property, Unit braucht unit)
+  - Default-Uniqueness mit korrekter Fehlermeldung
+- ✅ Migration: `0017_add_utility_meter_m17.py` applied
+- ✅ Tests: 10/10 passing (100%)
+  - Create property/unit meters
+  - Multiple meters per medium allowed
+  - DB constraint enforcement
+  - clean() validations (4 checks)
+  - initial_reading_value support
+  - installed/removed dates
+  - reading_unit (m³ vs kWh, Gas in kWh!)
+  - get_scope_object()
+
+**Spec Compliance:**
+- ✅ Kap. 3.1: Datenmodell komplett
+- ✅ Kap. 3.1 Regeln: Konflikt-Policy implementiert
+- ✅ Kap. 4: Fehlermeldung "nur ein Standardzähler zulässig"
+- ✅ Kap. 5: DB-Constraint für Concurrency
+- ✅ Kap. 8: Validierungen (Scope-Konsistenz, Default-Uniqueness)
+
+**Files Changed:**
+- `backend/app/landlord/models.py` (+180 lines)
+- `backend/app/landlord/migrations/0017_add_utility_meter_m17.py` (new)
+- `backend/app/landlord/tests/test_utility_meter_model.py` (+218 lines, new)
+
+---
+
+### 🔄 **PHASE 2: Admin-Integration** - IN PROGRESS (2025-10-20)
+
+**Status:** 🔄 IN PROGRESS  
+**Aufwand:** TBD (geplant: als Teil von 0.5-1 PT)
+
+**TODO:**
+- [ ] TabularInline für Property-Admin
+- [ ] TabularInline für Unit-Admin
+- [ ] Fields: Medium, Seriennummer, Default-Checkbox, Aktiv, Startwert, Installiert am, Entfernt am
+- [ ] Hilfetext für is_default und initial_reading_value
+- [ ] Admin-Validierung bei Save (Hard-Fail wenn >1 Default)
+
+---

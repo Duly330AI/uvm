@@ -22,11 +22,67 @@ class AppointmentInline(admin.TabularInline):
 	extra = 0
 
 
+# M17: UtilityMeter Inlines
+class UtilityMeterInline(admin.TabularInline):
+	"""
+	Inline for managing utility meters (M17: Default Meter Prefill)
+	Used in both PropertyAdmin and UnitAdmin
+	"""
+	model = models.UtilityMeter
+	extra = 0
+	fields = (
+		'meter_type',
+		'serial_number',
+		'is_default',
+		'is_active',
+		'initial_reading_value',
+		'installed_at',
+		'removed_at',
+		'notes',
+	)
+	verbose_name = "Zähler (Stammdaten)"
+	verbose_name_plural = "Zähler (Stammdaten)"
+	
+	def get_queryset(self, request):
+		"""Order by: default first, then active, then meter type"""
+		qs = super().get_queryset(request)
+		return qs.order_by('-is_default', '-is_active', 'meter_type')
+
+
+class PropertyUtilityMeterInline(UtilityMeterInline):
+	"""Utility meters for Properties (building-level)"""
+	
+	def get_formset(self, request, obj=None, **kwargs):
+		formset = super().get_formset(request, obj, **kwargs)
+		# Set scope_type to 'property' for all forms
+		formset.form.base_fields['scope_type'].initial = 'property'
+		return formset
+	
+	def get_queryset(self, request):
+		qs = super().get_queryset(request)
+		return qs.filter(scope_type='property')
+
+
+class UnitUtilityMeterInline(UtilityMeterInline):
+	"""Utility meters for Units (apartment-level)"""
+	
+	def get_formset(self, request, obj=None, **kwargs):
+		formset = super().get_formset(request, obj, **kwargs)
+		# Set scope_type to 'unit' for all forms
+		formset.form.base_fields['scope_type'].initial = 'unit'
+		return formset
+	
+	def get_queryset(self, request):
+		qs = super().get_queryset(request)
+		return qs.filter(scope_type='unit')
+
+
 @admin.register(models.Property)
 class PropertyAdmin(admin.ModelAdmin):
 	list_display = ("id", "name", "street", "postal_code", "city", "created_at")
 	search_fields = ("name", "street", "postal_code", "city")
 	list_filter = ("city",)
+	inlines = [PropertyUtilityMeterInline]
 
 
 @admin.register(models.Unit)
@@ -34,6 +90,7 @@ class UnitAdmin(admin.ModelAdmin):
 	list_display = ("id", "property", "unit_label", "is_active", "created_at")
 	search_fields = ("unit_label", "property__street", "property__city")
 	list_filter = ("is_active", "property")
+	inlines = [UnitUtilityMeterInline]
 
 
 @admin.register(models.Tenant)
@@ -270,6 +327,62 @@ class PaymentTransactionAdmin(admin.ModelAdmin):
 # ============================================================================
 # M14: NEBENKOSTENABRECHNUNG (UTILITY BILLING)
 # ============================================================================
+
+@admin.register(models.UtilityMeter)
+class UtilityMeterAdmin(admin.ModelAdmin):
+	"""
+	Admin für Zähler-Stammdaten (M17: Default Meter Prefill)
+	"""
+	list_display = (
+		"id",
+		"scope_type",
+		"get_scope_display",
+		"meter_type",
+		"serial_number",
+		"is_default",
+		"is_active",
+		"installed_at",
+	)
+	list_filter = (
+		"scope_type",
+		"meter_type",
+		"is_default",
+		"is_active",
+	)
+	search_fields = (
+		"serial_number",
+		"property__name",
+		"property__street",
+		"unit__unit_label",
+	)
+	fieldsets = (
+		("Zuordnung", {
+			'fields': ('scope_type', 'property', 'unit'),
+			'description': 'Ist dies ein Gebäudezähler (Property) oder Wohnungszähler (Unit)?'
+		}),
+		("Zähler-Details", {
+			'fields': ('meter_type', 'serial_number', 'is_default', 'is_active'),
+		}),
+		("Startwert & Zeiträume", {
+			'fields': ('initial_reading_value', 'installed_at', 'removed_at'),
+			'description': 'Startwert wird einmalig als "vorheriger Zählerstand" beim ersten Reading verwendet.'
+		}),
+		("Notizen", {
+			'fields': ('notes',),
+			'classes': ('collapse',),
+		}),
+	)
+	
+	def get_scope_display(self, obj):
+		"""Display the actual Property or Unit"""
+		return str(obj.get_scope_object())
+	get_scope_display.short_description = "Objekt/Wohnung"
+	
+	def get_queryset(self, request):
+		"""Optimize with select_related"""
+		qs = super().get_queryset(request)
+		return qs.select_related('property', 'unit')
+
 
 @admin.register(models.UtilityReading)
 class UtilityReadingAdmin(admin.ModelAdmin):
