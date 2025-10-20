@@ -16,15 +16,28 @@
 
 **File:** `backend/app/landlord/models.py`
 
-- [ ] 1.1.1 Add `is_archived = BooleanField(default=False, db_index=True)` to Property
-- [ ] 1.1.2 Add `archived_at = DateTimeField(null=True, blank=True)` to Property
-- [ ] 1.1.3 Add `archived_by = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL, related_name='archived_properties')` to Property
-- [ ] 1.1.4 Update Property Meta class ordering to exclude archived by default
-- [ ] 1.1.5 Add model method `archive(user)` that sets all three fields atomically
-- [ ] 1.1.6 Write unit test: `test_property_archive_sets_all_fields()`
-- [ ] 1.1.7 Write unit test: `test_property_archive_idempotent()`
+**Status:** ✅ **COMPLETED** (2025-10-20)
 
-**Estimate:** 0.15 PT
+- [x] 1.1.1 Add `is_archived = BooleanField(default=False, db_index=True)` to Property ✅
+- [x] 1.1.2 Add `archived_at = DateTimeField(null=True, blank=True)` to Property ✅
+- [x] 1.1.3 Add `archived_by = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL, related_name='archived_properties')` to Property ✅
+- [x] 1.1.4 Update Property Meta class ordering to exclude archived by default ✅ (Skipped - handled by view layer filters)
+- [x] 1.1.5 Add model method `archive(user)` that sets all three fields atomically ✅
+- [x] 1.1.6 Write unit test: `test_property_archive_sets_all_fields()` ✅ (7 tests total)
+- [x] 1.1.7 Write unit test: `test_property_archive_idempotent()` ✅
+
+**Tests:** 7/7 passing ✅
+- `test_property_create_with_all_fields()`
+- `test_property_archive_sets_fields()`
+- `test_property_archive_by_user()`
+- `test_property_archive_idempotent()`
+- `test_property_default_not_archived()`
+- `test_property_archived_by_cascades_on_user_delete()`
+- `test_user_archived_properties_related_name()`
+
+**Migration:** `0018_add_property_archive_fields.py` ✅ Applied
+
+**Estimate:** 0.15 PT | **Actual:** 0.15 PT ✅
 
 ---
 
@@ -503,16 +516,17 @@
 **File:** `backend/app/landlord/throttles.py`
 
 - [ ] 2.9.1 Create `PortalMutatingThrottle(UserRateThrottle)`:
+
   ```python
   class PortalMutatingThrottle(UserRateThrottle):
       scope = 'portal_mutating'
-      
+
       def get_rate(self):
           # Staff gets higher limit for bulk operations
           if self.request.user.is_staff:
               return '600/min'
           return '60/min'
-      
+
       def get_ident(self, request):
           # Use X-Forwarded-For if behind proxy, fallback to REMOTE_ADDR
           xff = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -521,12 +535,14 @@
               return xff.split(',')[0].strip()
           return request.META.get('REMOTE_ADDR')
   ```
+
 - [ ] 2.9.2 Create `PortalReadThrottle(UserRateThrottle)`:
+
   ```python
   class PortalReadThrottle(UserRateThrottle):
       scope = 'portal_read'
       rate = '240/min'
-      
+
       def get_ident(self, request):
           # Same X-Forwarded-For logic
           xff = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -534,12 +550,14 @@
               return xff.split(',')[0].strip()
           return request.META.get('REMOTE_ADDR')
   ```
+
 - [ ] 2.9.2 Create `PortalReadThrottle(UserRateThrottle)`:
+
   ```python
   class PortalReadThrottle(UserRateThrottle):
       scope = 'portal_read'
       rate = '240/min'
-      
+
       def get_ident(self, request):
           # Same X-Forwarded-For logic
           xff = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -547,6 +565,7 @@
               return xff.split(',')[0].strip()
           return request.META.get('REMOTE_ADDR')
   ```
+
 - [ ] 2.9.3 Add to `settings.py`:
   ```python
   REST_FRAMEWORK = {
