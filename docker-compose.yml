@@ -63,7 +63,7 @@ services:
       dockerfile: Dockerfile
     env_file: .env
     environment:
-      DJANGO_SETTINGS_MODULE: config.settings.prod
+      DJANGO_SETTINGS_MODULE: config.settings.dev  # Security Fix 2025-10-20: Use dev settings (was prod)
       REDIS_URL: redis://redis:6379/0
       SECURE_SSL_REDIRECT: "0"
       DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0"

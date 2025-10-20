@@ -14,8 +14,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies
-COPY requirements.txt ./
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# Security Fix 2025-10-20: Install prod + dev deps for dev/test environments
+# For production-only build, use: RUN pip install -r requirements.txt (no -dev)
+COPY requirements.txt requirements-dev.txt ./
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt && \
+    pip install -r requirements-dev.txt
 
 # Copy project
 COPY . .

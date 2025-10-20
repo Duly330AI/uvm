@@ -2,8 +2,17 @@ from .base import *  # noqa
 from . import base as _base
 import os
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 
 DEBUG = False
+
+# Security Fix 2025-10-20: Enforce secure SECRET_KEY in production
+if SECRET_KEY == "change-me":
+    raise ImproperlyConfigured(
+        "SECRET_KEY is set to the insecure default value 'change-me'. "
+        "This is not allowed in production. Generate a secure key with: "
+        "python -c \"from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())\""
+    )
 
 # Set your production hosts via env DJANGO_ALLOWED_HOSTS (comma separated) or configure here
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",") if os.getenv("DJANGO_ALLOWED_HOSTS") else []

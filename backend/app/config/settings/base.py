@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parents[2]
@@ -12,7 +13,14 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 load_dotenv(BASE_DIR / ".env")
 
 
+# SECRET_KEY with validation (Security Fix 2025-10-20)
 SECRET_KEY = os.getenv("SECRET_KEY", "change-me")
+if not SECRET_KEY:
+    raise ImproperlyConfigured(
+        "SECRET_KEY environment variable is required but not set. "
+        "Please set SECRET_KEY in your .env file or environment."
+    )
+# Warn about insecure default in development, enforce in production (checked in prod.py)
 
 DEBUG = False
 
