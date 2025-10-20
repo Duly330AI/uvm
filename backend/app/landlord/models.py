@@ -88,6 +88,14 @@ class Property(TimeStampedModel):
         self.save(update_fields=['is_archived', 'archived_at', 'archived_by'])
 
     class Meta:
+        indexes = [
+            models.Index(fields=['name']),
+            models.Index(fields=['city']),
+            models.Index(fields=['postal_code']),
+            models.Index(fields=['is_archived']),
+            models.Index(fields=['city', 'postal_code']),
+            models.Index(fields=['-created_at']),
+        ]
         constraints = [
             models.CheckConstraint(
                 condition=Q(geo_lat__isnull=True) | (Q(geo_lat__gte=-90.0) & Q(geo_lat__lte=90.0)),
