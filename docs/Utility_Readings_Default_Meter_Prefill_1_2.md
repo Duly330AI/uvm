@@ -252,11 +252,12 @@ Gruppen **„Gebäudenzähler“** / **„Wohnungszähler“** werden **variabel
 
 ### ✅ **PHASE 2: Admin-Integration** - COMPLETE (2025-10-20)
 
-**Status:** ✅ DONE  
-**Aufwand:** 0.3 PT (geplant: als Teil von 0.5-1 PT)  
+**Status:** ✅ DONE
+**Aufwand:** 0.3 PT (geplant: als Teil von 0.5-1 PT)
 **Commit:** `153cd8a` - "feat(M17): Add UtilityMeter admin integration"
 
 **Implementiert:**
+
 - ✅ **Admin Inlines:**
   - `PropertyUtilityMeterInline` für Gebäudezähler
   - `UnitUtilityMeterInline` für Wohnungszähler
@@ -267,7 +268,7 @@ Gruppen **„Gebäudenzähler“** / **„Wohnungszähler“** werden **variabel
   - Fieldsets: "Zuordnung", "Zähler-Details", "Startwert & Zeiträume", "Notizen"
   - `list_display`: scope_type, scope_object, meter_type, serial_number, is_default, is_active
   - `list_filter`: scope_type, meter_type, is_default, is_active
-  - `search_fields`: serial_number, property__name, property__street, unit__unit_label
+  - `search_fields`: serial_number, property**name, property**street, unit\_\_unit_label
   - `get_scope_display()` method für Objektanzeige
   - `select_related('property', 'unit')` optimization
 - ✅ **Integration:**
@@ -284,35 +285,92 @@ Gruppen **„Gebäudenzähler“** / **„Wohnungszähler“** werden **variabel
   - Fehlermeldung: "Pro Objekt/Wohnung und Medium ist nur ein Standardzähler zulässig"
 
 **Spec Compliance:**
+
 - ✅ Kap. 3.2: Admin-UX komplett
 - ✅ Kap. 3.2 Validierung: Hard-Fail implementiert
 - ✅ Kap. 3.2 Pflege: Frei anlegbar (Inline + Standalone Admin)
 - ✅ Kap. 4: Admin-Save Fehlermeldung korrekt
 
 **Testing:**
+
 - ✅ `python manage.py check` passed
 - ✅ Web server restarted
 - ✅ Admin UI verfügbar unter `/admin/`
 - ✅ Testsuite: 111 passed, 5 failed (bekannt)
 
 **Files Changed:**
+
 - `backend/app/landlord/admin.py` (+127 lines)
 
 ---
 
-### 🔄 **PHASE 3: Service-Layer** - IN PROGRESS (2025-10-20)
+### ✅ **PHASE 3: Service-Layer** - COMPLETE (2025-10-20)
+
+**Status:** ✅ DONE  
+**Aufwand:** 0.4 PT (geplant: 0.5 PT)  
+**Commit:** `a1f2f55` - "feat(M17): Add UtilityMeterService with full test coverage"
+
+**Implementiert:**
+- ✅ **UtilityMeterService class:**
+  - `get_default_meter(scope_type, scope_id, meter_type)` 
+  - `get_last_reading(meter_id)`
+  - Convenience wrapper functions
+- ✅ **Lookup-Priorität (Spec Kap. 3.3.2):**
+  - Case A: Default vorhanden → return default meter
+  - Case B: Kein Default, genau 1 aktiver → return aktiver
+  - Case C: Mehrere aktive, kein Default → return list (has_multiple=True)
+  - Case D: Kein Zähler gefunden → return None
+- ✅ **Return Format:**
+  - get_default_meter: `{meter_id, serial_number, has_multiple, initial_reading_value, meters[]}`
+  - get_last_reading: `{previous_value, reading_date, is_initial}`
+- ✅ **Business Logic:**
+  - Inactive meters werden ignoriert
+  - Default wird priorisiert (order_by '-is_default')
+  - Bei mehreren aktiven: Liste für Dropdown mit korrektem Format
+  - Letzter Reading: current_value des letzten Readings
+  - Fallback: initial_reading_value (einmalig, is_initial=True)
+  - Empty serial_number korrekt behandelt ('')
+  - Meter-Type Mapping: cold_water → water_cold etc.
+
+**Tests:**
+- ✅ 10/10 passing (100%)
+  - Case A: Default exists
+  - Case B: Single active
+  - Case C: Multiple active
+  - Case D: No meter
+  - Inactive meters ignored
+  - get_last_reading: with readings
+  - get_last_reading: initial_value only (is_initial=True)
+  - get_last_reading: no readings/initial
+  - get_last_reading: nonexistent meter
+  - Empty serial_number handled
+
+**Spec Compliance:**
+- ✅ Kap. 3.3: Portal-UX Prefill & Auswahl (Service-Seite)
+- ✅ Kap. 3.3 Vorheriger Zählerstand: Logik implementiert
+- ✅ Kap. 3.3 Dropdown-Format: meters[] mit allen Fields
+- ✅ Kap. 3.5: Services getDefaultMeter & getLastReading
+
+**Files Changed:**
+- `backend/app/landlord/services/utility_meter_service.py` (+238 lines, new)
+- `backend/app/landlord/tests/test_utility_meter_service.py` (+261 lines, new)
+
+---
+
+### 🔄 **PHASE 4: Caching-Strategie** - IN PROGRESS (2025-10-20)
 
 **Status:** 🔄 IN PROGRESS  
 **Aufwand:** TBD (geplant: 0.5 PT)
 
 **TODO:**
-- [ ] Service `getDefaultMeter(scope_type, scope_id, meter_type)`
-- [ ] Service `getLastReading(meter_id)`
-- [ ] Lookup-Priorität: Default → Ein Aktiver → Mehrere Aktive → Kein Zähler
-- [ ] Return-Format: `{meter_id, serial_number, has_multiple, initial_reading_value?}`
+- [ ] Redis-Cache für getDefaultMeter
+- [ ] Cache-Key: `(scope_type, scope_id, meter_type)`, TTL=5min
+- [ ] Cache-Invalidation via post_save Signal
+- [ ] Performance-Tests (<200ms lokal, P95 <300ms)
 
 ---
 
 ```
 
 ---
+```
