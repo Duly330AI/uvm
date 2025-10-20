@@ -27,6 +27,7 @@
 - [x] 1.1.7 Write unit test: `test_property_archive_idempotent()` ✅
 
 **Tests:** 7/7 passing ✅
+
 - `test_property_create_with_all_fields()`
 - `test_property_archive_sets_fields()`
 - `test_property_archive_by_user()`
@@ -58,6 +59,7 @@
 - [x] 1.2.9 Write unit test: `test_property_geo_lng_invalid_range_raises()` ✅ (2 tests: too low, too high)
 
 **Tests:** 8/8 passing ✅
+
 - `test_property_geo_lat_valid_range()` - Tests -90.0, 90.0, and Berlin coords
 - `test_property_geo_lat_invalid_too_low()` - Tests -90.1 → IntegrityError
 - `test_property_geo_lat_invalid_too_high()` - Tests 90.1 → IntegrityError
@@ -75,18 +77,37 @@
 
 ### ✅ Task 1.3: Add Country Choices with Localization
 
-**File:** `backend/app/landlord/models.py`
+**File:** `backend/app/landlord/models.py`, `landlord/validators.py`
 
-- [ ] 1.3.1 Create `COUNTRY_CHOICES` tuple: `(("DE", "Deutschland"), ("AT", "Österreich"), ("CH", "Schweiz"))`
-- [ ] 1.3.2 Add `country = CharField(max_length=2, choices=COUNTRY_CHOICES, default="DE")` to Property
-- [ ] 1.3.3 Create validator function: `validate_country_whitelist(value)` in `landlord/validators.py`
-- [ ] 1.3.4 Add validator to country field: `validators=[validate_country_whitelist]`
-- [ ] 1.3.5 Add `@property` method `get_country_display_localized()` for frontend
-- [ ] 1.3.6 Write unit test: `test_property_country_default_DE()`
-- [ ] 1.3.7 Write unit test: `test_property_country_valid_choices()`
-- [ ] 1.3.8 Write unit test: `test_property_country_invalid_raises()`
+**Status:** ✅ **COMPLETED** (2025-10-20)
 
-**Estimate:** 0.10 PT
+- [x] 1.3.1 Create `COUNTRY_CHOICES` tuple: `(("DE", "Deutschland"), ("AT", "Österreich"), ("CH", "Schweiz"))` ✅
+- [x] 1.3.2 Add `country = CharField(max_length=2, choices=COUNTRY_CHOICES, default="DE")` to Property ✅
+- [x] 1.3.3 Create validator function: `validate_country_whitelist(value)` in `landlord/validators.py` ✅
+- [x] 1.3.4 Add validator to country field: `validators=[validate_country_whitelist]` ✅
+- [x] 1.3.5 Django's built-in `get_country_display()` method works automatically ✅ (no custom property needed)
+- [x] 1.3.6 Write unit test: `test_property_country_default_is_de()` ✅
+- [x] 1.3.7 Write unit test: `test_property_country_valid_choices()` ✅
+- [x] 1.3.8 Write unit test: `test_property_country_invalid_code_validation()` ✅
+- [x] 1.3.9 Data migration: Migrate existing "Deutschland" → "DE" ✅
+
+**Tests:** 5/5 passing ✅
+- `test_property_country_default_is_de()` - Tests default value
+- `test_property_country_valid_choices()` - Tests DE, AT, CH all work
+- `test_property_country_get_display()` - Tests localized display names
+- `test_property_country_invalid_code_validation()` - Tests validation error
+- `test_property_country_max_length_2()` - Tests field length constraint
+
+**Migrations:**
+- `0020_migrate_country_names_to_codes.py` ✅ Applied (data migration)
+- `0021_update_country_field_with_choices.py` ✅ Applied (field alteration)
+
+**Validators Created:**
+- `validate_country_whitelist()` - Whitelist validation for DE/AT/CH
+- `validate_postal_code_de()` - German postal code format (for future use)
+- `validate_serial_number_format()` - Meter serial number format (for future use)
+
+**Estimate:** 0.10 PT | **Actual:** 0.12 PT (data migration added complexity)
 
 ---
 

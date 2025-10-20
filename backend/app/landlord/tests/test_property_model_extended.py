@@ -1,15 +1,26 @@
 """
 Property Model Extended Tests
-Tests for Phase 1, Tasks 1.1 & 1.2
+Tests for Phase 1, Tasks 1.1, 1.2, 1.3
 
 Tests cover:
 - Task 1.1: Archive fields (is_archived, archived_at, archived_by)
 - Task 1.1: archive() method behavior
 - Task 1.1: Idempotency
 - Task 1.2: Geo-coordinate validation (lat/lng ranges)
+- Task 1.3: Country choices and validation
 """
 import pytest
 from decimal import Decimal
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError
+from django.utils import timezone
+from landlord.models import Property
+
+User = get_user_model()
+from decimal import Decimal
+
+import pytest
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -30,7 +41,7 @@ class TestPropertyArchiveFields:
             street="Teststraße 123",
             postal_code="12345",
             city="Berlin",
-            country="Deutschland",
+            country="DE",  # Updated to use country code
             notes="Test notes"
         )
         assert property.id is not None
@@ -47,22 +58,22 @@ class TestPropertyArchiveFields:
             postal_code="12345",
             city="Berlin"
         )
-        
+
         # Create user
         user = User.objects.create_user(
             username="testuser",
             email="test@example.com",
             password="testpass123"
         )
-        
+
         # Archive property
         before_archive = timezone.now()
         property.archive(user)
         after_archive = timezone.now()
-        
+
         # Refresh from DB
         property.refresh_from_db()
-        
+
         # Assert all fields are set
         assert property.is_archived is True
         assert property.archived_at is not None
@@ -77,7 +88,7 @@ class TestPropertyArchiveFields:
             postal_code="12345",
             city="Berlin"
         )
-        
+
         user1 = User.objects.create_user(
             username="user1",
             email="user1@example.com",
@@ -88,11 +99,11 @@ class TestPropertyArchiveFields:
             email="user2@example.com",
             password="pass123"
         )
-        
+
         # User1 archives
         property.archive(user1)
         property.refresh_from_db()
-        
+
         assert property.archived_by == user1
         assert property.archived_by != user2
 
@@ -104,20 +115,20 @@ class TestPropertyArchiveFields:
             postal_code="12345",
             city="Berlin"
         )
-        
+
         user = User.objects.create_user(
             username="testuser",
             email="test@example.com",
             password="pass123"
         )
-        
+
         # Archive first time
         property.archive(user)
-        
+
         # Archive second time (should just update fields)
         property.archive(user)
         property.refresh_from_db()
-        
+
         # Still archived, timestamp may be updated
         assert property.is_archived is True
         assert property.archived_by == user
@@ -131,7 +142,7 @@ class TestPropertyArchiveFields:
             postal_code="12345",
             city="Berlin"
         )
-        
+
         assert property.is_archived is False
         assert property.archived_at is None
         assert property.archived_by is None
@@ -144,21 +155,21 @@ class TestPropertyArchiveFields:
             postal_code="12345",
             city="Berlin"
         )
-        
+
         user = User.objects.create_user(
             username="tempuser",
             email="temp@example.com",
             password="pass123"
         )
-        
+
         property.archive(user)
         property.refresh_from_db()
         assert property.archived_by == user
-        
+
         # Delete user
         user_id = user.id
         user.delete()
-        
+
         # Property should still exist, but archived_by should be NULL
         property.refresh_from_db()
         assert property.is_archived is True  # Still archived
@@ -172,15 +183,15 @@ class TestPropertyArchiveFields:
             email="test@example.com",
             password="pass123"
         )
-        
+
         # Create 3 properties, archive 2 of them
         p1 = Property.objects.create(name="P1", street="St1", postal_code="12345", city="Berlin")
         p2 = Property.objects.create(name="P2", street="St2", postal_code="12345", city="Berlin")
         p3 = Property.objects.create(name="P3", street="St3", postal_code="12345", city="Berlin")
-        
+
         p1.archive(user)
         p2.archive(user)
-        
+
         # User should have 2 archived properties
         assert user.archived_properties.count() == 2
         assert p1 in user.archived_properties.all()
@@ -204,7 +215,7 @@ class TestPropertyGeoCoordinates:
             geo_lng=Decimal('0.0')
         )
         assert p1.geo_lat == Decimal('-90.0')
-        
+
         # Valid maximum
         p2 = Property.objects.create(
             name="South Pole",
@@ -215,7 +226,7 @@ class TestPropertyGeoCoordinates:
             geo_lng=Decimal('0.0')
         )
         assert p2.geo_lat == Decimal('90.0')
-        
+
         # Valid middle
         p3 = Property.objects.create(
             name="Berlin",
@@ -263,7 +274,7 @@ class TestPropertyGeoCoordinates:
             geo_lng=Decimal('-180.0')
         )
         assert p1.geo_lng == Decimal('-180.0')
-        
+
         # Valid maximum
         p2 = Property.objects.create(
             name="East Edge",
@@ -319,10 +330,73 @@ class TestPropertyGeoCoordinates:
             city="City",
             geo_lat=Decimal('91.0')  # Invalid!
         )
-        
+
         # full_clean() should raise ValidationError
         with pytest.raises(ValidationError) as exc_info:
             p.full_clean()
-        
+
         # Check that geo_lat validation failed
         assert 'geo_lat' in exc_info.value.error_dict
+
+
+@pytest.mark.django_db
+class TestPropertyCountryChoices:
+    """Test suite for Property country choices and validation (Task 1.3)"""
+
+    def test_property_country_default_is_de(self):
+        """Test 1.3.6: Property defaults to 'DE' if no country specified"""
+        p = Property.objects.create(
+            name="Test",
+            street="St",
+            postal_code="12345",
+            city="Berlin"
+        )
+        assert p.country == 'DE'
+
+    def test_property_country_valid_choices(self):
+        """Test 1.3.7: All valid country codes work (DE, AT, CH)"""
+        p_de = Property.objects.create(name="Germany", street="St", postal_code="12345", city="Berlin", country='DE')
+        p_at = Property.objects.create(name="Austria", street="St", postal_code="12345", city="Vienna", country='AT')
+        p_ch = Property.objects.create(name="Switzerland", street="St", postal_code="12345", city="Zurich", country='CH')
+        
+        assert p_de.country == 'DE'
+        assert p_at.country == 'AT'
+        assert p_ch.country == 'CH'
+
+    def test_property_country_get_display(self):
+        """Test 1.3.8: get_country_display() returns localized name"""
+        p_de = Property.objects.create(name="Test", street="St", postal_code="12345", city="Berlin", country='DE')
+        p_at = Property.objects.create(name="Test", street="St", postal_code="12345", city="Vienna", country='AT')
+        p_ch = Property.objects.create(name="Test", street="St", postal_code="12345", city="Zurich", country='CH')
+        
+        assert p_de.get_country_display() == 'Deutschland'
+        assert p_at.get_country_display() == 'Österreich'
+        assert p_ch.get_country_display() == 'Schweiz'
+
+    def test_property_country_invalid_code_validation(self):
+        """Test 1.3.9: Invalid country code raises ValidationError via full_clean()"""
+        p = Property(
+            name="Test",
+            street="St",
+            postal_code="12345",
+            city="City",
+            country='US'  # Invalid!
+        )
+        
+        with pytest.raises(ValidationError) as exc_info:
+            p.full_clean()
+        
+        # Should have validation error on country field
+        assert 'country' in exc_info.value.error_dict
+
+    def test_property_country_max_length_2(self):
+        """Test that country field is max 2 characters"""
+        # This should work (2 chars)
+        p = Property.objects.create(
+            name="Test",
+            street="St",
+            postal_code="12345",
+            city="City",
+            country='DE'
+        )
+        assert p.country == 'DE'

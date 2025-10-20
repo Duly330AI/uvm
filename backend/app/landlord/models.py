@@ -7,6 +7,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Q
 
+from .validators import validate_country_whitelist
+
 
 class TimeStampedModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -16,12 +18,26 @@ class TimeStampedModel(models.Model):
         abstract = True
 
 
+# Country choices for Property model
+COUNTRY_CHOICES = [
+    ('DE', 'Deutschland'),
+    ('AT', 'Österreich'),
+    ('CH', 'Schweiz'),
+]
+
+
 class Property(TimeStampedModel):
     name = models.CharField(max_length=200, blank=True)
     street = models.CharField(max_length=200)
     postal_code = models.CharField(max_length=20)
     city = models.CharField(max_length=100)
-    country = models.CharField(max_length=100, default="Deutschland")
+    country = models.CharField(
+        max_length=2,
+        choices=COUNTRY_CHOICES,
+        default='DE',
+        validators=[validate_country_whitelist],
+        help_text="Country code (DE, AT, CH)"
+    )
     geo_lat = models.DecimalField(
         max_digits=9,
         decimal_places=6,
@@ -39,7 +55,7 @@ class Property(TimeStampedModel):
         help_text="Longitude (-180.0 to +180.0)"
     )
     notes = models.TextField(blank=True)
-    
+
     # Archive fields (soft-delete)
     is_archived = models.BooleanField(
         default=False,
@@ -62,7 +78,7 @@ class Property(TimeStampedModel):
 
     def __str__(self) -> str:  # pragma: no cover - display only
         return self.name or f"{self.street}, {self.postal_code} {self.city}"
-    
+
     def archive(self, user):
         """Archive this property (soft-delete)"""
         from django.utils import timezone
@@ -70,7 +86,7 @@ class Property(TimeStampedModel):
         self.archived_at = timezone.now()
         self.archived_by = user
         self.save(update_fields=['is_archived', 'archived_at', 'archived_by'])
-    
+
     class Meta:
         constraints = [
             models.CheckConstraint(
