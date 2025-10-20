@@ -1,5 +1,6 @@
 """
 M14: Nebenkostenabrechnung Views
+M17: Utility Meter Default Prefill API
 """
 from datetime import date
 from decimal import Decimal
@@ -8,9 +9,102 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_http_methods
 
 from landlord.models import Property, Unit, UtilityReading
 from landlord.services.utility_calculator import UtilityCostCalculator
+from landlord.services.utility_meter_service import get_default_meter, get_last_reading
+
+
+# ============================================================================
+# M17: UTILITY METER PREFILL API
+# ============================================================================
+
+@login_required
+@require_http_methods(["GET"])
+def api_get_default_meter(request):
+    """
+    M17: API endpoint to get the default meter for a scope + meter_type.
+    
+    Query params:
+        - scope_type: 'property' or 'unit'
+        - scope_id: ID of the Property or Unit
+        - meter_type: 'cold_water', 'hot_water', 'electricity', 'gas'
+    
+    Returns:
+        {
+            meter_id: int or null,
+            serial_number: str or null,
+            has_multiple: bool,
+            initial_reading_value: float or null,
+            meters: [] (only if has_multiple=true)
+        }
+    """
+    scope_type = request.GET.get('scope_type')
+    scope_id = request.GET.get('scope_id')
+    meter_type = request.GET.get('meter_type')
+    
+    # Validation
+    if not all([scope_type, scope_id, meter_type]):
+        return JsonResponse({
+            'error': 'Missing required parameters: scope_type, scope_id, meter_type'
+        }, status=400)
+    
+    if scope_type not in ['property', 'unit']:
+        return JsonResponse({
+            'error': 'Invalid scope_type. Must be "property" or "unit"'
+        }, status=400)
+    
+    try:
+        scope_id = int(scope_id)
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Invalid scope_id. Must be an integer'}, status=400)
+    
+    # Call service
+    try:
+        result = get_default_meter(scope_type, scope_id, meter_type)
+        return JsonResponse(result)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["GET"])
+def api_get_last_reading(request):
+    """
+    M17: API endpoint to get the last reading for a meter.
+    
+    Query params:
+        - meter_id: ID of the UtilityMeter
+    
+    Returns:
+        {
+            previous_value: float or null,
+            reading_date: str (ISO) or null,
+            is_initial: bool
+        }
+    """
+    meter_id = request.GET.get('meter_id')
+    
+    if not meter_id:
+        return JsonResponse({'error': 'Missing required parameter: meter_id'}, status=400)
+    
+    try:
+        meter_id = int(meter_id)
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Invalid meter_id. Must be an integer'}, status=400)
+    
+    # Call service
+    try:
+        result = get_last_reading(meter_id)
+        return JsonResponse(result)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+# ============================================================================
+# M14: UTILITY READINGS VIEWS
+# ============================================================================
 
 
 @login_required

@@ -106,6 +106,9 @@ urlpatterns = [
     path("portal/utility/readings/create", views_utility.utility_reading_create, name="portal_utility_reading_create"),
     path("portal/utility/calculation/", views_utility.utility_calculation_preview, name="portal_utility_calculation"),
     path("portal/utility/export/<int:property_id>/<str:start_date>/<str:end_date>/", views_utility.utility_billing_export, name="portal_utility_export"),
+    # M17: Utility Meter Prefill API
+    path("api/utility/meters/default", views_utility.api_get_default_meter, name="api_get_default_meter"),
+    path("api/utility/meters/last-reading", views_utility.api_get_last_reading, name="api_get_last_reading"),
     # Checklisten (M16)
     path("portal/checklists/", views_checklist.checklists_list, name="portal_checklists"),
     path("portal/checklists/templates/", views_checklist.checklist_templates_list, name="portal_checklist_templates"),
