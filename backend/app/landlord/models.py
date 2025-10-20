@@ -722,6 +722,183 @@ class PaymentTransaction(TimeStampedModel):
 # M14: NEBENKOSTENABRECHNUNG (UTILITY BILLING)
 # ============================================================================
 
+class UtilityMeter(TimeStampedModel):
+    """
+    Zähler-Stammdaten für Versorgungsleistungen.
+    M17: Default Meter Prefill
+    
+    Speichert die physischen Zähler (Seriennummern) pro Property/Unit.
+    Ermöglicht automatisches Vorbefüllen der Zählernummer beim Erfassen.
+    """
+
+    class ScopeType(models.TextChoices):
+        PROPERTY = 'property', 'Gebäudezähler'
+        UNIT = 'unit', 'Wohnungszähler'
+
+    class MeterType(models.TextChoices):
+        WATER_COLD = 'cold_water', 'Kaltwasser'
+        WATER_HOT = 'hot_water', 'Warmwasser'
+        ELECTRICITY = 'electricity', 'Strom'
+        GAS = 'gas', 'Gas (kWh)'
+
+    # Polymorphic scope - either property OR unit
+    scope_type = models.CharField(
+        max_length=10,
+        choices=ScopeType.choices,
+        help_text='Ist dies ein Gebäude- oder Wohnungszähler?'
+    )
+    
+    # FK to Property (if scope_type=property)
+    property = models.ForeignKey(
+        Property,
+        on_delete=models.CASCADE,
+        related_name='utility_meters',
+        null=True,
+        blank=True,
+        help_text='Gebäude (nur wenn Gebäudezähler)'
+    )
+    
+    # FK to Unit (if scope_type=unit)
+    unit = models.ForeignKey(
+        Unit,
+        on_delete=models.CASCADE,
+        related_name='utility_meters',
+        null=True,
+        blank=True,
+        help_text='Wohnung (nur wenn Wohnungszähler)'
+    )
+    
+    meter_type = models.CharField(
+        max_length=20,
+        choices=MeterType.choices,
+        help_text='Art des Zählers (Medium)'
+    )
+    
+    serial_number = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text='Seriennummer des Versorgers (optional)'
+    )
+    
+    is_default = models.BooleanField(
+        default=False,
+        help_text='Standardzähler für automatisches Vorbefüllen (max. 1 pro Scope+Medium)'
+    )
+    
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Ist der Zähler aktiv/installiert?'
+    )
+    
+    initial_reading_value = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text='Startwert bei Installation (wird einmalig als "vorheriger Stand" verwendet)'
+    )
+    
+    installed_at = models.DateField(
+        null=True,
+        blank=True,
+        help_text='Installationsdatum'
+    )
+    
+    removed_at = models.DateField(
+        null=True,
+        blank=True,
+        help_text='Datum der Entfernung/Deaktivierung'
+    )
+    
+    notes = models.TextField(
+        blank=True,
+        help_text='Notizen zum Zähler'
+    )
+
+    class Meta:
+        ordering = ['scope_type', 'meter_type', '-is_default', '-is_active', 'serial_number']
+        indexes = [
+            models.Index(fields=['scope_type', 'property', 'meter_type']),
+            models.Index(fields=['scope_type', 'unit', 'meter_type']),
+            models.Index(fields=['is_default', 'is_active']),
+        ]
+        constraints = [
+            # Ensure only ONE default per (scope_type, scope_id, meter_type)
+            # For Property scopes
+            models.UniqueConstraint(
+                fields=['scope_type', 'property', 'meter_type'],
+                condition=Q(is_default=True, scope_type='property'),
+                name='unique_default_meter_property'
+            ),
+            # For Unit scopes
+            models.UniqueConstraint(
+                fields=['scope_type', 'unit', 'meter_type'],
+                condition=Q(is_default=True, scope_type='unit'),
+                name='unique_default_meter_unit'
+            ),
+            # Ensure scope consistency: property XOR unit
+            models.CheckConstraint(
+                check=(
+                    Q(scope_type='property', property__isnull=False, unit__isnull=True) |
+                    Q(scope_type='unit', unit__isnull=False, property__isnull=True)
+                ),
+                name='utility_meter_scope_consistency'
+            ),
+        ]
+
+    def __str__(self) -> str:
+        scope_name = str(self.property) if self.scope_type == 'property' else str(self.unit)
+        sn = f" ({self.serial_number})" if self.serial_number else ""
+        default = " [DEFAULT]" if self.is_default else ""
+        return f"{self.get_meter_type_display()} - {scope_name}{sn}{default}"
+
+    def clean(self):
+        """Validate scope consistency and default uniqueness"""
+        from django.core.exceptions import ValidationError
+        
+        # Validate scope consistency
+        if self.scope_type == 'property' and not self.property_id:
+            raise ValidationError("Gebäudezähler benötigt eine Property-Zuordnung")
+        if self.scope_type == 'unit' and not self.unit_id:
+            raise ValidationError("Wohnungszähler benötigt eine Unit-Zuordnung")
+        if self.scope_type == 'property' and self.unit_id:
+            raise ValidationError("Gebäudezähler kann keine Unit haben")
+        if self.scope_type == 'unit' and self.property_id:
+            raise ValidationError("Wohnungszähler kann keine Property haben")
+        
+        # Validate default uniqueness (only if setting is_default=True)
+        if self.is_default:
+            existing_defaults = UtilityMeter.objects.filter(
+                scope_type=self.scope_type,
+                meter_type=self.meter_type,
+                is_default=True
+            )
+            
+            if self.scope_type == 'property':
+                existing_defaults = existing_defaults.filter(property_id=self.property_id)
+            else:
+                existing_defaults = existing_defaults.filter(unit_id=self.unit_id)
+            
+            if self.pk:
+                existing_defaults = existing_defaults.exclude(pk=self.pk)
+            
+            if existing_defaults.exists():
+                raise ValidationError(
+                    "Pro Objekt/Wohnung und Medium ist nur ein Standardzähler zulässig."
+                )
+
+    def get_scope_object(self):
+        """Return the actual Property or Unit object"""
+        return self.property if self.scope_type == 'property' else self.unit
+
+    def get_reading_unit(self):
+        """Return the reading unit for this meter type"""
+        if self.meter_type in ['cold_water', 'hot_water']:
+            return 'm³'
+        else:  # electricity, gas
+            return 'kWh'
+
+
 class UtilityReading(TimeStampedModel):
     """
     Zählerstand für Versorgungsleistungen (Strom, Wasser, Gas, Heizung).
