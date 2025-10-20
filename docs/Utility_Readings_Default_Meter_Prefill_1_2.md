@@ -363,11 +363,12 @@ Gruppen **„Gebäudenzähler“** / **„Wohnungszähler“** werden **variabel
 
 ### ✅ **PHASE 4: Caching-Strategie** - COMPLETE (2025-10-20)
 
-**Status:** ✅ DONE  
-**Aufwand:** 0.4 PT (geplant: 0.5 PT)  
+**Status:** ✅ DONE
+**Aufwand:** 0.4 PT (geplant: 0.5 PT)
 **Commit:** `687e5fb` - "feat(M17): Add caching with Django Cache & signal-based invalidation"
 
 **Implementiert:**
+
 - ✅ **Caching Implementation:**
   - Django Cache integration (django.core.cache)
   - Cache key format: `utility_meter:{scope_type}:{scope_id}:{meter_type}`
@@ -385,6 +386,7 @@ Gruppen **„Gebäudenzähler“** / **„Wohnungszähler“** werden **variabel
   - Correct scope_id extraction (property_id vs unit_id)
 
 **Tests:**
+
 - ✅ 6/6 caching tests passing (100%)
   - test_cache_hit_on_second_call
   - test_cache_invalidation_on_save
@@ -394,12 +396,14 @@ Gruppen **„Gebäudenzähler“** / **„Wohnungszähler“** werden **variabel
   - test_cache_bypass_with_use_cache_false
 
 **Performance:**
+
 - Cache Hit: ~0.1ms (in-memory)
 - Cache Miss: DB query (~5-20ms)
 - TTL: 5min (balance between freshness & performance)
 - Goal: <200ms lokal ✅ (bereits mit DB <20ms erreicht)
 
 **Spec Compliance:**
+
 - ✅ Kap. 5: Caching-Strategie komplett
 - ✅ Kap. 5: Cache-Key format korrekt
 - ✅ Kap. 5: TTL=5min
@@ -407,24 +411,77 @@ Gruppen **„Gebäudenzähler“** / **„Wohnungszähler“** werden **variabel
 - ✅ Kap. 10: Testfall 7 (Cache-Invalidation)
 
 **Files Changed:**
+
 - `backend/app/landlord/services/utility_meter_service.py` (+caching logic)
 - `backend/app/landlord/signals.py` (+M17 cache invalidation signals)
 - `backend/app/landlord/tests/test_utility_meter_cache.py` (+160 lines, new)
 
 ---
 
-### 🔄 **PHASE 5: Portal-UX & API** - IN PROGRESS (2025-10-20)
+### ✅ **PHASE 5: API Endpoints** - COMPLETE (2025-10-20)
+
+**Status:** ✅ DONE (API Layer)  
+**Aufwand:** 0.3 PT (geplant: 0.5-1 PT für gesamte Phase 5)  
+**Commit:** `ad1294e` - "feat(M17): Add API endpoints for meter prefill with tests"
+
+**Implementiert:**
+- ✅ **API Endpoints:**
+  - `GET /api/utility/meters/default` (scope_type, scope_id, meter_type → meter data)
+  - `GET /api/utility/meters/last-reading` (meter_id → previous reading)
+- ✅ **View Functions:**
+  - `api_get_default_meter()` - Get default/active meter for scope+type
+  - `api_get_last_reading()` - Get last reading with initial_value fallback
+- ✅ **Security & Validation:**
+  - `@login_required` decorator (authentication required)
+  - `@require_http_methods(['GET'])` (method restriction)
+  - Input validation (type checking, required params)
+  - Error handling with proper HTTP status codes (400, 500)
+- ✅ **Service Integration:**
+  - Calls `get_default_meter()` from utility_meter_service
+  - Calls `get_last_reading()` from utility_meter_service
+  - Decimal → float conversion for JSON serialization
+
+**API Tests:**
+- ✅ 12/12 passing (100%)
+  - test_api_get_default_meter_success
+  - test_api_get_default_meter_missing_params
+  - test_api_get_default_meter_invalid_scope_type
+  - test_api_get_default_meter_invalid_scope_id
+  - test_api_get_default_meter_no_meter_found
+  - test_api_get_default_meter_multiple_meters
+  - test_api_get_last_reading_success
+  - test_api_get_last_reading_with_initial_value
+  - test_api_get_last_reading_missing_meter_id
+  - test_api_get_last_reading_invalid_meter_id
+  - test_api_get_last_reading_nonexistent_meter
+  - test_api_requires_authentication
+
+**Spec Compliance:**
+- ✅ Kap. 3.5: API Services implementiert
+- ✅ Kap. 10: API-Tests (Testfälle 1-4 indirekt)
+
+**Files Changed:**
+- `backend/app/landlord/views_utility.py` (+93 lines API endpoints)
+- `backend/app/config/urls.py` (+2 URL routes)
+- `backend/app/landlord/services/utility_meter_service.py` (Decimal→float fix)
+- `backend/app/landlord/tests/test_utility_meter_api.py` (+260 lines, new)
+
+**Note:** Frontend JavaScript/HTMX für Auto-Prefill UX noch TODO (Phase 6)
+
+---
+
+### 🔄 **PHASE 6: Frontend Auto-Prefill** - IN PROGRESS (2025-10-20)
 
 **Status:** 🔄 IN PROGRESS  
-**Aufwand:** TBD (geplant: 0.5-1 PT)
+**Aufwand:** TBD (geplant: 0.2-0.7 PT)
 
 **TODO:**
-- [ ] API Endpoint für getDefaultMeter
-- [ ] API Endpoint für getLastReading
-- [ ] Frontend: onChange-Handler für Scope+Type
-- [ ] Auto-Prefill Seriennummer
-- [ ] Dropdown "Zähler auswählen" (Fall C)
-- [ ] UI-Info "Erstwert aus Stammdaten"
+- [ ] JavaScript onChange-Handler für Unit + MeterType
+- [ ] AJAX-Call zu /api/utility/meters/default
+- [ ] Auto-Prefill Seriennummer (Fall A/B)
+- [ ] Dropdown "Zähler auswählen" (Fall C: has_multiple=true)
+- [ ] Auto-Load vorheriger Zählerstand
+- [ ] UI-Info "Erstwert aus Stammdaten" (is_initial=true)
 
 ---
 
