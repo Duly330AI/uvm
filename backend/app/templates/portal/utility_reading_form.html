@@ -26,12 +26,12 @@
           <option value="">Wählen Sie...</option>
           <optgroup label="🏢 Gebäudezähler">
             {% for unit in units %} {% if unit.unit_label == 'Allgemein' or unit.unit_label == 'Gebäude' %}
-            <option value="{{ unit.id }}">{{ unit.property.name }} - Allgemein (Treppenhaus, Garten, etc.)</option>
+            <option value="{{ unit.id }}" data-property-id="{{ unit.property.id }}">{{ unit.property.name }} - Allgemein (Treppenhaus, Garten, etc.)</option>
             {% endif %} {% endfor %}
           </optgroup>
           <optgroup label="🏠 Wohnungszähler">
             {% for unit in units %} {% if unit.unit_label != 'Allgemein' and unit.unit_label != 'Gebäude' %}
-            <option value="{{ unit.id }}">{{ unit.property.name }} - {{ unit.unit_label }}</option>
+            <option value="{{ unit.id }}" data-property-id="{{ unit.property.id }}">{{ unit.property.name }} - {{ unit.unit_label }}</option>
             {% endif %} {% endfor %}
           </optgroup>
         </select>
@@ -162,6 +162,11 @@
       const parentOptgroup = selectedOption.parentElement;
       const isBuilding = parentOptgroup && parentOptgroup.label && parentOptgroup.label.includes("Gebäudezähler");
       const scopeType = isBuilding ? "property" : "unit";
+      
+      // For building meters, use property_id; for unit meters, use unit_id
+      const scopeId = isBuilding 
+        ? selectedOption.dataset.propertyId 
+        : unitId;
 
       // Convert meter_type from UtilityReading format to UtilityMeter format
       const meterTypeMap = {
@@ -174,7 +179,7 @@
       const utilityMeterType = meterTypeMap[meterType] || meterType;
 
       // Call API
-      fetch(`/api/utility/meters/default?scope_type=${scopeType}&scope_id=${unitId}&meter_type=${utilityMeterType}`)
+      fetch(`/api/utility/meters/default?scope_type=${scopeType}&scope_id=${scopeId}&meter_type=${utilityMeterType}`)
         .then((response) => response.json())
         .then((data) => {
           meterLoading.classList.add("hidden");
