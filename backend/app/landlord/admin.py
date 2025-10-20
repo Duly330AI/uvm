@@ -54,8 +54,10 @@ class PropertyUtilityMeterInline(UtilityMeterInline):
 
 	def get_formset(self, request, obj=None, **kwargs):
 		formset = super().get_formset(request, obj, **kwargs)
-		# Set scope_type to 'property' for all forms
-		formset.form.base_fields['scope_type'].initial = 'property'
+		# Set scope_type to 'property' for all forms (only if form exists)
+		if hasattr(formset, 'form') and hasattr(formset.form, 'base_fields'):
+			if 'scope_type' in formset.form.base_fields:
+				formset.form.base_fields['scope_type'].initial = 'property'
 		return formset
 
 	def get_queryset(self, request):
@@ -68,8 +70,10 @@ class UnitUtilityMeterInline(UtilityMeterInline):
 
 	def get_formset(self, request, obj=None, **kwargs):
 		formset = super().get_formset(request, obj, **kwargs)
-		# Set scope_type to 'unit' for all forms
-		formset.form.base_fields['scope_type'].initial = 'unit'
+		# Set scope_type to 'unit' for all forms (only if form exists)
+		if hasattr(formset, 'form') and hasattr(formset.form, 'base_fields'):
+			if 'scope_type' in formset.form.base_fields:
+				formset.form.base_fields['scope_type'].initial = 'unit'
 		return formset
 
 	def get_queryset(self, request):
