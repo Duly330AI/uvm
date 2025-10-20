@@ -7,7 +7,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Q
 
-from .validators import validate_country_whitelist
+from .validators import validate_country_whitelist, validate_serial_number_format
 
 
 class TimeStampedModel(models.Model):
@@ -845,9 +845,10 @@ class UtilityMeter(TimeStampedModel):
     )
 
     serial_number = models.CharField(
-        max_length=100,
+        max_length=50,
         blank=True,
-        help_text='Seriennummer des Versorgers (optional)'
+        validators=[validate_serial_number_format],
+        help_text='Seriennummer des Versorgers (optional, A-Z/a-z/0-9/-/)'
     )
 
     is_default = models.BooleanField(
@@ -921,6 +922,12 @@ class UtilityMeter(TimeStampedModel):
         sn = f" ({self.serial_number})" if self.serial_number else ""
         default = " [DEFAULT]" if self.is_default else ""
         return f"{self.get_meter_type_display()} - {scope_name}{sn}{default}"
+    
+    def save(self, *args, **kwargs):
+        """Override save to normalize serial_number to uppercase"""
+        if self.serial_number:
+            self.serial_number = self.serial_number.strip().upper()
+        super().save(*args, **kwargs)
 
     def clean(self):
         """Validate scope consistency and default uniqueness"""

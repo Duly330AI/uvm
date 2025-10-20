@@ -92,6 +92,7 @@
 - [x] 1.3.9 Data migration: Migrate existing "Deutschland" → "DE" ✅
 
 **Tests:** 5/5 passing ✅
+
 - `test_property_country_default_is_de()` - Tests default value
 - `test_property_country_valid_choices()` - Tests DE, AT, CH all work
 - `test_property_country_get_display()` - Tests localized display names
@@ -99,10 +100,12 @@
 - `test_property_country_max_length_2()` - Tests field length constraint
 
 **Migrations:**
+
 - `0020_migrate_country_names_to_codes.py` ✅ Applied (data migration)
 - `0021_update_country_field_with_choices.py` ✅ Applied (field alteration)
 
 **Validators Created:**
+
 - `validate_country_whitelist()` - Whitelist validation for DE/AT/CH
 - `validate_postal_code_de()` - German postal code format (for future use)
 - `validate_serial_number_format()` - Meter serial number format (for future use)
@@ -148,21 +151,23 @@
 
 **File:** `backend/app/landlord/models.py`
 
-- [ ] 1.5.1 In UtilityMeter Meta class, add:
-  ```python
-  constraints = [
-      models.UniqueConstraint(
-          fields=['property', 'meter_type'],
-          condition=Q(is_default=True),
-          name='unique_default_per_property_meter_type'
-      )
-  ]
-  ```
-- [ ] 1.5.2 Write unit test: `test_meter_only_one_default_per_property_medium()`
-- [ ] 1.5.3 Write unit test: `test_meter_multiple_non_defaults_allowed()`
-- [ ] 1.5.4 Write unit test: `test_meter_constraint_violation_raises_integrity_error()`
+**Status:** ✅ **COMPLETED** (2025-10-21) - **Already existed in codebase!**
 
-**Estimate:** 0.08 PT
+- [x] 1.5.1 Partial Unique Constraints already exist in UtilityMeter.Meta ✅
+  - `unique_default_meter_property` for property scopes
+  - `unique_default_meter_unit` for unit scopes
+- [x] 1.5.2 Write unit test: `test_only_one_default_per_property_meter_type()` ✅
+- [x] 1.5.3 Write unit test: `test_multiple_non_default_meters_allowed()` ✅
+- [x] 1.5.4 Write unit test: `test_default_meters_different_types_allowed()` ✅
+
+**Tests:** 3/3 passing ✅
+- `test_only_one_default_per_property_meter_type()` - Verifies constraint enforcement
+- `test_multiple_non_default_meters_allowed()` - Non-defaults can coexist
+- `test_default_meters_different_types_allowed()` - Different meter types OK
+
+**Note:** Constraints were already implemented in M17 (Default Meter Prefill feature). Phase 1 just verifies they work correctly.
+
+**Estimate:** 0.08 PT | **Actual:** 0.05 PT (mostly verification)
 
 ---
 
@@ -170,11 +175,32 @@
 
 **File:** `backend/app/landlord/models.py`
 
-- [ ] 1.6.1 Override `save()` method in UtilityMeter:
-  ```python
-  def save(self, *args, **kwargs):
-      if self.serial_number:
-          self.serial_number = self.serial_number.upper()
+**Status:** ✅ **COMPLETED** (2025-10-21)
+
+- [x] 1.6.1 Override `save()` method in UtilityMeter to normalize serial_number ✅
+- [x] 1.6.2 Trim whitespace and convert to uppercase ✅
+- [x] 1.6.3 Update serial_number field: max_length=50, add validator ✅
+- [x] 1.6.4 Write unit test: `test_serial_number_normalized_to_uppercase()` ✅
+- [x] 1.6.5 Write unit test: `test_serial_number_mixed_case_normalized()` ✅
+- [x] 1.6.6 Write unit test: `test_serial_number_with_whitespace_trimmed()` ✅
+- [x] 1.6.7 Write unit test: `test_serial_number_empty_string_allowed()` ✅
+- [x] 1.6.8 Write unit test: `test_serial_number_update_also_normalized()` ✅
+- [x] 1.6.9 Write unit test: `test_serial_number_validation_alphanumeric_dash_slash()` ✅
+- [x] 1.6.10 Write unit test: `test_serial_number_validation_rejects_invalid_chars()` ✅
+
+**Tests:** 7/7 passing ✅
+- Uppercase normalization works on create & update
+- Whitespace trimming
+- Empty string allowed (optional field)
+- Validator rejects invalid characters (@ # _ space etc.)
+- Accepts valid characters (A-Z, a-z, 0-9, dash, slash)
+
+**Changes:**
+- UtilityMeter.save(): Normalizes serial_number to uppercase with strip()
+- serial_number field: Changed max_length to 50, added validate_serial_number_format validator
+- Migration: 0022_update_utility_meter_serial_number.py
+
+**Estimate:** 0.07 PT | **Actual:** 0.08 PT
       super().save(*args, **kwargs)
   ```
 - [ ] 1.6.2 Write unit test: `test_meter_serial_number_normalized_uppercase()`
