@@ -2,7 +2,7 @@
 Unit API Serializers for Portal
 Phase 4: API Endpoints - Units
 """
-from landlord.models import Unit, Property, UtilityMeter
+from landlord.models import Unit
 from rest_framework import serializers
 
 

@@ -21,6 +21,13 @@ from .properties import (
     PropertyUpdateAPIView,
 )
 from .tenants import TenantEraseView, TenantExportView
+from .unit_meters import (
+    UnitMeterCreateAPIView,
+    UnitMeterDeleteAPIView,
+    UnitMeterDetailAPIView,
+    UnitMeterListAPIView,
+    UnitMeterUpdateAPIView,
+)
 from .units import (
     UnitArchiveAPIView,
     UnitCreateAPIView,
@@ -29,13 +36,6 @@ from .units import (
     UnitListAPIView,
     UnitUnarchiveAPIView,
     UnitUpdateAPIView,
-)
-from .unit_meters import (
-    UnitMeterCreateAPIView,
-    UnitMeterDeleteAPIView,
-    UnitMeterDetailAPIView,
-    UnitMeterListAPIView,
-    UnitMeterUpdateAPIView,
 )
 
 urlpatterns = [

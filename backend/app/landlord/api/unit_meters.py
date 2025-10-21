@@ -10,7 +10,6 @@ Implements CRUD for UtilityMeter (unit-scoped) with:
 """
 from django.db import transaction
 from landlord.models import UtilityMeter
-from rest_framework import status
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
@@ -19,7 +18,6 @@ from rest_framework.generics import (
     UpdateAPIView,
 )
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework.response import Response
 
 from .properties import PortalReadThrottle, PortalWriteThrottle
 from .properties_serializers import (
@@ -154,14 +152,14 @@ class UnitMeterDeleteAPIView(DestroyAPIView):
                 'electricity': 'electricity',
                 'gas': 'gas',
             }
-            
+
             reading_type = meter_to_reading_type.get(instance.meter_type)
             if reading_type:
                 readings_exist = UtilityReading.objects.filter(
                     unit=instance.unit,
                     meter_type=reading_type
                 ).exists()
-                
+
                 if readings_exist:
                     # Cannot delete - has readings
                     from rest_framework.exceptions import ValidationError

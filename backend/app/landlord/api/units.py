@@ -192,13 +192,13 @@ class UnitDeleteAPIView(DestroyAPIView):
 
         # Check dependencies
         dependencies = []
-        
+
         if unit.tenants.exists():
             dependencies.append(f"{unit.tenants.count()} Mieter")
-        
+
         if unit.utility_meters.exists():
             dependencies.append(f"{unit.utility_meters.count()} Zähler")
-        
+
         if unit.issues.exists():
             dependencies.append(f"{unit.issues.count()} Tickets")
 
@@ -230,8 +230,9 @@ class UnitArchiveAPIView(UpdateAPIView):
     throttle_classes = [PortalWriteThrottle]
     queryset = Unit.objects.all()
     lookup_field = 'pk'
+    http_method_names = ['post']  # Only allow POST
 
-    def update(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         """Archive the unit"""
         unit = self.get_object()
 
@@ -264,8 +265,9 @@ class UnitUnarchiveAPIView(UpdateAPIView):
     throttle_classes = [PortalWriteThrottle]
     queryset = Unit.objects.all()
     lookup_field = 'pk'
+    http_method_names = ['post']  # Only allow POST
 
-    def update(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         """Unarchive the unit"""
         unit = self.get_object()
 
