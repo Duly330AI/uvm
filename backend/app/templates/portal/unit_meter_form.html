@@ -1,0 +1,174 @@
+{% extends "portal/base.html" %}
+{% block portal %}
+<div class="max-w-2xl mx-auto">
+  <div class="mb-4">
+    <a href="{% url 'portal_unit_detail' unit.pk %}" 
+       class="text-sm text-blue-600 hover:underline">← Zurück zur Wohnung</a>
+  </div>
+
+  <h1 class="text-2xl font-semibold mb-6">
+    {% if meter %}📊 Zähler bearbeiten{% else %}📊 Neuer Zähler{% endif %}
+  </h1>
+
+  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+    <h2 class="font-medium text-blue-900 mb-2">Wohnung: {{ unit.unit_label }}</h2>
+    <p class="text-sm text-blue-800">{{ unit.property.name }}</p>
+  </div>
+
+  <form method="post" class="bg-white border rounded-lg p-6">
+    {% csrf_token %}
+    
+    {% if form.errors %}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+      <strong>Bitte korrigieren Sie folgende Fehler:</strong>
+      <ul class="list-disc list-inside mt-2">
+        {% for field in form %}
+          {% for error in field.errors %}
+          <li>{{ field.label }}: {{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <div class="space-y-4">
+      <!-- Meter Type -->
+      <div>
+        <label for="{{ form.meter_type.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+          Zählertyp *
+        </label>
+        <select name="meter_type" 
+                id="{{ form.meter_type.id_for_label }}"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option value="">Bitte wählen...</option>
+          <option value="cold_water" {% if form.meter_type.value == 'cold_water' %}selected{% endif %}>Kaltwasser</option>
+          <option value="hot_water" {% if form.meter_type.value == 'hot_water' %}selected{% endif %}>Warmwasser</option>
+          <option value="electricity" {% if form.meter_type.value == 'electricity' %}selected{% endif %}>Strom</option>
+          <option value="gas" {% if form.meter_type.value == 'gas' %}selected{% endif %}>Gas (kWh)</option>
+        </select>
+        <p class="text-xs text-slate-500 mt-1">Medium, das dieser Zähler erfasst</p>
+      </div>
+
+      <!-- Serial Number -->
+      <div>
+        <label for="{{ form.serial_number.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+          Seriennummer
+        </label>
+        <input type="text" 
+               name="serial_number" 
+               id="{{ form.serial_number.id_for_label }}" 
+               value="{{ form.serial_number.value|default:'' }}"
+               maxlength="50"
+               pattern="[A-Za-z0-9\-\/]+"
+               placeholder="z.B. ABC-12345 oder 123/456"
+               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+        <p class="text-xs text-slate-500 mt-1">Optional. Erlaubt: A-Z, a-z, 0-9, -, /</p>
+      </div>
+
+      <!-- Installed At & Removed At -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label for="{{ form.installed_at.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+            Installiert am
+          </label>
+          <input type="date" 
+                 name="installed_at" 
+                 id="{{ form.installed_at.id_for_label }}" 
+                 value="{{ form.installed_at.value|date:'Y-m-d'|default:'' }}"
+                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+        </div>
+
+        <div>
+          <label for="{{ form.removed_at.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+            Entfernt am
+          </label>
+          <input type="date" 
+                 name="removed_at" 
+                 id="{{ form.removed_at.id_for_label }}" 
+                 value="{{ form.removed_at.value|date:'Y-m-d'|default:'' }}"
+                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <p class="text-xs text-slate-500 mt-1">Muss ≥ Installationsdatum sein</p>
+        </div>
+      </div>
+
+      <!-- Initial Reading Value -->
+      <div>
+        <label for="{{ form.initial_reading_value.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+          Anfangsstand
+        </label>
+        <input type="number" 
+               step="0.01"
+               min="0"
+               name="initial_reading_value" 
+               id="{{ form.initial_reading_value.id_for_label }}" 
+               value="{{ form.initial_reading_value.value|default:'' }}"
+               placeholder="z.B. 1234.56"
+               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+        <p class="text-xs text-slate-500 mt-1">Wird einmalig als "vorheriger Stand" verwendet, falls noch kein Reading existiert</p>
+      </div>
+
+      <!-- Checkboxes -->
+      <div class="space-y-3">
+        <div>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" 
+                   name="is_default" 
+                   {% if form.is_default.value %}checked{% endif %} 
+                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+            <span class="text-sm font-medium text-slate-700">Standard-Zähler</span>
+          </label>
+          <p class="text-xs text-slate-500 mt-1 ml-6">Maximal 1 Standard-Zähler pro Wohnung und Medium</p>
+        </div>
+
+        <div>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" 
+                   name="is_active" 
+                   {% if form.is_active.value or not meter %}checked{% endif %} 
+                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+            <span class="text-sm font-medium text-slate-700">Aktiv</span>
+          </label>
+          <p class="text-xs text-slate-500 mt-1 ml-6">Nur aktive Zähler können abgelesen werden</p>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div>
+        <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+          Notizen
+        </label>
+        <textarea name="notes" 
+                  id="{{ form.notes.id_for_label }}" 
+                  rows="3"
+                  maxlength="1000"
+                  placeholder="Zusätzliche Informationen zum Zähler..."
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ form.notes.value|default:'' }}</textarea>
+        <p class="text-xs text-slate-500 mt-1">Maximal 1000 Zeichen</p>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex gap-3 mt-6">
+      <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        💾 Speichern
+      </button>
+      <a href="{% url 'portal_unit_detail' unit.pk %}"
+         class="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50">
+        Abbrechen
+      </a>
+    </div>
+  </form>
+
+  <!-- Info Box -->
+  <div class="mt-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
+    <h3 class="font-medium text-amber-900 mb-2">💡 Hinweise</h3>
+    <ul class="text-sm text-amber-800 space-y-1 list-disc list-inside">
+      <li>Pro Wohnung und Medium kann nur <strong>ein</strong> Standard-Zähler definiert werden</li>
+      <li>Standard-Zähler werden automatisch in "Zählerstand erfassen" vorgeschlagen</li>
+      <li>Entfernte Zähler sollten als <strong>inaktiv</strong> markiert und mit Entfernungsdatum versehen werden</li>
+      <li>Gas wird systemweit in <strong>kWh</strong> geführt</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

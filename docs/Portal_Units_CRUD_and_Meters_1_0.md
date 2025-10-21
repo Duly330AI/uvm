@@ -1,9 +1,9 @@
 # UVM – **Wohnungen (Units)** : Portal-CRUD + **Zähler (Stammdaten)**
 
-**Version:** 1.0 (Spec)  
-**Datum:** 2025-10-21  
-**Owner:** Landlord / Unit Management  
-**Scope:** Neues Portal-Modul **„Wohnungen"** (Units) mit **CRUD** und **Zählerverwaltung** **auf Unit-Ebene**.  
+**Version:** 1.0 (Spec)
+**Datum:** 2025-10-21
+**Owner:** Landlord / Unit Management
+**Scope:** Neues Portal-Modul **„Wohnungen"** (Units) mit **CRUD** und **Zählerverwaltung** **auf Unit-Ebene**.
 **Hinweis:** Properties werden separat in _Portal_Properties_CRUD_and_Meters_1_1.md_ spezifiziert. Django-Admin bleibt unverändert als „uncut Admin".
 
 **Implementierungs-Status:** 🚧 **IN PROGRESS**
@@ -13,6 +13,7 @@
 ## 📊 Implementierungs-Progress
 
 ### ✅ Phase 1: Model-Migration (COMPLETED - 2025-10-21)
+
 - ✅ Unit-Model erweitert mit `is_archived`, `archived_at`, `archived_by`
 - ✅ `archive(user)` Methode hinzugefügt
 - ✅ `area_sqm` Validator `MinValueValidator(0)` hinzugefügt
@@ -20,6 +21,7 @@
 - ✅ Migration `0024_unit_archive_fields_phase1.py` erstellt & angewendet
 
 ### ✅ Phase 2: Unit-Views & Templates (COMPLETED - 2025-10-21)
+
 - ✅ `UnitListView` erstellt (mit Filter, Search, Sort, Pagination)
 - ✅ `UnitDetailView` erstellt (mit Meters & Tenants)
 - ✅ `UnitCreateView` erstellt (nur nicht-archivierte Properties)
@@ -29,11 +31,27 @@
 - ✅ Templates: `unit_detail.html` (mit Meter-Liste Placeholder)
 - ✅ URLs registriert: `/portal/units/`, `/portal/units/new`, `/portal/units/{id}/`, `/portal/units/{id}/edit`
 - ✅ Import von Unit in views.py hinzugefügt
+- ✅ **Tests:** 229 passed ✅
 
-### 🚧 Phase 3: Unit-Meter CRUD Views (TODO)
+### ✅ Phase 3: Unit-Meter CRUD Views (COMPLETED - 2025-10-21)
+
+- ✅ `UnitMeterCreateView` erstellt mit `scope_type='unit'` Setzung
+- ✅ `UnitMeterUpdateView` erstellt
+- ✅ **Validation:** Max 1 Default pro (Unit, Meter-Type) implementiert
+- ✅ Template: `unit_meter_form.html` (Responsive, Info-Box mit Hinweisen)
+- ✅ `unit_detail.html` aktualisiert: Meter-Buttons aktiviert, Empty-State mit CTA
+- ✅ URLs registriert: `/portal/units/{id}/meters/new`, `/portal/units/{id}/meters/{meter_id}/edit`
+- ✅ Import: `UnitMeterCreateView`, `UnitMeterUpdateView` in urls.py
+- ✅ **Tests:** 229 passed ✅
+
 ### ⏳ Phase 4: Unit API Endpoints (TODO)
+
 ### ⏳ Phase 5: Unit-Meter API Endpoints (TODO)
+
+### ⏳ Phase 5: Unit-Meter API Endpoints (TODO)
+
 ### ⏳ Phase 6: Tests (TODO)
+
 ### ⏳ Phase 7: Navigation & Finalisierung (TODO)
 
 ---

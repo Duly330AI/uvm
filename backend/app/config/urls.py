@@ -30,6 +30,8 @@ from landlord.views import (
     UnitCreateView,
     UnitDetailView,
     UnitListView,
+    UnitMeterCreateView,
+    UnitMeterUpdateView,
     UnitUpdateView,
     chat_session_create_plain,
 )
@@ -156,6 +158,9 @@ urlpatterns = [
     path("portal/units/new", UnitCreateView.as_view(), name="portal_unit_create"),
     path("portal/units/<int:pk>/", UnitDetailView.as_view(), name="portal_unit_detail"),
     path("portal/units/<int:pk>/edit", UnitUpdateView.as_view(), name="portal_unit_update"),
+    # Unit-Meter Management (nested under Unit - Phase 3)
+    path("portal/units/<int:unit_id>/meters/new", UnitMeterCreateView.as_view(), name="portal_unit_meter_create"),
+    path("portal/units/<int:unit_id>/meters/<int:pk>/edit", UnitMeterUpdateView.as_view(), name="portal_unit_meter_update"),
     # Vendor Portal (M11)
     path("vendor/", views_vendor.vendor_login, name="vendor_login"),
     path("vendor/auth/<str:token_id>/", views_vendor.vendor_magic_link, name="vendor_magic_link"),

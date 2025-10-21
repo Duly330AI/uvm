@@ -572,3 +572,95 @@ class UnitUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('portal_unit_detail', kwargs={'pk': self.object.pk})
+
+
+# ============================================================================
+# UNIT-METER PORTAL VIEWS (Phase 3: Unit-Meter CRUD)
+# ============================================================================
+
+
+class UnitMeterCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    GET/POST /portal/units/{unit_id}/meters/new
+
+    Create a new utility meter for a unit.
+    """
+    model = UtilityMeter
+    template_name = 'portal/unit_meter_form.html'
+    fields = ['meter_type', 'serial_number', 'is_default', 'is_active',
+              'initial_reading_value', 'installed_at', 'removed_at', 'notes']
+    permission_required = 'landlord.add_utilitymeter'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.unit = get_object_or_404(Unit, pk=kwargs['unit_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['unit'] = self.unit
+        context['meter'] = None
+        return context
+
+    def form_valid(self, form):
+        # Set unit and scope_type
+        form.instance.unit = self.unit
+        form.instance.scope_type = 'unit'
+        
+        # Validate: Max 1 default per (unit, meter_type)
+        if form.instance.is_default:
+            existing_default = UtilityMeter.objects.filter(
+                unit=self.unit,
+                meter_type=form.instance.meter_type,
+                is_default=True
+            ).exclude(pk=form.instance.pk if form.instance.pk else None).exists()
+            
+            if existing_default:
+                form.add_error('is_default', 
+                    f'Es existiert bereits ein Standard-Zähler für {form.instance.get_meter_type_display()} in dieser Wohnung.')
+                return self.form_invalid(form)
+        
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('portal_unit_detail', kwargs={'pk': self.unit.pk})
+
+
+class UnitMeterUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    GET/POST /portal/units/{unit_id}/meters/{pk}/edit
+
+    Update an existing utility meter for a unit.
+    """
+    model = UtilityMeter
+    template_name = 'portal/unit_meter_form.html'
+    fields = ['meter_type', 'serial_number', 'is_default', 'is_active',
+              'initial_reading_value', 'installed_at', 'removed_at', 'notes']
+    permission_required = 'landlord.change_utilitymeter'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.unit = get_object_or_404(Unit, pk=kwargs['unit_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['unit'] = self.unit
+        return context
+
+    def form_valid(self, form):
+        # Validate: Max 1 default per (unit, meter_type)
+        if form.instance.is_default:
+            existing_default = UtilityMeter.objects.filter(
+                unit=self.unit,
+                meter_type=form.instance.meter_type,
+                is_default=True
+            ).exclude(pk=form.instance.pk).exists()
+            
+            if existing_default:
+                form.add_error('is_default', 
+                    f'Es existiert bereits ein Standard-Zähler für {form.instance.get_meter_type_display()} in dieser Wohnung.')
+                return self.form_invalid(form)
+        
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('portal_unit_detail', kwargs={'pk': self.unit.pk})
