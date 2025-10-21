@@ -41,7 +41,8 @@
   </form>
 </div>
 
-<div class="bg-white border rounded-xl overflow-hidden">
+<!-- Desktop Table View (hidden on mobile) -->
+<div class="hidden md:block bg-white border rounded-xl overflow-hidden">
   <table class="w-full">
     <thead class="bg-slate-50">
       <tr>
@@ -111,13 +112,84 @@
         </tr>
       {% empty %}
         <tr>
-          <td colspan="6" class="p-6 text-center text-slate-500">
+          <td colspan="7" class="p-6 text-center text-slate-500">
             Keine Dokumente gefunden.
           </td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
+</div>
+
+<!-- Mobile Card View (visible on mobile only) -->
+<div class="md:hidden space-y-3">
+  {% for doc in documents %}
+    <div class="bg-white border rounded-lg p-4">
+      <div class="flex justify-between items-start mb-3">
+        <div class="flex-1 min-w-0">
+          {% if doc.file %}
+            <a href="{{ doc.file.url }}" target="_blank" class="text-blue-600 hover:underline font-medium break-words">
+              {{ doc.name }}
+            </a>
+          {% else %}
+            <span class="text-slate-400">{{ doc.name }} (kein File)</span>
+          {% endif %}
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span class="text-xs font-mono bg-blue-50 text-blue-700 px-2 py-1 rounded whitespace-nowrap">
+              v{{ doc.current_version }}
+            </span>
+            {% if doc.versions.count > 0 %}
+              <a href="{% url 'portal_document_history' doc.id %}"
+                 class="text-xs text-slate-500 hover:text-blue-600 px-2 py-1 whitespace-nowrap">
+                ({{ doc.versions.count }} älter)
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-2 text-sm">
+        <div>
+          <span class="text-slate-500">Kategorie:</span>
+          <span class="text-slate-900">{{ doc.get_category_display }}</span>
+        </div>
+
+        <div>
+          <span class="text-slate-500">Bezug:</span>
+          <div class="mt-1">
+            <span class="text-xs bg-slate-100 px-2 py-1 rounded inline-block">
+              {% if doc.unit %}
+                🚪 {{ doc.unit.unit_label }} @ {{ doc.unit.property.name }}
+              {% elif doc.property %}
+                🏢 {{ doc.property.name }}
+              {% elif doc.tenant %}
+                👤 {{ doc.tenant.primary_email }}
+              {% elif doc.related_type %}
+                {{ doc.get_related_type_display }} #{{ doc.related_id }}
+              {% else %}
+                <span class="text-slate-400">Keine Zuordnung</span>
+              {% endif %}
+            </span>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center pt-2 border-t">
+          <div class="text-xs text-slate-600">
+            {{ doc.size_bytes|filesizeformat }} · {{ doc.created_at|date:"d.m.Y" }}
+          </div>
+          <a href="{% url 'portal_document_delete' doc.id %}"
+             onclick="return confirm('Dokument wirklich löschen?')"
+             class="text-red-600 hover:text-red-800 text-sm font-medium">
+            Löschen
+          </a>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="bg-white border rounded-lg p-6 text-center text-slate-500">
+      Keine Dokumente gefunden.
+    </div>
+  {% endfor %}
 </div>
 
 <!-- Upload Modal -->
