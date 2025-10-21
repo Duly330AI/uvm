@@ -98,11 +98,11 @@ class Property(TimeStampedModel):
         ]
         constraints = [
             models.CheckConstraint(
-                condition=Q(geo_lat__isnull=True) | (Q(geo_lat__gte=-90.0) & Q(geo_lat__lte=90.0)),
+                check=Q(geo_lat__isnull=True) | (Q(geo_lat__gte=-90.0) & Q(geo_lat__lte=90.0)),
                 name='property_geo_lat_valid_range'
             ),
             models.CheckConstraint(
-                condition=Q(geo_lng__isnull=True) | (Q(geo_lng__gte=-180.0) & Q(geo_lng__lte=180.0)),
+                check=Q(geo_lng__isnull=True) | (Q(geo_lng__gte=-180.0) & Q(geo_lng__lte=180.0)),
                 name='property_geo_lng_valid_range'
             ),
         ]

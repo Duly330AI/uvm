@@ -1,8 +1,13 @@
-from typing import List, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, List, Optional
 
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser
@@ -22,9 +27,9 @@ class IssuesAdminListView(ListAPIView):
     serializer_class = IssueListSerializer
     pagination_class = IssueAdminPagination
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Issue]:  # type: ignore[override]
         qs = Issue.objects.select_related("tenant", "unit", "unit__property").all()
-        p = self.request.query_params
+        p = self.request.query_params  # type: ignore[attr-defined]
 
         status_param = p.get("status")
         if status_param:
