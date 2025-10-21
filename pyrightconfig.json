@@ -1,0 +1,33 @@
+{
+  "include": ["backend/app"],
+  "exclude": [
+    "**/__pycache__",
+    "**/.venv",
+    "**/node_modules",
+    "**/.pytest_cache",
+    "**/htmlcov"
+  ],
+  "ignore": ["**/migrations"],
+  "defineConstant": {
+    "DEBUG": true
+  },
+  "stubPath": "",
+  "reportMissingImports": "warning",
+  "reportMissingTypeStubs": false,
+  "reportMissingModuleSource": "warning",
+  "reportUndefinedVariable": "warning",
+  "reportAttributeAccessIssue": "information",
+  "reportOptionalMemberAccess": "information",
+  "reportGeneralTypeIssues": "information",
+  "reportArgumentType": "information",
+  "pythonVersion": "3.12",
+  "pythonPlatform": "Linux",
+  "executionEnvironments": [
+    {
+      "root": "backend/app",
+      "pythonVersion": "3.12",
+      "pythonPlatform": "Linux",
+      "extraPaths": ["backend/app"]
+    }
+  ]
+}
