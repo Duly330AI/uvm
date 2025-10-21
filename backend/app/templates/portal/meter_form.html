@@ -1,45 +1,45 @@
 {% extends "portal/base.html" %}
-
 {% block portal %}
-<div class="container mx-auto px-4 py-8 max-w-2xl">
-  <div class="mb-6">
-    <a href="{% url 'portal_property_detail' property.pk %}" class="text-blue-600 hover:underline mb-2 inline-block">← Zurück zum Gebäude</a>
-    <h1 class="text-3xl font-bold">
-      {% if meter %}
-        Zähler bearbeiten
-      {% else %}
-        Neuer Zähler
-      {% endif %}
-    </h1>
-    <p class="text-gray-600 mt-2">Gebäude: {{ property.name }}</p>
+<div class="max-w-2xl mx-auto">
+  <div class="mb-4">
+    <a href="{% url 'portal_property_detail' property.pk %}" 
+       class="text-sm text-blue-600 hover:underline">← Zurück zum Gebäude</a>
   </div>
 
-  <div class="bg-white shadow-md rounded p-6">
-    <form method="post" class="space-y-4">
-      {% csrf_token %}
+  <h1 class="text-2xl font-semibold mb-2">
+    {% if meter %}📊 Zähler bearbeiten{% else %}📊 Neuer Zähler{% endif %}
+  </h1>
+  <p class="text-slate-600 mb-6">Gebäude: {{ property.name }}</p>
 
-      {% if form.errors %}
-      <div class="bg-red-50 border border-red-200 rounded p-4">
-        <h3 class="text-red-800 font-semibold mb-2">Bitte korrigieren Sie folgende Fehler:</h3>
-        <ul class="list-disc list-inside text-red-700">
-          {% for field in form %}
-            {% for error in field.errors %}
-            <li>{{ field.label }}: {{ error }}</li>
-            {% endfor %}
-          {% endfor %}
-          {% for error in form.non_field_errors %}
-          <li>{{ error }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-      {% endif %}
+  <form method="post" class="bg-white border rounded-lg p-6">
+    {% csrf_token %}
 
+    {% if form.errors %}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+      <strong>Bitte korrigieren Sie folgende Fehler:</strong>
+      <ul class="list-disc list-inside mt-2">
+        {% for field in form %}
+          {% for error in field.errors %}
+          <li>{{ field.label }}: {{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <div class="space-y-4">
       <!-- Meter Type -->
       <div>
-        <label for="{{ form.meter_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="{{ form.meter_type.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
           Zählertyp *
         </label>
-        <select id="{{ form.meter_type.id_for_label }}" name="meter_type" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        <select id="{{ form.meter_type.id_for_label }}" 
+                name="meter_type" 
+                required 
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
           <option value="">Bitte wählen...</option>
           <option value="cold_water" {% if form.meter_type.value == 'cold_water' %}selected{% endif %}>Kaltwasser</option>
           <option value="hot_water" {% if form.meter_type.value == 'hot_water' %}selected{% endif %}>Warmwasser</option>
@@ -50,91 +50,102 @@
 
       <!-- Serial Number -->
       <div>
-        <label for="{{ form.serial_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="{{ form.serial_number.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
           Seriennummer
         </label>
-        {{ form.serial_number }}
-        <p class="mt-1 text-xs text-gray-500">Optional, max. 50 Zeichen (A-Z, 0-9, -, /)</p>
+        <input type="text" 
+               name="serial_number" 
+               id="{{ form.serial_number.id_for_label }}" 
+               value="{{ form.serial_number.value|default:'' }}"
+               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+        <p class="text-xs text-slate-500 mt-1">Optional, max. 50 Zeichen (A-Z, 0-9, -, /)</p>
       </div>
 
       <!-- Is Default -->
       <div>
         <label class="flex items-center gap-2">
-          <input type="checkbox" name="is_default" {% if form.is_default.value %}checked{% endif %} class="rounded">
-          <span class="text-sm font-medium text-gray-700">Als Standard-Zähler markieren</span>
+          <input type="checkbox" 
+                 name="is_default" 
+                 {% if form.is_default.value %}checked{% endif %} 
+                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+          <span class="text-sm font-medium text-slate-700">Als Standard-Zähler markieren</span>
         </label>
-        <p class="mt-1 text-xs text-gray-500">Maximal 1 Standard-Zähler pro Zählertyp</p>
+        <p class="text-xs text-slate-500 mt-1">Maximal 1 Standard-Zähler pro Zählertyp</p>
       </div>
 
       <!-- Is Active -->
       <div>
         <label class="flex items-center gap-2">
-          <input type="checkbox" name="is_active" {% if form.is_active.value or not meter %}checked{% endif %} class="rounded">
-          <span class="text-sm font-medium text-gray-700">Aktiv</span>
+          <input type="checkbox" 
+                 name="is_active" 
+                 {% if form.is_active.value or not meter %}checked{% endif %} 
+                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+          <span class="text-sm font-medium text-slate-700">Aktiv</span>
         </label>
       </div>
 
       <!-- Initial Reading Value -->
       <div>
-        <label for="{{ form.initial_reading_value.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="{{ form.initial_reading_value.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
           Anfangsstand
         </label>
-        {{ form.initial_reading_value }}
-        <p class="mt-1 text-xs text-gray-500">Optional, Wert ≥ 0</p>
+        <input type="number" 
+               step="0.01"
+               name="initial_reading_value" 
+               id="{{ form.initial_reading_value.id_for_label }}" 
+               value="{{ form.initial_reading_value.value|default:'' }}"
+               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+        <p class="text-xs text-slate-500 mt-1">Optional, Wert ≥ 0</p>
       </div>
 
       <!-- Installed At -->
       <div>
-        <label for="{{ form.installed_at.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="{{ form.installed_at.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
           Installationsdatum
         </label>
-        {{ form.installed_at }}
+        <input type="date" 
+               name="installed_at" 
+               id="{{ form.installed_at.id_for_label }}" 
+               value="{{ form.installed_at.value|default:'' }}"
+               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
       </div>
 
       <!-- Removed At -->
       <div>
-        <label for="{{ form.removed_at.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="{{ form.removed_at.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
           Entfernt am
         </label>
-        {{ form.removed_at }}
-        <p class="mt-1 text-xs text-gray-500">Muss nach Installationsdatum liegen</p>
+        <input type="date" 
+               name="removed_at" 
+               id="{{ form.removed_at.id_for_label }}" 
+               value="{{ form.removed_at.value|default:'' }}"
+               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+        <p class="text-xs text-slate-500 mt-1">Muss nach Installationsdatum liegen</p>
       </div>
 
       <!-- Notes -->
       <div>
-        <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
           Notizen
         </label>
-        {{ form.notes }}
-        <p class="mt-1 text-xs text-gray-500">Maximal 1000 Zeichen</p>
+        <textarea name="notes" 
+                  id="{{ form.notes.id_for_label }}" 
+                  rows="3"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ form.notes.value|default:'' }}</textarea>
+        <p class="text-xs text-slate-500 mt-1">Maximal 1000 Zeichen</p>
       </div>
+    </div>
 
-      <!-- Buttons -->
-      <div class="flex gap-3 pt-4">
-        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded">
-          Speichern
-        </button>
-        <a href="{% url 'portal_property_detail' property.pk %}"
-           class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded">
-          Abbrechen
-        </a>
-      </div>
-    </form>
-  </div>
+    <!-- Buttons -->
+    <div class="flex gap-3 mt-6">
+      <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        💾 Speichern
+      </button>
+      <a href="{% url 'portal_property_detail' property.pk %}"
+         class="px-4 py-2 border border-slate-300 rounded hover:bg-slate-50">
+        Abbrechen
+      </a>
+    </div>
+  </form>
 </div>
-
-<style>
-  /* Style form inputs */
-  input[type="text"],
-  input[type="number"],
-  input[type="date"],
-  select,
-  textarea {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500;
-  }
-
-  textarea {
-    @apply min-h-[100px];
-  }
-</style>
 {% endblock %}
