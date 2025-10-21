@@ -35,13 +35,13 @@ def maintenance_list(request):
             Q(property_id=property_id) | Q(unit__property_id=property_id)
         )
 
-    # Mark overdue items
+    # Mark overdue items (dynamic attribute for template)
     today = date.today()
     for item in items:
         if item.status == MaintenanceItem.Status.PENDING and item.due_date < today:
-            item.is_overdue_flag = True
+            item.is_overdue_flag = True  # type: ignore[attr-defined]
         else:
-            item.is_overdue_flag = False
+            item.is_overdue_flag = False  # type: ignore[attr-defined]
 
     context = {
         'items': items[:50],  # Limit for performance
@@ -91,7 +91,7 @@ def maintenance_create(request):
                 f'✓ Wartungsaufgabe "{title}" erstellt (fällig: {due_date})'
             )
 
-            return redirect('portal_maintenance_detail', pk=item.id)
+            return redirect('portal_maintenance_detail', pk=item.id)  # type: ignore[attr-defined]
 
         except Exception as e:
             messages.error(request, f'Fehler: {str(e)}')
@@ -198,8 +198,8 @@ def maintenance_edit(request, pk: int):
         property_id = request.POST.get('property')
         unit_id = request.POST.get('unit')
 
-        item.property_id = property_id if property_id else None
-        item.unit_id = unit_id if unit_id else None
+        item.property_id = property_id if property_id else None  # type: ignore[attr-defined]
+        item.unit_id = unit_id if unit_id else None  # type: ignore[attr-defined]
 
         estimated_cost = request.POST.get('estimated_cost')
         if estimated_cost:

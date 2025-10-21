@@ -8,8 +8,15 @@ Implements CRUD for UtilityMeter (unit-scoped) with:
 - Default constraint handling (transactional)
 - Reading dependency check before delete
 """
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.db import transaction
 from landlord.models import UtilityMeter
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
@@ -37,7 +44,7 @@ class UnitMeterListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated]
     throttle_classes = [PortalReadThrottle]
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[UtilityMeter]:  # type: ignore[override]
         """Return meters for specific unit"""
         unit_id = self.kwargs.get('unit_id')
         return UtilityMeter.objects.filter(

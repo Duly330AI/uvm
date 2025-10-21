@@ -1,8 +1,17 @@
 {
   "version": "0.2",
   "language": "en,de",
+  "dictionaries": ["de-de", "en-us", "python", "django"],
+  "languageSettings": [
+    {
+      "languageId": "python",
+      "locale": "en,de",
+      "dictionaries": ["python", "django", "de-de"]
+    }
+  ],
   "words": [
     "Aktiv",
+    "appt",
     "ASGI",
     "atts",
     "Auftraggeber",
@@ -22,6 +31,7 @@
     "Gekündigt",
     "Grundriss",
     "healthz",
+    "htmlcov",
     "HTMX",
     "JSONB",
     "Kaltmiete",
@@ -38,7 +48,10 @@
     "passwordless",
     "postgres",
     "psycopg",
+    "pylance",
+    "Pylance",
     "pyproject",
+    "pyrightconfig",
     "pytest",
     "Rechnung",
     "Referenz",

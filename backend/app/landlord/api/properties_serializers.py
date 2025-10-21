@@ -78,8 +78,9 @@ class UtilityMeterCreateSerializer(serializers.ModelSerializer):
             'unit': {'required': False, 'allow_null': True},
         }
 
-    def validate(self, data):
+    def validate(self, attrs):
         """Custom validation for UtilityMeter creation"""
+        data = attrs
         # Scope consistency validation
         scope_type = data.get('scope_type')
         property_obj = data.get('property')
@@ -172,11 +173,12 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
             'notes',
         ]
 
-    def validate(self, data):
+    def validate(self, attrs):
         """Custom validation for Property creation"""
+        data = attrs
         # Country must be in allowed choices
         if 'country' in data:
-            valid_countries = [choice[0] for choice in Property._meta.get_field('country').choices]
+            valid_countries = [choice[0] for choice in Property._meta.get_field('country').choices]  # type: ignore[misc]
             if data['country'] not in valid_countries:
                 raise serializers.ValidationError({
                     'country': f"Must be one of: {', '.join(valid_countries)}"
@@ -201,11 +203,12 @@ class PropertyUpdateSerializer(serializers.ModelSerializer):
             'notes',
         ]
 
-    def validate(self, data):
+    def validate(self, attrs):
         """Custom validation for Property updates"""
+        data = attrs
         # Country must be in allowed choices
         if 'country' in data:
-            valid_countries = [choice[0] for choice in Property._meta.get_field('country').choices]
+            valid_countries = [choice[0] for choice in Property._meta.get_field('country').choices]  # type: ignore[misc]
             if data['country'] not in valid_countries:
                 raise serializers.ValidationError({
                     'country': f"Must be one of: {', '.join(valid_countries)}"
