@@ -19,6 +19,7 @@
 **Estimated:** 1.2 PT | **Actual:** 0.95 PT (Ahead of schedule!)
 
 **Summary:**
+
 - ✅ Property archive fields added (soft-delete)
 - ✅ Geo-coordinate constraints implemented (-90/+90, -180/+180)
 - ✅ Country field converted to choices (DE, AT, CH)
@@ -28,6 +29,7 @@
 - ✅ Comprehensive test coverage (30 tests)
 
 **Migrations Created:**
+
 1. `0018_add_property_archive_fields.py` - Archive fields
 2. `0019_add_geo_coordinate_constraints.py` - Geo constraints
 3. `0020_migrate_country_names_to_codes.py` - Data migration
@@ -36,6 +38,7 @@
 6. `0023_add_property_indexes.py` - Performance indexes
 
 **Files Created/Modified:**
+
 - `backend/app/landlord/models.py` - Property & UtilityMeter updates
 - `backend/app/landlord/validators.py` - New validation functions
 - `backend/app/landlord/tests/test_property_model_extended.py` - 20 tests
@@ -192,6 +195,7 @@
 - [x] 1.5.4 Write unit test: `test_default_meters_different_types_allowed()` ✅
 
 **Tests:** 3/3 passing ✅
+
 - `test_only_one_default_per_property_meter_type()` - Verifies constraint enforcement
 - `test_multiple_non_default_meters_allowed()` - Non-defaults can coexist
 - `test_default_meters_different_types_allowed()` - Different meter types OK
@@ -220,13 +224,15 @@
 - [x] 1.6.10 Write unit test: `test_serial_number_validation_rejects_invalid_chars()` ✅
 
 **Tests:** 7/7 passing ✅
+
 - Uppercase normalization works on create & update
 - Whitespace trimming
 - Empty string allowed (optional field)
-- Validator rejects invalid characters (@ # _ space etc.)
+- Validator rejects invalid characters (@ # \_ space etc.)
 - Accepts valid characters (A-Z, a-z, 0-9, dash, slash)
 
 **Changes:**
+
 - UtilityMeter.save(): Normalizes serial_number to uppercase with strip()
 - serial_number field: Changed max_length to 50, added validate_serial_number_format validator
 - Migration: 0022_update_utility_meter_serial_number.py
@@ -249,10 +255,12 @@
 - [x] 1.8.6 Add index on `-created_at` (for sorting newest first) ✅
 
 **Changes:**
+
 - Property.Meta.indexes: Added 6 indexes
 - Migration: 0023_add_property_indexes.py
 
 **Indexes Created:**
+
 - `landlord_pr_name_idx` - Single column index on name
 - `landlord_pr_city_idx` - Single column index on city
 - `landlord_pr_postal_code_idx` - Single column index on postal_code
@@ -261,6 +269,7 @@
 - `landlord_pr_created_at_idx` - DESC index on created_at
 
 **Performance Impact:**
+
 - List views filtered by city/postal_code: ~10x faster
 - Archive filtering: ~5x faster
 - Sorting by name/created_at: ~8x faster
@@ -282,11 +291,13 @@
 **Note:** UtilityMeter already had proper indexes from M17 implementation. Phase 1 just verifies they exist.
 
 **Existing Indexes:**
+
 - Index on `(scope_type, property, meter_type)` - Fast lookups for property meters
 - Index on `(scope_type, unit, meter_type)` - Fast lookups for unit meters
 - Index on `(is_default, is_active)` - Fast filtering of active defaults
 
 **Estimate:** 0.06 PT | **Actual:** 0.01 PT (verification only)
+
 - [ ] 1.8.2 Add index on `city` (filter): `db_index=True` in model field
 - [ ] 1.8.3 Add index on `postal_code` (filter): `db_index=True` in model field
 - [ ] 1.8.4 Add index on `is_archived` (already done in 1.1.1)
@@ -376,9 +387,39 @@
 
 ---
 
-## PHASE 2: API Endpoints - Properties (1.3 PT)
+## ✅ PHASE 2: API Endpoints - Properties (1.3 PT) - **COMPLETED** 🎉
 
 **Goal:** Implement RESTful API for Property CRUD with pagination, filtering, sorting, RBAC, and throttling.
+
+**Status:** ✅ **COMPLETED** (2025-10-21)
+**Tests:** 33/33 passing ✅ (100%)
+**Estimated:** 1.3 PT | **Actual:** 1.1 PT (Ahead of schedule!)
+
+**Summary:**
+- ✅ Complete RESTful API for Property management
+- ✅ List with pagination, filtering, sorting
+- ✅ Detail view with nested meters
+- ✅ Create, Update, Delete operations (admin only)
+- ✅ Archive/Unarchive endpoints (soft-delete)
+- ✅ RBAC (IsAuthenticated for read, IsAdminUser for write)
+- ✅ Throttling (100/hr read, 50/hr write)
+- ✅ Comprehensive test coverage (33 tests)
+
+**Files Created:**
+- `landlord/api/properties_serializers.py` - 5 serializers
+- `landlord/api/properties.py` - 7 API views
+- `landlord/tests/test_property_api_phase2.py` - 33 tests
+
+**Endpoints Implemented:**
+1. GET `/api/portal/properties/` - List with filters
+2. GET `/api/portal/properties/{id}/` - Detail view
+3. POST `/api/portal/properties/create/` - Create (admin)
+4. PUT/PATCH `/api/portal/properties/{id}/update/` - Update (admin)
+5. DELETE `/api/portal/properties/{id}/delete/` - Delete (admin)
+6. POST `/api/portal/properties/{id}/archive/` - Archive (admin)
+7. POST `/api/portal/properties/{id}/unarchive/` - Unarchive (admin)
+
+---
 
 ### ✅ Task 2.1: GET /api/portal/properties/ (List)
 
