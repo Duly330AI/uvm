@@ -32,7 +32,7 @@ class TestUnitModel:
             city="Berlin",
             country="DE"
         )
-        
+
         unit = Unit.objects.create(
             property=property,
             unit_label="A1",
@@ -42,7 +42,7 @@ class TestUnitModel:
             notes="Test Unit",
             is_active=True
         )
-        
+
         assert unit.id is not None
         assert unit.property == property
         assert unit.unit_label == "A1"
@@ -62,7 +62,7 @@ class TestUnitModel:
             postal_code="12345",
             city="Berlin"
         )
-        
+
         unit = Unit.objects.create(
             property=property,
             unit_label="A1"
@@ -93,7 +93,7 @@ class TestUnitModel:
             postal_code="12345",
             city="Berlin"
         )
-        
+
         unit = Unit.objects.create(
             property=property,
             unit_label="A1"
@@ -119,7 +119,7 @@ class TestUnitModel:
         # Second archive (should update fields)
         unit.archive(user2)
         unit.refresh_from_db()
-        
+
         assert unit.is_archived is True
         assert unit.archived_at >= first_archived_at
         assert unit.archived_by == user2
@@ -132,13 +132,13 @@ class TestUnitModel:
             postal_code="12345",
             city="Berlin"
         )
-        
+
         unit = Unit.objects.create(
             property=property,
             unit_label="A1",
             area_sqm=Decimal("100.00")
         )
-        
+
         unit.full_clean()  # Should not raise
         assert unit.area_sqm == Decimal("100.00")
 
@@ -150,13 +150,13 @@ class TestUnitModel:
             postal_code="12345",
             city="Berlin"
         )
-        
+
         unit = Unit.objects.create(
             property=property,
             unit_label="A1",
             area_sqm=Decimal("0.00")
         )
-        
+
         unit.full_clean()  # Should not raise
         assert unit.area_sqm == Decimal("0.00")
 
@@ -168,16 +168,16 @@ class TestUnitModel:
             postal_code="12345",
             city="Berlin"
         )
-        
+
         unit = Unit(
             property=property,
             unit_label="A1",
             area_sqm=Decimal("-10.00")
         )
-        
+
         with pytest.raises(ValidationError) as exc_info:
             unit.full_clean()
-        
+
         assert 'area_sqm' in exc_info.value.error_dict
 
     def test_unit_str_representation(self):
@@ -188,12 +188,12 @@ class TestUnitModel:
             postal_code="12345",
             city="Berlin"
         )
-        
+
         unit = Unit.objects.create(
             property=property,
             unit_label="Whg 3"
         )
-        
+
         assert str(unit) == "Whg 3 @ Gebäude A"
 
     def test_unit_property_relationship(self):
@@ -204,12 +204,12 @@ class TestUnitModel:
             postal_code="12345",
             city="Berlin"
         )
-        
+
         unit = Unit.objects.create(
             property=property,
             unit_label="A1"
         )
-        
+
         assert unit.property == property
         assert unit in property.units.all()
 
@@ -221,15 +221,15 @@ class TestUnitModel:
             postal_code="12345",
             city="Berlin"
         )
-        
+
         unit = Unit.objects.create(
             property=property,
             unit_label="A1"
         )
-        
+
         unit_id = unit.id
         property.delete()
-        
+
         assert not Unit.objects.filter(id=unit_id).exists()
 
     def test_unit_optional_fields(self):
@@ -240,12 +240,12 @@ class TestUnitModel:
             postal_code="12345",
             city="Berlin"
         )
-        
+
         unit = Unit.objects.create(
             property=property,
             unit_label="A1"
         )
-        
+
         assert unit.floor == ""
         assert unit.rooms is None
         assert unit.area_sqm is None
@@ -255,19 +255,19 @@ class TestUnitModel:
     def test_unit_is_archived_index(self):
         """is_archived field has database index"""
         from django.db import connection
-        
+
         # Get table name
         table_name = Unit._meta.db_table
-        
+
         # Check indexes
         with connection.cursor() as cursor:
             # Get all indexes for the table
             cursor.execute(f"""
-                SELECT indexname FROM pg_indexes 
-                WHERE tablename = '{table_name}' 
+                SELECT indexname FROM pg_indexes
+                WHERE tablename = '{table_name}'
                 AND indexname LIKE '%is_arch%'
             """)
             indexes = cursor.fetchall()
-        
+
         # Should have at least one index on is_archived
         assert len(indexes) > 0

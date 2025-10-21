@@ -135,12 +135,12 @@ class TestUnitListAPI:
         """Filter by is_active status"""
         api_client.force_authenticate(user=regular_user)
         url = reverse('portal-units-list')
-        
+
         # Filter for active
         response = api_client.get(url, {'is_active': 'true'})
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 2
-        
+
         # Filter for inactive
         response = api_client.get(url, {'is_active': 'false'})
         assert response.status_code == status.HTTP_200_OK
@@ -205,7 +205,7 @@ class TestUnitDetailAPI:
 
         assert response.status_code == status.HTTP_200_OK
         data = response.data
-        
+
         assert 'id' in data
         assert 'property_id' in data
         assert 'property_name' in data
@@ -221,7 +221,7 @@ class TestUnitDetailAPI:
     def test_detail_includes_meters(self, api_client, regular_user, sample_units):
         """Detail includes nested meters list"""
         unit = sample_units[0]
-        
+
         # Create a meter for this unit
         UtilityMeter.objects.create(
             scope_type='unit',
@@ -405,7 +405,7 @@ class TestUnitDeleteAPI:
             property=sample_property,
             unit_label="Delete Me"
         )
-        
+
         api_client.force_authenticate(user=admin_user)
         url = reverse('portal-units-delete', kwargs={'pk': unit.id})
         response = api_client.delete(url)
@@ -416,7 +416,7 @@ class TestUnitDeleteAPI:
     def test_delete_with_meters_fails(self, api_client, admin_user, sample_units):
         """Cannot delete unit with meters"""
         unit = sample_units[0]
-        
+
         # Create a meter
         UtilityMeter.objects.create(
             scope_type='unit',

@@ -135,6 +135,7 @@ def maintenance_detail(request, pk: int):
         'item': item,
         'is_overdue': is_overdue,
         'days_until_due': days_diff,
+        'days_until_due_abs': abs(days_diff),  # Absolute value for template
         'today': date.today(),
     }
 

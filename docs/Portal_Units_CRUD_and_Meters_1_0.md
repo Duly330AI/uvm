@@ -83,16 +83,18 @@
 ### ✅ Phase 6: Tests (COMPLETED - 2025-10-21)
 
 **Model-Tests (test_unit_model.py - 11 Tests):**
+
 - ✅ Create with all fields
 - ✅ Archive sets all fields (is_archived, archived_at, archived_by)
 - ✅ Archive idempotent (can be called multiple times)
 - ✅ area_sqm validation: positive, zero, negative
-- ✅ __str__ representation
+- ✅ **str** representation
 - ✅ Property relationship & CASCADE delete
 - ✅ Optional fields (floor, rooms, area_sqm, notes)
 - ✅ is_archived index in DB
 
 **API-Tests (test_unit_api.py - 25 Tests):**
+
 - ✅ List: Authentication, Pagination (25/page), Filter (property_id, is_active, archived), Search (unit_label), Sort
 - ✅ Detail: Authentication, All fields, Nested meters
 - ✅ Create: Admin-only, Required fields, Archived-property validation
@@ -108,15 +110,18 @@
 ✅ Keine Regressions
 
 **Bugfixes während Tests:**
+
 - Archive/Unarchive Views: `http_method_names = ['post']` + `post()` statt `update()` (405 → 200)
 
 ### ✅ Phase 7: Navigation & Finalisierung (COMPLETED - 2025-10-21)
 
 **Navigation (portal/base.html):**
+
 - ✅ "Wohnungen"-Button zur Top-Nav hinzugefügt (zwischen "Gebäude" und "Reports")
 - ✅ Mobile-responsive (whitespace-nowrap, flex-wrap)
 
 **Dokumentation:**
+
 - ✅ Portal_Units_CRUD_and_Meters_1_0.md vollständig aktualisiert
 - ✅ Alle 7 Phasen dokumentiert
 - ✅ Test-Ergebnisse & Bugfixes dokumentiert
