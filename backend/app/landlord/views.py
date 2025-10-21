@@ -331,11 +331,11 @@ class PropertyListView(LoginRequiredMixin, ListView):
         # Sort with whitelist to prevent FieldError
         ALLOWED_SORT_FIELDS = ['name', 'city', 'created_at', 'postal_code', 'meters_count']
         sort = self.request.GET.get('sort', 'name')
-        
+
         # Validate sort field
         if sort not in ALLOWED_SORT_FIELDS:
             sort = 'name'  # Fallback to default
-        
+
         order = self.request.GET.get('order', 'asc')
         if order == 'desc':
             sort = f'-{sort}'

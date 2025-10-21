@@ -145,7 +145,7 @@ class PropertyMeterDeleteAPIView(DestroyAPIView):
     def perform_destroy(self, instance):
         """Delete meter, but check for readings first"""
         from landlord.models import UtilityReading
-        
+
         # Check if meter has readings (only for unit meters)
         if instance.scope_type == 'unit' and instance.unit:
             # Map meter type to reading type
@@ -156,13 +156,13 @@ class PropertyMeterDeleteAPIView(DestroyAPIView):
                 'gas': 'gas',
             }
             reading_type = meter_to_reading_type.get(instance.meter_type)
-            
+
             if reading_type:
                 readings_count = UtilityReading.objects.filter(
                     unit=instance.unit,
                     meter_type=reading_type
                 ).count()
-                
+
                 if readings_count > 0:
                     # Cannot delete - has readings
                     raise drf_serializers.ValidationError({
