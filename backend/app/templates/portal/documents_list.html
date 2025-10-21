@@ -1,10 +1,10 @@
 {% extends "portal/base.html" %}
 {% block title %}Dokumente{% endblock %}
 {% block portal %}
-<div class="flex justify-between items-center mb-4">
-  <h1 class="text-2xl font-semibold">Dokumente</h1>
+<div class="mb-4">
+  <h1 class="text-2xl font-semibold mb-3">Dokumente</h1>
   <button onclick="document.getElementById('uploadModal').classList.remove('hidden')"
-          class="px-4 py-2 rounded-lg bg-blue-600 text-white">
+          class="w-full md:w-auto px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
     + Dokument hochladen
   </button>
 </div>
@@ -17,27 +17,45 @@
   {% endfor %}
 {% endif %}
 
-<div class="bg-white border rounded-xl p-4 mb-4">
-  <form method="get" class="flex gap-2">
-    <select name="related_type" class="border rounded px-3 py-2">
-      <option value="">Alle Bezüge</option>
-      {% for value, label in related_type_choices %}
-        <option value="{{ value }}" {% if filters.related_type == value %}selected{% endif %}>{{ label }}</option>
-      {% endfor %}
-    </select>
+<div class="bg-white border rounded-lg p-4 mb-4">
+  <form method="get" class="space-y-3">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Bezug</label>
+        <select name="related_type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option value="">Alle Bezüge</option>
+          {% for value, label in related_type_choices %}
+            <option value="{{ value }}" {% if filters.related_type == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-    <select name="category" class="border rounded px-3 py-2">
-      <option value="">Alle Kategorien</option>
-      {% for value, label in category_choices %}
-        <option value="{{ value }}" {% if filters.category == value %}selected{% endif %}>{{ label }}</option>
-      {% endfor %}
-    </select>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Kategorie</label>
+        <select name="category" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option value="">Alle Kategorien</option>
+          {% for value, label in category_choices %}
+            <option value="{{ value }}" {% if filters.category == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
 
-    <input type="text" name="search" value="{{ filters.search }}"
-           placeholder="Suche..." class="border rounded px-3 py-2 flex-1">
+    <div>
+      <label class="block text-sm font-medium text-slate-700 mb-1">Suche</label>
+      <input type="text" name="search" value="{{ filters.search }}"
+             placeholder="Suche nach Name, Tags..." 
+             class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+    </div>
 
-    <button type="submit" class="px-4 py-2 rounded-lg bg-slate-600 text-white">Filtern</button>
-    <a href="{% url 'portal_documents' %}" class="px-4 py-2 rounded-lg border">Reset</a>
+    <div class="flex gap-2">
+      <button type="submit" class="flex-1 px-4 py-2 rounded-lg bg-slate-800 text-white hover:bg-slate-700">
+        Filtern
+      </button>
+      <a href="{% url 'portal_documents' %}" class="px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50">
+        Reset
+      </a>
+    </div>
   </form>
 </div>
 
