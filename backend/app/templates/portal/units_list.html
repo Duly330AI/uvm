@@ -1,0 +1,255 @@
+{% extends "portal/base.html" %}
+{% block portal %}
+<div class="max-w-7xl mx-auto">
+  <div class="mb-6">
+    <h1 class="text-2xl font-semibold mb-2">Wohnungen</h1>
+    <p class="text-sm text-slate-600 mb-4">
+      Wohneinheiten verwalten und Zähler zuordnen
+    </p>
+    {% if perms.landlord.add_unit %}
+    <a href="{% url 'portal_unit_create' %}" 
+       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+      + Neue Wohnung
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white border rounded-lg p-4 mb-6">
+    <form method="get" class="space-y-3">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Gebäude</label>
+          <select name="property" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            <option value="">Alle Gebäude</option>
+            {% for prop in properties %}
+            <option value="{{ prop.id }}" {% if request.GET.property == prop.id|stringformat:"s" %}selected{% endif %}>
+              {{ prop.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Status</label>
+          <select name="is_active" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            <option value="">Alle</option>
+            <option value="true" {% if request.GET.is_active == 'true' %}selected{% endif %}>Aktiv</option>
+            <option value="false" {% if request.GET.is_active == 'false' %}selected{% endif %}>Inaktiv</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Suche</label>
+          <input type="text" name="q" value="{{ request.GET.q }}" 
+                 placeholder="Wohnung, Gebäude, Etage..."
+                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <label class="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="show_archived" {% if request.GET.show_archived %}checked{% endif %} 
+                 class="rounded border-gray-300">
+          <span class="text-slate-700">Archivierte anzeigen</span>
+        </label>
+
+        <div class="flex-1"></div>
+
+        <button type="submit" class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700">
+          Filtern
+        </button>
+        <a href="{% url 'portal_units' %}" class="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50">
+          Reset
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Units List -->
+  {% if units %}
+  <!-- Desktop Table View (hidden on mobile) -->
+  <div class="hidden md:block bg-white border rounded-lg overflow-hidden">
+    <table class="w-full">
+      <thead class="bg-slate-50 border-b">
+        <tr>
+          <th class="text-left p-3 font-medium">Wohnung</th>
+          <th class="text-left p-3 font-medium">Gebäude</th>
+          <th class="text-left p-3 font-medium">Etage</th>
+          <th class="text-left p-3 font-medium">Zimmer</th>
+          <th class="text-left p-3 font-medium">Fläche</th>
+          <th class="text-left p-3 font-medium">Zähler</th>
+          <th class="text-left p-3 font-medium">Status</th>
+          <th class="text-left p-3 font-medium">Aktionen</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        {% for unit in units %}
+        <tr class="{% if unit.is_archived %}bg-gray-50 opacity-60{% endif %} hover:bg-slate-50">
+          <td class="p-3">
+            <a href="{% url 'portal_unit_detail' unit.pk %}" class="text-blue-600 hover:underline font-medium">
+              {{ unit.unit_label }}
+            </a>
+          </td>
+          <td class="p-3 text-sm text-slate-600">
+            {{ unit.property.name }}
+          </td>
+          <td class="p-3 text-sm text-slate-600">
+            {{ unit.floor|default:"-" }}
+          </td>
+          <td class="p-3 text-sm text-slate-600">
+            {{ unit.rooms|default:"-" }}
+          </td>
+          <td class="p-3 text-sm text-slate-600">
+            {% if unit.area_sqm %}{{ unit.area_sqm }} m²{% else %}-{% endif %}
+          </td>
+          <td class="p-3">
+            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+              {{ unit.meters_count }} Zähler
+            </span>
+          </td>
+          <td class="p-3">
+            {% if unit.is_archived %}
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                Archiviert
+              </span>
+            {% elif unit.is_active %}
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                Aktiv
+              </span>
+            {% else %}
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                Inaktiv
+              </span>
+            {% endif %}
+          </td>
+          <td class="p-3 text-sm">
+            <a href="{% url 'portal_unit_detail' unit.pk %}" class="text-blue-600 hover:text-blue-900 mr-3">Details</a>
+            {% if perms.landlord.change_unit and not unit.is_archived %}
+            <a href="{% url 'portal_unit_update' unit.pk %}" class="text-indigo-600 hover:text-indigo-900">Bearbeiten</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Card View (visible on mobile only) -->
+  <div class="md:hidden space-y-3">
+    {% for unit in units %}
+    <div class="bg-white border rounded-lg p-4 {% if unit.is_archived %}opacity-60{% endif %}">
+      <div class="flex justify-between items-start mb-3">
+        <div class="flex-1">
+          <a href="{% url 'portal_unit_detail' unit.pk %}" class="text-lg font-medium text-blue-600 hover:underline">
+            {{ unit.unit_label }}
+          </a>
+          <div class="text-sm text-slate-500 mt-1">
+            {{ unit.property.name }}
+          </div>
+        </div>
+        <div class="ml-3">
+          {% if unit.is_archived %}
+            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 whitespace-nowrap">
+              Archiviert
+            </span>
+          {% elif unit.is_active %}
+            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 whitespace-nowrap">
+              Aktiv
+            </span>
+          {% else %}
+            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 whitespace-nowrap">
+              Inaktiv
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+        <div>
+          <span class="text-slate-500">Etage:</span>
+          <span class="text-slate-900">{{ unit.floor|default:"-" }}</span>
+        </div>
+        <div>
+          <span class="text-slate-500">Zimmer:</span>
+          <span class="text-slate-900">{{ unit.rooms|default:"-" }}</span>
+        </div>
+        <div>
+          <span class="text-slate-500">Fläche:</span>
+          <span class="text-slate-900">{% if unit.area_sqm %}{{ unit.area_sqm }} m²{% else %}-{% endif %}</span>
+        </div>
+        <div>
+          <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+            {{ unit.meters_count }} Zähler
+          </span>
+        </div>
+      </div>
+
+      <div class="flex gap-2 text-sm border-t pt-3">
+        <a href="{% url 'portal_unit_detail' unit.pk %}" class="flex-1 text-center px-3 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 font-medium">
+          Details
+        </a>
+        {% if perms.landlord.change_unit and not unit.is_archived %}
+        <a href="{% url 'portal_unit_update' unit.pk %}" class="flex-1 text-center px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium">
+          Bearbeiten
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if is_paginated %}
+  <div class="mt-6 flex justify-center">
+    <nav class="inline-flex rounded-md shadow-sm -space-x-px">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.property %}&property={{ request.GET.property }}{% endif %}{% if request.GET.is_active %}&is_active={{ request.GET.is_active }}{% endif %}{% if request.GET.show_archived %}&show_archived=on{% endif %}"
+         class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-l-md">
+        Vorherige
+      </a>
+      {% endif %}
+
+      <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+        Seite {{ page_obj.number }} von {{ page_obj.paginator.num_pages }}
+      </span>
+
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.property %}&property={{ request.GET.property }}{% endif %}{% if request.GET.is_active %}&is_active={{ request.GET.is_active }}{% endif %}{% if request.GET.show_archived %}&show_archived=on{% endif %}"
+         class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-r-md">
+        Nächste
+      </a>
+      {% endif %}
+    </nav>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <!-- Empty State -->
+  <div class="bg-white border rounded-lg p-12 text-center">
+    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900">Keine Wohnungen gefunden</h3>
+    <p class="mt-1 text-sm text-gray-500">
+      {% if request.GET.q or request.GET.property or request.GET.is_active or request.GET.show_archived %}
+      Keine Ergebnisse für Ihre Suche. Versuchen Sie andere Filter.
+      {% else %}
+      Erstellen Sie Ihre erste Wohnung, um loszulegen.
+      {% endif %}
+    </p>
+    <div class="mt-6">
+      {% if request.GET.q or request.GET.property or request.GET.is_active or request.GET.show_archived %}
+      <a href="{% url 'portal_units' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+        Alle Filter zurücksetzen
+      </a>
+      {% elif perms.landlord.add_unit %}
+      <a href="{% url 'portal_unit_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+        + Neue Wohnung
+      </a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

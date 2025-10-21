@@ -26,7 +26,7 @@ from rest_framework.exceptions import Throttled
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import ChatSession, Property, UtilityMeter
+from .models import ChatSession, Property, Unit, UtilityMeter
 from .serializers import ChatMessageSerializer, ChatSessionCreateSerializer
 from .services.chat_session import confirm as confirm_svc
 from .services.chat_session import message as message_svc
@@ -447,3 +447,128 @@ class MeterUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('portal_property_detail', kwargs={'pk': self.property.pk})
+
+
+# ============================================================================
+# UNIT PORTAL VIEWS (Phase 2: Units Portal)
+# ============================================================================
+
+
+class UnitListView(LoginRequiredMixin, ListView):
+    """
+    GET /portal/units/
+
+    List all units with search, filter, sort, and pagination.
+    """
+    model = Unit
+    template_name = 'portal/units_list.html'
+    context_object_name = 'units'
+    paginate_by = 25
+
+    def get_queryset(self):
+        """Filter and search units"""
+        qs = Unit.objects.select_related('property').all()
+
+        # Filter archived (default: exclude)
+        show_archived = self.request.GET.get('show_archived')
+        if not show_archived:
+            qs = qs.filter(is_archived=False)
+
+        # Search
+        query = self.request.GET.get('q')
+        if query:
+            qs = qs.filter(
+                Q(unit_label__icontains=query) |
+                Q(property__name__icontains=query) |
+                Q(floor__icontains=query)
+            )
+
+        # Filter by property
+        property_id = self.request.GET.get('property')
+        if property_id:
+            qs = qs.filter(property_id=property_id)
+
+        # Filter by is_active
+        is_active = self.request.GET.get('is_active')
+        if is_active:
+            qs = qs.filter(is_active=(is_active.lower() == 'true'))
+
+        # Annotate meters count
+        qs = qs.annotate(meters_count=Count('utility_meters'))
+
+        # Sort with whitelist
+        ALLOWED_SORT_FIELDS = ['unit_label', 'property__name', 'floor', 'rooms', 'created_at', 'meters_count']
+        sort = self.request.GET.get('sort', 'unit_label')
+
+        if sort not in ALLOWED_SORT_FIELDS:
+            sort = 'unit_label'
+
+        order = self.request.GET.get('order', 'asc')
+        if order == 'desc':
+            sort = f'-{sort}'
+        qs = qs.order_by(sort)
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Properties for filter dropdown (exclude archived)
+        context['properties'] = Property.objects.filter(is_archived=False).order_by('name')
+        return context
+
+
+class UnitDetailView(LoginRequiredMixin, DetailView):
+    """
+    GET /portal/units/{id}/
+
+    View unit details with meters.
+    """
+    model = Unit
+    template_name = 'portal/unit_detail.html'
+    context_object_name = 'unit'
+
+    def get_queryset(self):
+        """Prefetch meters and property to avoid N+1"""
+        return Unit.objects.select_related('property').prefetch_related('utility_meters')
+
+
+class UnitCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    GET/POST /portal/units/new
+
+    Create a new unit.
+    """
+    model = Unit
+    template_name = 'portal/unit_form.html'
+    fields = ['property', 'unit_label', 'floor', 'rooms', 'area_sqm', 'notes', 'is_active']
+    permission_required = 'landlord.add_unit'
+
+    def get_form(self, form_class=None):
+        """Limit property choices to non-archived properties"""
+        form = super().get_form(form_class)
+        form.fields['property'].queryset = Property.objects.filter(is_archived=False).order_by('name')
+        return form
+
+    def get_success_url(self):
+        return reverse_lazy('portal_unit_detail', kwargs={'pk': self.object.pk})
+
+
+class UnitUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    GET/POST /portal/units/{id}/edit
+
+    Update an existing unit.
+    """
+    model = Unit
+    template_name = 'portal/unit_form.html'
+    fields = ['property', 'unit_label', 'floor', 'rooms', 'area_sqm', 'notes', 'is_active']
+    permission_required = 'landlord.change_unit'
+
+    def get_form(self, form_class=None):
+        """Limit property choices to non-archived properties"""
+        form = super().get_form(form_class)
+        form.fields['property'].queryset = Property.objects.filter(is_archived=False).order_by('name')
+        return form
+
+    def get_success_url(self):
+        return reverse_lazy('portal_unit_detail', kwargs={'pk': self.object.pk})

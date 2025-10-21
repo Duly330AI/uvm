@@ -113,17 +113,53 @@ class Unit(TimeStampedModel):
     unit_label = models.CharField(max_length=100)
     floor = models.CharField(max_length=50, blank=True)
     rooms = models.PositiveSmallIntegerField(null=True, blank=True)
-    area_sqm = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+    area_sqm = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+        help_text="Area in square meters (must be >= 0)"
+    )
     notes = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
+
+    # Archive fields (soft-delete) - Phase 1: Units Portal
+    is_archived = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text="Soft-delete flag for archived units"
+    )
+    archived_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Timestamp when unit was archived"
+    )
+    archived_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='archived_units',
+        help_text="User who archived this unit"
+    )
+
+    def __str__(self) -> str:  # pragma: no cover
+        return f"{self.unit_label} @ {self.property}"
+
+    def archive(self, user):
+        """Archive this unit (soft-delete)"""
+        from django.utils import timezone
+        self.is_archived = True
+        self.archived_at = timezone.now()
+        self.archived_by = user
+        self.save(update_fields=['is_archived', 'archived_at', 'archived_by'])
 
     class Meta:
         indexes = [
             models.Index(fields=["property", "unit_label"]),
+            models.Index(fields=['is_archived']),
         ]
-
-    def __str__(self) -> str:  # pragma: no cover
-        return f"{self.unit_label} @ {self.property}"
 
 
 class Tenant(TimeStampedModel):
