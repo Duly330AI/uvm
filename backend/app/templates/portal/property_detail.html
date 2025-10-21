@@ -58,7 +58,11 @@
     <div class="bg-white shadow-md rounded p-6">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold">Zähler</h2>
-        <!-- Add meter button would go here -->
+        {% if perms.landlord.add_utilitymeter and not property.is_archived %}
+        <a href="{% url 'portal_meter_create' property.pk %}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm">
+          + Zähler hinzufügen
+        </a>
+        {% endif %}
       </div>
 
       {% if property.utility_meters.all %}
@@ -66,19 +70,25 @@
         {% for meter in property.utility_meters.all %}
         <div class="border rounded p-4 {% if not meter.is_active %}opacity-60{% endif %}">
           <div class="flex justify-between items-start mb-2">
-            <div>
+            <div class="flex-1">
               <h3 class="font-medium">{{ meter.get_meter_type_display }}</h3>
               {% if meter.serial_number %}
               <p class="text-sm text-gray-600">S/N: {{ meter.serial_number }}</p>
               {% endif %}
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 items-center">
               {% if meter.is_default %}
-              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"> Standard </span>
-              {% endif %} {% if meter.is_active %}
-              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800"> Aktiv </span>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Standard</span>
+              {% endif %}
+              {% if meter.is_active %}
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Aktiv</span>
               {% else %}
-              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800"> Inaktiv </span>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Inaktiv</span>
+              {% endif %}
+              {% if perms.landlord.change_utilitymeter and not property.is_archived %}
+              <a href="{% url 'portal_meter_update' property.pk meter.pk %}" class="text-blue-600 hover:text-blue-900 text-sm ml-2">
+                Bearbeiten
+              </a>
               {% endif %}
             </div>
           </div>
@@ -86,11 +96,14 @@
           <div class="text-sm text-gray-600 space-y-1">
             {% if meter.installed_at %}
             <p>Installiert: {{ meter.installed_at|date:"d.m.Y" }}</p>
-            {% endif %} {% if meter.removed_at %}
+            {% endif %}
+            {% if meter.removed_at %}
             <p>Entfernt: {{ meter.removed_at|date:"d.m.Y" }}</p>
-            {% endif %} {% if meter.initial_reading_value %}
+            {% endif %}
+            {% if meter.initial_reading_value %}
             <p>Anfangsstand: {{ meter.initial_reading_value }}</p>
-            {% endif %} {% if meter.notes %}
+            {% endif %}
+            {% if meter.notes %}
             <p class="mt-2">{{ meter.notes|truncatewords:20 }}</p>
             {% endif %}
           </div>

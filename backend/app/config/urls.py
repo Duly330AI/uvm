@@ -25,6 +25,8 @@ from landlord.views import (
     PropertyDetailView,
     PropertyListView,
     PropertyUpdateView,
+    MeterCreateView,
+    MeterUpdateView,
     chat_session_create_plain,
 )
 
@@ -142,6 +144,9 @@ urlpatterns = [
     path("portal/properties/new", PropertyCreateView.as_view(), name="portal_property_create"),
     path("portal/properties/<int:pk>/", PropertyDetailView.as_view(), name="portal_property_detail"),
     path("portal/properties/<int:pk>/edit", PropertyUpdateView.as_view(), name="portal_property_update"),
+    # Utility Meter Management (nested under Property)
+    path("portal/properties/<int:property_id>/meters/new", MeterCreateView.as_view(), name="portal_meter_create"),
+    path("portal/properties/<int:property_id>/meters/<int:pk>/edit", MeterUpdateView.as_view(), name="portal_meter_update"),
     # Vendor Portal (M11)
     path("vendor/", views_vendor.vendor_login, name="vendor_login"),
     path("vendor/auth/<str:token_id>/", views_vendor.vendor_magic_link, name="vendor_magic_link"),

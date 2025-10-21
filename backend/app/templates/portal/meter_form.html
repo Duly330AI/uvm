@@ -1,0 +1,140 @@
+{% extends "portal/base.html" %}
+
+{% block portal %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+  <div class="mb-6">
+    <a href="{% url 'portal_property_detail' property.pk %}" class="text-blue-600 hover:underline mb-2 inline-block">← Zurück zum Gebäude</a>
+    <h1 class="text-3xl font-bold">
+      {% if meter %}
+        Zähler bearbeiten
+      {% else %}
+        Neuer Zähler
+      {% endif %}
+    </h1>
+    <p class="text-gray-600 mt-2">Gebäude: {{ property.name }}</p>
+  </div>
+
+  <div class="bg-white shadow-md rounded p-6">
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      
+      {% if form.errors %}
+      <div class="bg-red-50 border border-red-200 rounded p-4">
+        <h3 class="text-red-800 font-semibold mb-2">Bitte korrigieren Sie folgende Fehler:</h3>
+        <ul class="list-disc list-inside text-red-700">
+          {% for field in form %}
+            {% for error in field.errors %}
+            <li>{{ field.label }}: {{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+          {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <!-- Meter Type -->
+      <div>
+        <label for="{{ form.meter_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+          Zählertyp *
+        </label>
+        <select id="{{ form.meter_type.id_for_label }}" name="meter_type" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+          <option value="">Bitte wählen...</option>
+          <option value="cold_water" {% if form.meter_type.value == 'cold_water' %}selected{% endif %}>Kaltwasser</option>
+          <option value="warm_water" {% if form.meter_type.value == 'warm_water' %}selected{% endif %}>Warmwasser</option>
+          <option value="electricity" {% if form.meter_type.value == 'electricity' %}selected{% endif %}>Strom</option>
+          <option value="gas" {% if form.meter_type.value == 'gas' %}selected{% endif %}>Gas (kWh)</option>
+        </select>
+      </div>
+
+      <!-- Serial Number -->
+      <div>
+        <label for="{{ form.serial_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+          Seriennummer
+        </label>
+        {{ form.serial_number }}
+        <p class="mt-1 text-xs text-gray-500">Optional, max. 50 Zeichen (A-Z, 0-9, -, /)</p>
+      </div>
+
+      <!-- Is Default -->
+      <div>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" name="is_default" {% if form.is_default.value %}checked{% endif %} class="rounded">
+          <span class="text-sm font-medium text-gray-700">Als Standard-Zähler markieren</span>
+        </label>
+        <p class="mt-1 text-xs text-gray-500">Maximal 1 Standard-Zähler pro Zählertyp</p>
+      </div>
+
+      <!-- Is Active -->
+      <div>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" name="is_active" {% if form.is_active.value or not meter %}checked{% endif %} class="rounded">
+          <span class="text-sm font-medium text-gray-700">Aktiv</span>
+        </label>
+      </div>
+
+      <!-- Initial Reading Value -->
+      <div>
+        <label for="{{ form.initial_reading_value.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+          Anfangsstand
+        </label>
+        {{ form.initial_reading_value }}
+        <p class="mt-1 text-xs text-gray-500">Optional, Wert ≥ 0</p>
+      </div>
+
+      <!-- Installed At -->
+      <div>
+        <label for="{{ form.installed_at.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+          Installationsdatum
+        </label>
+        {{ form.installed_at }}
+      </div>
+
+      <!-- Removed At -->
+      <div>
+        <label for="{{ form.removed_at.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+          Entfernt am
+        </label>
+        {{ form.removed_at }}
+        <p class="mt-1 text-xs text-gray-500">Muss nach Installationsdatum liegen</p>
+      </div>
+
+      <!-- Notes -->
+      <div>
+        <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+          Notizen
+        </label>
+        {{ form.notes }}
+        <p class="mt-1 text-xs text-gray-500">Maximal 1000 Zeichen</p>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex gap-3 pt-4">
+        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded">
+          Speichern
+        </button>
+        <a href="{% url 'portal_property_detail' property.pk %}" 
+           class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded">
+          Abbrechen
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  /* Style form inputs */
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500;
+  }
+  
+  textarea {
+    @apply min-h-[100px];
+  }
+</style>
+{% endblock %}
