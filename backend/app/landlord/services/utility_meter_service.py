@@ -134,7 +134,6 @@ class UtilityMeterService:
                 'serial_number': meter.serial_number or '',
                 'has_multiple': False,
                 'initial_reading_value': float(meter.initial_reading_value) if meter.initial_reading_value else None,
-                'initial_reading_value': meter.initial_reading_value,
                 'meters': []
             }
             if use_cache:

@@ -77,6 +77,10 @@ class UtilityMeterCreateSerializer(serializers.ModelSerializer):
             'installed_at',
             'notes',
         ]
+        extra_kwargs = {
+            'property': {'required': False, 'allow_null': True},
+            'unit': {'required': False, 'allow_null': True},
+        }
 
     def validate(self, data):
         """Custom validation for UtilityMeter creation"""
@@ -85,10 +89,15 @@ class UtilityMeterCreateSerializer(serializers.ModelSerializer):
         property_obj = data.get('property')
         unit = data.get('unit')
 
+        # Property can come from context (URL) for property-scoped meters
         if scope_type == 'property' and not property_obj:
-            raise serializers.ValidationError({
-                'property': 'Gebäudezähler benötigt eine Property-Zuordnung'
-            })
+            # Check if property_id is in context (will be set by view)
+            property_id = self.context.get('property_id')
+            if not property_id:
+                raise serializers.ValidationError({
+                    'property': 'Gebäudezähler benötigt eine Property-Zuordnung'
+                })
+
         if scope_type == 'unit' and not unit:
             raise serializers.ValidationError({
                 'unit': 'Wohnungszähler benötigt eine Unit-Zuordnung'

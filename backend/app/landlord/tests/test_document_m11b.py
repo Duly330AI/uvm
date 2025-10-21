@@ -185,7 +185,7 @@ class DocumentUploadViewM11bTest(TestCase):
             content_type="application/pdf"
         )
 
-        response = self.client.post('/portal/document/upload/', {
+        response = self.client.post('/portal/documents/upload', {
             'file': pdf_file,
             'property': self.property.id,
             'category': 'plan',
@@ -216,7 +216,7 @@ class DocumentUploadViewM11bTest(TestCase):
             content_type="application/pdf"
         )
 
-        response = self.client.post('/portal/document/upload/', {
+        response = self.client.post('/portal/documents/upload', {
             'file': pdf_file,
             'unit': self.unit.id,
             'category': 'vertrag',
@@ -248,7 +248,7 @@ class DocumentUploadViewM11bTest(TestCase):
             content_type="application/pdf"
         )
 
-        response = self.client.post('/portal/document/upload/', {
+        response = self.client.post('/portal/documents/upload', {
             'file': pdf_file,
             'tenant': tenant.id,
             'category': 'sonstiges'
@@ -271,7 +271,7 @@ class DocumentUploadViewM11bTest(TestCase):
             content_type="application/pdf"
         )
 
-        response = self.client.post('/portal/document/upload/', {
+        response = self.client.post('/portal/documents/upload', {
             'file': pdf_file,
             'category': 'foto'
         })

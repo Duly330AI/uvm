@@ -66,7 +66,9 @@ class TestPropertyMeterListAPI:
         url = reverse('portal-property-meters-list', kwargs={'property_id': sample_property.pk})
         response = api_client.get(url)
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 1
+        # API returns paginated response
+        assert 'results' in response.data
+        assert len(response.data['results']) == 1
 
 
 @pytest.mark.django_db
@@ -89,11 +91,14 @@ class TestPropertyMeterCreateAPI:
         data = {
             'scope_type': 'property',
             'property': sample_property.pk,
+            'unit': None,  # Explicitly set unit to None for property-scoped meters
             'meter_type': 'cold_water',
             'serial_number': 'NEW123',
             'is_default': True
         }
         response = api_client.post(url, data, format='json')
+        if response.status_code != status.HTTP_201_CREATED:
+            print(f"Response data: {response.data}")
         assert response.status_code == status.HTTP_201_CREATED
         assert UtilityMeter.objects.filter(serial_number='NEW123').exists()
 

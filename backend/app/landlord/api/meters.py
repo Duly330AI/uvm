@@ -57,10 +57,18 @@ class PropertyMeterCreateAPIView(CreateAPIView):
     permission_classes = [IsAdminUser]
     throttle_classes = [PortalWriteThrottle]
 
+    def get_serializer_context(self):
+        """Add property_id from URL to serializer context"""
+        context = super().get_serializer_context()
+        context['property_id'] = self.kwargs.get('property_id')
+        return context
+
     @transaction.atomic
     def perform_create(self, serializer):
         """Save the new meter and handle default constraint"""
-        meter = serializer.save()
+        # Get property_id from URL kwargs
+        property_id = self.kwargs.get('property_id')
+        meter = serializer.save(property_id=property_id)
 
         # If this is set as default, clear other defaults of same type
         if meter.is_default:
@@ -101,10 +109,9 @@ class PropertyMeterUpdateAPIView(UpdateAPIView):
     @transaction.atomic
     def perform_update(self, serializer):
         """Save meter and handle default constraint + auto-set removed_at"""
-        meter = serializer.save()
-
-        # If is_default changed to True, clear other defaults
-        if 'is_default' in serializer.validated_data and meter.is_default:
+        # If is_default is being set to True, clear other defaults BEFORE saving
+        if 'is_default' in serializer.validated_data and serializer.validated_data['is_default']:
+            meter = self.get_object()
             UtilityMeter.objects.filter(
                 scope_type=meter.scope_type,
                 property_id=meter.property_id if meter.scope_type == 'property' else None,
@@ -112,6 +119,8 @@ class PropertyMeterUpdateAPIView(UpdateAPIView):
                 meter_type=meter.meter_type,
                 is_default=True
             ).exclude(id=meter.id).update(is_default=False)
+
+        meter = serializer.save()
 
         # If is_active set to False and removed_at is None, set removed_at
         if 'is_active' in serializer.validated_data and not meter.is_active and not meter.removed_at:

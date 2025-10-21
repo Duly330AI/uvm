@@ -21,12 +21,12 @@ from landlord.views import (
     ChatConfirmView,
     ChatMessageView,
     ChatPageView,
+    MeterCreateView,
+    MeterUpdateView,
     PropertyCreateView,
     PropertyDetailView,
     PropertyListView,
     PropertyUpdateView,
-    MeterCreateView,
-    MeterUpdateView,
     chat_session_create_plain,
 )
 

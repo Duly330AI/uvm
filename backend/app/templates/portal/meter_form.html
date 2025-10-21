@@ -17,7 +17,7 @@
   <div class="bg-white shadow-md rounded p-6">
     <form method="post" class="space-y-4">
       {% csrf_token %}
-      
+
       {% if form.errors %}
       <div class="bg-red-50 border border-red-200 rounded p-4">
         <h3 class="text-red-800 font-semibold mb-2">Bitte korrigieren Sie folgende Fehler:</h3>
@@ -42,7 +42,7 @@
         <select id="{{ form.meter_type.id_for_label }}" name="meter_type" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
           <option value="">Bitte wählen...</option>
           <option value="cold_water" {% if form.meter_type.value == 'cold_water' %}selected{% endif %}>Kaltwasser</option>
-          <option value="warm_water" {% if form.meter_type.value == 'warm_water' %}selected{% endif %}>Warmwasser</option>
+          <option value="hot_water" {% if form.meter_type.value == 'hot_water' %}selected{% endif %}>Warmwasser</option>
           <option value="electricity" {% if form.meter_type.value == 'electricity' %}selected{% endif %}>Strom</option>
           <option value="gas" {% if form.meter_type.value == 'gas' %}selected{% endif %}>Gas (kWh)</option>
         </select>
@@ -114,7 +114,7 @@
         <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded">
           Speichern
         </button>
-        <a href="{% url 'portal_property_detail' property.pk %}" 
+        <a href="{% url 'portal_property_detail' property.pk %}"
            class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded">
           Abbrechen
         </a>
@@ -132,7 +132,7 @@
   textarea {
     @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500;
   }
-  
+
   textarea {
     @apply min-h-[100px];
   }

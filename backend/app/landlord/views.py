@@ -391,29 +391,29 @@ class PropertyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
 class MeterCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """
     GET/POST /portal/properties/{property_id}/meters/new
-    
+
     Create a new utility meter for a property.
     """
     model = UtilityMeter
     template_name = 'portal/meter_form.html'
-    fields = ['meter_type', 'serial_number', 'is_default', 'is_active', 
+    fields = ['meter_type', 'serial_number', 'is_default', 'is_active',
               'initial_reading_value', 'installed_at', 'removed_at', 'notes']
     permission_required = 'landlord.add_utilitymeter'
-    
+
     def dispatch(self, request, *args, **kwargs):
         self.property = get_object_or_404(Property, pk=kwargs['property_id'])
         return super().dispatch(request, *args, **kwargs)
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['property'] = self.property
         context['meter'] = None
         return context
-    
+
     def form_valid(self, form):
         form.instance.property = self.property
         return super().form_valid(form)
-    
+
     def get_success_url(self):
         return reverse_lazy('portal_property_detail', kwargs={'pk': self.property.pk})
 
@@ -421,23 +421,23 @@ class MeterCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 class MeterUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     GET/POST /portal/properties/{property_id}/meters/{pk}/edit
-    
+
     Update an existing utility meter.
     """
     model = UtilityMeter
     template_name = 'portal/meter_form.html'
-    fields = ['meter_type', 'serial_number', 'is_default', 'is_active', 
+    fields = ['meter_type', 'serial_number', 'is_default', 'is_active',
               'initial_reading_value', 'installed_at', 'removed_at', 'notes']
     permission_required = 'landlord.change_utilitymeter'
-    
+
     def dispatch(self, request, *args, **kwargs):
         self.property = get_object_or_404(Property, pk=kwargs['property_id'])
         return super().dispatch(request, *args, **kwargs)
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['property'] = self.property
         return context
-    
+
     def get_success_url(self):
         return reverse_lazy('portal_property_detail', kwargs={'pk': self.property.pk})
