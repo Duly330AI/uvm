@@ -8,7 +8,7 @@ services:
       - DJANGO_SETTINGS_MODULE=config.settings.prod
       - DEBUG=0
       - SECURE_SSL_REDIRECT=1
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:?SECRET_KEY required}
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY required}
       - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-localhost}
       - DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:8000}
       - USE_S3=true
@@ -22,10 +22,10 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.prod
       - DEBUG=0
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:?SECRET_KEY required}
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY required}
 
   beat:
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.prod
       - DEBUG=0
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:?SECRET_KEY required}
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY required}

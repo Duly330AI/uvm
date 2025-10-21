@@ -3,6 +3,7 @@
 ## Technical Specification v0.5
 
 **Stand:** 19. Oktober 2025
+> Hinweis (2025-10-21): Historischer Snapshot – aktueller Stand siehe docs/README.md.
 **Version:** 0.8.0 (Development)
 **Status:** M12a + M12b Complete (19% Progress)
 

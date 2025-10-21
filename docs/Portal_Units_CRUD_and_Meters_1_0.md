@@ -245,29 +245,29 @@
 
 ### 6.1 Units
 
-- **GET** `/portal/api/units`
+- **GET** `/api/portal/units`
   **Params:** `query` (label/property name), `property_id`, `is_active`, `is_archived` (default false), `sort` (label|floor|created_at), `order` (asc|desc), `page`, `page_size` (default 25, max 100).
   **Antwort:** paginierte Liste (inkl. `property_summary`, `meters_count`, `updated_at`).
 
-- **GET** `/portal/api/units/{id}`
+- **GET** `/api/portal/units/{id}`
   **Antwort:** Unit-Detail inkl. **Zählerliste**.
 
-- **POST** `/portal/api/units`
+- **POST** `/api/portal/units`
   **Body:** Felder aus **3.1**.
   **Antwort:** **201** + Objekt (id).
   **Hinweis:** Zähler werden **nicht** im selben Call angelegt (2-Step-Flow: erst Unit speichern, dann Zähler anlegen).
 
-- **PATCH** `/portal/api/units/{id}` → Teilupdates (3.1). **200**.
+- **PATCH** `/api/portal/units/{id}` → Teilupdates (3.1). **200**.
 
-- **POST** `/portal/api/units/{id}/archive` → **200** (archiviert).
+- **POST** `/api/portal/units/{id}/archive` → **200** (archiviert).
 
-- **DELETE** `/portal/api/units/{id}` → **204** oder **409** (Abhängigkeiten).
+- **DELETE** `/api/portal/units/{id}` → **204** oder **409** (Abhängigkeiten).
 
 ### 6.2 Unit-Meters
 
-- **POST** `/portal/api/units/{id}/meters` → Zähler anlegen.
-- **PATCH** `/portal/api/units/{id}/meters/{meter_id}` → Zähler ändern.
-- **DELETE** `/portal/api/units/{id}/meters/{meter_id}` → s. Policy (204/409).
+- **POST** `/api/portal/units/{id}/meters` → Zähler anlegen.
+- **PATCH** `/api/portal/units/{id}/meters/{meter_id}` → Zähler ändern.
+- **DELETE** `/api/portal/units/{id}/meters/{meter_id}` → s. Policy (204/409).
 
 **Statuscodes & Fehlertexte (Auszug)**
 
@@ -300,9 +300,9 @@
 - XSS-Schutz (escape, Längenlimits).
 - Rate-Limit (wie Properties):
 
-  - **Mutating (POST/PATCH/DELETE):** **60/min** pro **User** und **IP**
-  - **GET:** **240/min** pro **User** und **IP**
-  - 429 mit `Retry-After`.
+  - **Mutating (POST/PATCH/DELETE):** **50/Stunde** pro **User**
+  - **GET:** **100/Stunde** pro **User**
+  - Antworten enthalten `Retry-After`, wenn Limits greifen.
 
 ---
 

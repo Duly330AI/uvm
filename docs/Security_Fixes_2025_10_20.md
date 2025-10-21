@@ -71,6 +71,8 @@ if not SECRET_KEY or SECRET_KEY == 'change-me':
 - `config/settings/base.py` (add validation)
 - `README.md` (deployment section)
 
+**Status (2025-10-21):** ✅ Implemented. `config/settings/base.py` enforces `SECRET_KEY`, both `.env.example` and `.env.prod.example` use the same key name, and `docker-compose.prod.yml`/deployment docs expect `SECRET_KEY`.
+
 ---
 
 ## 2. Test Dependencies in Runtime (HIGH) 🔴
@@ -138,6 +140,8 @@ RUN pip install --no-cache-dir .
 - `README.md` (installation instructions)
 - CI/CD configs (if any)
 
+**Status (2025-10-21):** ✅ Implemented. Test tooling moved to `[project.optional-dependencies].dev`, Dockerfile installs dev extras only in development stage, and docs instruct `pip install -e ".[dev]"`.
+
 ---
 
 ## 3. Mixed Settings in docker-compose.yml (MEDIUM-HIGH) ⚠️
@@ -197,6 +201,8 @@ services:
 
 - `docker-compose.yml` (beat service: change to `dev`)
 - `docs/deployment.md` or `README.md` (clarify dev vs prod)
+
+**Status (2025-10-21):** ✅ Implemented. `docker-compose.yml` now sets `DJANGO_SETTINGS_MODULE=config.settings.dev` for the beat service, aligning dev services.
 
 ---
 
@@ -276,6 +282,8 @@ S3_SECRET_KEY=  # REQUIRED
 - `README.md` (security section)
 - Create `.env.prod.example` (optional)
 
+**Status (2025-10-21):** ✅ Implemented. `.env.example` now starts with prominent warnings, `.env.prod.example` provides production placeholders, and README/DEPLOYMENT docs emphasise generating fresh credentials.
+
 ---
 
 ## 5. runserver in Production (LOW - NOT FIXING) ✅
@@ -301,20 +309,20 @@ S3_SECRET_KEY=  # REQUIRED
 
 ### Priority 1: HIGH Severity (Immediate)
 
-1. ✅ **TODO 2:** Fix SECRET_KEY inconsistency
-2. ✅ **TODO 4:** Move test dependencies to optional
+- [x] Fix SECRET_KEY inconsistency (shipped 2025-10-21)
+- [x] Move test dependencies to optional extras (shipped 2025-10-20)
 
 ### Priority 2: MEDIUM-HIGH Severity (Soon)
 
-3. ✅ **TODO 3:** Fix docker-compose.yml beat settings
+- [x] Align docker-compose beat settings with dev profile (shipped 2025-10-20)
 
 ### Priority 3: MEDIUM Severity (Documentation)
 
-4. ✅ **TODO 5:** Add warnings to .env.example
+- [x] Add warnings to .env templates and docs (shipped 2025-10-21)
 
 ### Priority 4: LOW Severity (Future)
 
-5. ⏸️ **SKIP:** runserver vs Gunicorn (acceptable for dev)
+- [ ] Keep `runserver` for dev only (no change required)
 
 ---
 
@@ -370,5 +378,7 @@ MEDIUM Priority:
 
 ---
 
-**Document Status:** ✅ DRAFT - Ready for implementation
-**Next Steps:** Implement fixes in order of priority (HIGH → MEDIUM → LOW)
+**Document Status:** ✅ Completed – fixes merged on 2025-10-21
+**Next Steps:** Monitor new environment rollouts for SECRET_KEY coverage
+
+

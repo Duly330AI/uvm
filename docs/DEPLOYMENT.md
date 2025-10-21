@@ -69,7 +69,7 @@ open http://localhost:8000/portal/
 ### Pflicht
 
 ```env
-DJANGO_SECRET_KEY=<dein-generierter-key>
+SECRET_KEY=<dein-generierter-key>
 DJANGO_ALLOWED_HOSTS=yourdomain.com
 DJANGO_CSRF_TRUSTED_ORIGINS=https://yourdomain.com
 POSTGRES_PASSWORD=<starkes-passwort>
