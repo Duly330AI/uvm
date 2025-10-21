@@ -63,9 +63,10 @@
         {% endif %}
       </div>
 
-      {% if property.utility_meters.all %}
+      {% with meters=property.utility_meters.all %}
+      {% if meters %}
       <div class="space-y-3">
-        {% for meter in property.utility_meters.all %}
+        {% for meter in meters %}
         <div class="border rounded p-4 {% if not meter.is_active %}opacity-60{% endif %}">
           <div class="flex justify-between items-start mb-2">
             <div class="flex-1">
@@ -115,6 +116,7 @@
         <p class="text-sm mt-1">Zähler können über die API hinzugefügt werden</p>
       </div>
       {% endif %}
+      {% endwith %}
     </div>
   </div>
 </div>

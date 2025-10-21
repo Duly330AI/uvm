@@ -144,14 +144,32 @@ class PropertyMeterDeleteAPIView(DestroyAPIView):
 
     def perform_destroy(self, instance):
         """Delete meter, but check for readings first"""
-        # Check if meter has readings
-        if hasattr(instance, 'utilityreading_set') and instance.utilityreading_set.exists():
-            # Cannot delete - has readings
-            raise drf_serializers.ValidationError({
-                'detail': 'Zähler kann nicht gelöscht werden, da bereits Zählerstände existieren.',
-                'suggestion': 'Bitte deaktivieren Sie den Zähler stattdessen (is_active=false).',
-                'readings_count': instance.utilityreading_set.count()
-            })
+        from landlord.models import UtilityReading
+        
+        # Check if meter has readings (only for unit meters)
+        if instance.scope_type == 'unit' and instance.unit:
+            # Map meter type to reading type
+            meter_to_reading_type = {
+                'cold_water': 'water_cold',
+                'hot_water': 'water_hot',
+                'electricity': 'electricity',
+                'gas': 'gas',
+            }
+            reading_type = meter_to_reading_type.get(instance.meter_type)
+            
+            if reading_type:
+                readings_count = UtilityReading.objects.filter(
+                    unit=instance.unit,
+                    meter_type=reading_type
+                ).count()
+                
+                if readings_count > 0:
+                    # Cannot delete - has readings
+                    raise drf_serializers.ValidationError({
+                        'detail': 'Zähler kann nicht gelöscht werden, da bereits Zählerstände existieren.',
+                        'suggestion': 'Bitte deaktivieren Sie den Zähler stattdessen (is_active=false).',
+                        'readings_count': readings_count
+                    })
 
-        # No readings - safe to delete
+        # No readings - safe to delete (or property meter without reading support)
         instance.delete()

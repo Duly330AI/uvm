@@ -50,6 +50,10 @@ def validate_serial_number_format(value):
     Raises:
         ValidationError: If serial number contains invalid characters
     """
+    # Allow empty strings (blank=True on model field)
+    if not value:
+        return
+    
     import re
 
     # Allow: A-Z, a-z, 0-9, dash (-), slash (/)

@@ -9,7 +9,7 @@ from rest_framework import serializers
 class PropertyListSerializer(serializers.ModelSerializer):
     """Serializer for Property list view (GET /api/portal/properties/)"""
 
-    meters_count = serializers.SerializerMethodField()
+    meters_count = serializers.IntegerField(read_only=True)
     country_display = serializers.CharField(source='get_country_display', read_only=True)
 
     class Meta:
@@ -27,11 +27,7 @@ class PropertyListSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
-
-    def get_meters_count(self, obj):
-        """Return count of utility meters for this property"""
-        return obj.utility_meters.count()
+        read_only_fields = ['id', 'created_at', 'updated_at', 'meters_count']
 
 
 class UtilityMeterSerializer(serializers.ModelSerializer):
