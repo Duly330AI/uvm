@@ -605,7 +605,7 @@ class UnitMeterCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVie
         # Set unit and scope_type
         form.instance.unit = self.unit
         form.instance.scope_type = 'unit'
-        
+
         # Validate: Max 1 default per (unit, meter_type)
         if form.instance.is_default:
             existing_default = UtilityMeter.objects.filter(
@@ -613,12 +613,12 @@ class UnitMeterCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVie
                 meter_type=form.instance.meter_type,
                 is_default=True
             ).exclude(pk=form.instance.pk if form.instance.pk else None).exists()
-            
+
             if existing_default:
-                form.add_error('is_default', 
+                form.add_error('is_default',
                     f'Es existiert bereits ein Standard-Zähler für {form.instance.get_meter_type_display()} in dieser Wohnung.')
                 return self.form_invalid(form)
-        
+
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -654,12 +654,12 @@ class UnitMeterUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVie
                 meter_type=form.instance.meter_type,
                 is_default=True
             ).exclude(pk=form.instance.pk).exists()
-            
+
             if existing_default:
-                form.add_error('is_default', 
+                form.add_error('is_default',
                     f'Es existiert bereits ein Standard-Zähler für {form.instance.get_meter_type_display()} in dieser Wohnung.')
                 return self.form_invalid(form)
-        
+
         return super().form_valid(form)
 
     def get_success_url(self):

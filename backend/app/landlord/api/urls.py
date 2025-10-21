@@ -21,6 +21,22 @@ from .properties import (
     PropertyUpdateAPIView,
 )
 from .tenants import TenantEraseView, TenantExportView
+from .units import (
+    UnitArchiveAPIView,
+    UnitCreateAPIView,
+    UnitDeleteAPIView,
+    UnitDetailAPIView,
+    UnitListAPIView,
+    UnitUnarchiveAPIView,
+    UnitUpdateAPIView,
+)
+from .unit_meters import (
+    UnitMeterCreateAPIView,
+    UnitMeterDeleteAPIView,
+    UnitMeterDetailAPIView,
+    UnitMeterListAPIView,
+    UnitMeterUpdateAPIView,
+)
 
 urlpatterns = [
     # Admin: Issues
@@ -48,4 +64,20 @@ urlpatterns = [
     path("portal/properties/<int:property_id>/meters/<int:pk>/", PropertyMeterDetailAPIView.as_view(), name="portal-property-meters-detail"),
     path("portal/properties/<int:property_id>/meters/<int:pk>/update/", PropertyMeterUpdateAPIView.as_view(), name="portal-property-meters-update"),
     path("portal/properties/<int:property_id>/meters/<int:pk>/delete/", PropertyMeterDeleteAPIView.as_view(), name="portal-property-meters-delete"),
+
+    # Portal: Units (Phase 4)
+    path("portal/units/", UnitListAPIView.as_view(), name="portal-units-list"),
+    path("portal/units/create/", UnitCreateAPIView.as_view(), name="portal-units-create"),
+    path("portal/units/<int:pk>/", UnitDetailAPIView.as_view(), name="portal-units-detail"),
+    path("portal/units/<int:pk>/update/", UnitUpdateAPIView.as_view(), name="portal-units-update"),
+    path("portal/units/<int:pk>/delete/", UnitDeleteAPIView.as_view(), name="portal-units-delete"),
+    path("portal/units/<int:pk>/archive/", UnitArchiveAPIView.as_view(), name="portal-units-archive"),
+    path("portal/units/<int:pk>/unarchive/", UnitUnarchiveAPIView.as_view(), name="portal-units-unarchive"),
+
+    # Portal: Unit-Meters (Phase 5)
+    path("portal/units/<int:unit_id>/meters/", UnitMeterListAPIView.as_view(), name="portal-unit-meters-list"),
+    path("portal/units/<int:unit_id>/meters/create/", UnitMeterCreateAPIView.as_view(), name="portal-unit-meters-create"),
+    path("portal/units/<int:unit_id>/meters/<int:pk>/", UnitMeterDetailAPIView.as_view(), name="portal-unit-meters-detail"),
+    path("portal/units/<int:unit_id>/meters/<int:pk>/update/", UnitMeterUpdateAPIView.as_view(), name="portal-unit-meters-update"),
+    path("portal/units/<int:unit_id>/meters/<int:pk>/delete/", UnitMeterDeleteAPIView.as_view(), name="portal-unit-meters-delete"),
 ]

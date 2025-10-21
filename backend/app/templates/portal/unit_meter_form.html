@@ -2,7 +2,7 @@
 {% block portal %}
 <div class="max-w-2xl mx-auto">
   <div class="mb-4">
-    <a href="{% url 'portal_unit_detail' unit.pk %}" 
+    <a href="{% url 'portal_unit_detail' unit.pk %}"
        class="text-sm text-blue-600 hover:underline">← Zurück zur Wohnung</a>
   </div>
 
@@ -17,7 +17,7 @@
 
   <form method="post" class="bg-white border rounded-lg p-6">
     {% csrf_token %}
-    
+
     {% if form.errors %}
     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
       <strong>Bitte korrigieren Sie folgende Fehler:</strong>
@@ -37,7 +37,7 @@
         <label for="{{ form.meter_type.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
           Zählertyp *
         </label>
-        <select name="meter_type" 
+        <select name="meter_type"
                 id="{{ form.meter_type.id_for_label }}"
                 required
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
@@ -55,9 +55,9 @@
         <label for="{{ form.serial_number.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
           Seriennummer
         </label>
-        <input type="text" 
-               name="serial_number" 
-               id="{{ form.serial_number.id_for_label }}" 
+        <input type="text"
+               name="serial_number"
+               id="{{ form.serial_number.id_for_label }}"
                value="{{ form.serial_number.value|default:'' }}"
                maxlength="50"
                pattern="[A-Za-z0-9\-\/]+"
@@ -72,9 +72,9 @@
           <label for="{{ form.installed_at.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
             Installiert am
           </label>
-          <input type="date" 
-                 name="installed_at" 
-                 id="{{ form.installed_at.id_for_label }}" 
+          <input type="date"
+                 name="installed_at"
+                 id="{{ form.installed_at.id_for_label }}"
                  value="{{ form.installed_at.value|date:'Y-m-d'|default:'' }}"
                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
         </div>
@@ -83,9 +83,9 @@
           <label for="{{ form.removed_at.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
             Entfernt am
           </label>
-          <input type="date" 
-                 name="removed_at" 
-                 id="{{ form.removed_at.id_for_label }}" 
+          <input type="date"
+                 name="removed_at"
+                 id="{{ form.removed_at.id_for_label }}"
                  value="{{ form.removed_at.value|date:'Y-m-d'|default:'' }}"
                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
           <p class="text-xs text-slate-500 mt-1">Muss ≥ Installationsdatum sein</p>
@@ -97,11 +97,11 @@
         <label for="{{ form.initial_reading_value.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
           Anfangsstand
         </label>
-        <input type="number" 
+        <input type="number"
                step="0.01"
                min="0"
-               name="initial_reading_value" 
-               id="{{ form.initial_reading_value.id_for_label }}" 
+               name="initial_reading_value"
+               id="{{ form.initial_reading_value.id_for_label }}"
                value="{{ form.initial_reading_value.value|default:'' }}"
                placeholder="z.B. 1234.56"
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
@@ -112,9 +112,9 @@
       <div class="space-y-3">
         <div>
           <label class="flex items-center gap-2">
-            <input type="checkbox" 
-                   name="is_default" 
-                   {% if form.is_default.value %}checked{% endif %} 
+            <input type="checkbox"
+                   name="is_default"
+                   {% if form.is_default.value %}checked{% endif %}
                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
             <span class="text-sm font-medium text-slate-700">Standard-Zähler</span>
           </label>
@@ -123,9 +123,9 @@
 
         <div>
           <label class="flex items-center gap-2">
-            <input type="checkbox" 
-                   name="is_active" 
-                   {% if form.is_active.value or not meter %}checked{% endif %} 
+            <input type="checkbox"
+                   name="is_active"
+                   {% if form.is_active.value or not meter %}checked{% endif %}
                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
             <span class="text-sm font-medium text-slate-700">Aktiv</span>
           </label>
@@ -138,8 +138,8 @@
         <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
           Notizen
         </label>
-        <textarea name="notes" 
-                  id="{{ form.notes.id_for_label }}" 
+        <textarea name="notes"
+                  id="{{ form.notes.id_for_label }}"
                   rows="3"
                   maxlength="1000"
                   placeholder="Zusätzliche Informationen zum Zähler..."

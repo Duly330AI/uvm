@@ -72,10 +72,7 @@
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold">Zähler (Wohnung)</h2>
         {% if perms.landlord.add_utilitymeter and not unit.is_archived %}
-        <a href="{% url 'portal_unit_meter_create' unit.pk %}" 
-           class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">
-          + Zähler hinzufügen
-        </a>
+        <a href="{% url 'portal_unit_meter_create' unit.pk %}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"> + Zähler hinzufügen </a>
         {% endif %}
       </div>
 
@@ -97,12 +94,8 @@
               <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Aktiv</span>
               {% else %}
               <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Inaktiv</span>
-              {% endif %}
-              {% if perms.landlord.change_utilitymeter and not unit.is_archived %}
-              <a href="{% url 'portal_unit_meter_update' unit.pk meter.pk %}" 
-                 class="text-blue-600 hover:text-blue-900 text-sm ml-2">
-                Bearbeiten
-              </a>
+              {% endif %} {% if perms.landlord.change_utilitymeter and not unit.is_archived %}
+              <a href="{% url 'portal_unit_meter_update' unit.pk meter.pk %}" class="text-blue-600 hover:text-blue-900 text-sm ml-2"> Bearbeiten </a>
               {% endif %}
             </div>
           </div>
@@ -133,10 +126,7 @@
         </svg>
         <p>Noch keine Zähler angelegt</p>
         {% if perms.landlord.add_utilitymeter and not unit.is_archived %}
-        <a href="{% url 'portal_unit_meter_create' unit.pk %}" 
-           class="inline-block mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-          Ersten Zähler hinzufügen
-        </a>
+        <a href="{% url 'portal_unit_meter_create' unit.pk %}" class="inline-block mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"> Ersten Zähler hinzufügen </a>
         {% endif %}
       </div>
       {% endif %} {% endwith %}

@@ -44,9 +44,39 @@
 - ✅ Import: `UnitMeterCreateView`, `UnitMeterUpdateView` in urls.py
 - ✅ **Tests:** 229 passed ✅
 
-### ⏳ Phase 4: Unit API Endpoints (TODO)
+### ✅ Phase 4: Unit API Endpoints (COMPLETED - 2025-10-21)
 
-### ⏳ Phase 5: Unit-Meter API Endpoints (TODO)
+- ✅ **Serializers:** `units_serializers.py` erstellt
+  - `UnitListSerializer`: property_name, meters_count (annotated)
+  - `UnitDetailSerializer`: Mit meters (nested), archived fields
+  - `UnitCreateSerializer`: Property-Archive-Validierung
+  - `UnitUpdateSerializer`: Property-Archive-Validierung
+- ✅ **API Views:** `units.py` erstellt (7 Endpoints)
+  - `UnitListAPIView`: Filter (is_archived, property_id, is_active, query), Sort, Pagination (25/page)
+  - `UnitDetailAPIView`: Mit prefetch (property, utility_meters)
+  - `UnitCreateAPIView`: Admin-only
+  - `UnitUpdateAPIView`: Admin-only, PATCH support
+  - `UnitDeleteAPIView`: Dependency-Check (Tenants, Meters, Issues, Contracts) → 409 Conflict
+  - `UnitArchiveAPIView`: Soft-delete via archive(user)
+  - `UnitUnarchiveAPIView`: Check Property-Archive-Status
+- ✅ **URLs:** `/api/portal/units/` + CRUD + archive/unarchive
+- ✅ **Throttling:** PortalReadThrottle (100/h), PortalWriteThrottle (50/h)
+- ✅ **Permissions:** IsAuthenticated (List/Detail), IsAdminUser (Create/Update/Delete)
+- ✅ **Tests:** 229 passed ✅
+
+### ✅ Phase 5: Unit-Meter API Endpoints (COMPLETED - 2025-10-21)
+
+- ✅ **API Views:** `unit_meters.py` erstellt (5 Endpoints)
+  - `UnitMeterListAPIView`: Filter scope_type='unit', Sort by meter_type, is_default, is_active
+  - `UnitMeterCreateAPIView`: scope_type='unit' auto-set, unit_id from URL
+  - `UnitMeterDetailAPIView`: Single meter detail
+  - `UnitMeterUpdateAPIView`: Transactional default-handling, auto-set removed_at
+  - `UnitMeterDeleteAPIView`: Reading-Check (UtilityReading-Dependency) → 409 ValidationError
+- ✅ **Default-Constraint:** Transactional clearance of other defaults before save
+- ✅ **Reading-Dependency:** Meter-Type-Mapping (cold_water → water_cold) für Reading-Check
+- ✅ **URLs:** `/api/portal/units/{unit_id}/meters/` + CRUD
+- ✅ **Reuse:** Nutzt `UtilityMeterSerializer`, `UtilityMeterCreateSerializer`, `UtilityMeterUpdateSerializer` von properties
+- ✅ **Tests:** 229 passed ✅
 
 ### ⏳ Phase 5: Unit-Meter API Endpoints (TODO)
 
