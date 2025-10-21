@@ -5,19 +5,22 @@ import os
 
 import redis
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db.models import Q, Count
 from django.http import HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
-from django.views.generic import TemplateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
 from rest_framework import parsers, permissions, status
 from rest_framework.exceptions import Throttled
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import ChatSession
+from .models import ChatSession, Property
 from .serializers import ChatMessageSerializer, ChatSessionCreateSerializer
 from .services.chat_session import confirm as confirm_svc
 from .services.chat_session import message as message_svc
@@ -275,3 +278,100 @@ class ChatConfirmView(APIView):
 
         status_url = f"http://{settings.SITE_DOMAIN}/t/{make_token(ticket_no)}/"
         return Response({"issue_id": issue_id, "ticket_no": ticket_no, "status_url": status_url})
+
+
+# ============================================================================
+# PROPERTY PORTAL VIEWS (Phase 4)
+# ============================================================================
+
+
+class PropertyListView(LoginRequiredMixin, ListView):
+    """
+    GET /portal/properties/
+    
+    List all properties with search, filter, sort, and pagination.
+    """
+    model = Property
+    template_name = 'portal/properties_list.html'
+    context_object_name = 'properties'
+    paginate_by = 25
+    
+    def get_queryset(self):
+        """Filter and search properties"""
+        qs = Property.objects.all()
+        
+        # Filter archived (default: exclude)
+        show_archived = self.request.GET.get('show_archived')
+        if not show_archived:
+            qs = qs.filter(is_archived=False)
+        
+        # Search
+        query = self.request.GET.get('q')
+        if query:
+            qs = qs.filter(
+                Q(name__icontains=query) |
+                Q(city__icontains=query) |
+                Q(postal_code__icontains=query)
+            )
+        
+        # Filter by country
+        country = self.request.GET.get('country')
+        if country:
+            qs = qs.filter(country=country)
+        
+        # Annotate meters count
+        qs = qs.annotate(meters_count=Count('utilitymeter'))
+        
+        # Sort
+        sort = self.request.GET.get('sort', 'name')
+        order = self.request.GET.get('order', 'asc')
+        if order == 'desc':
+            sort = f'-{sort}'
+        qs = qs.order_by(sort)
+        
+        return qs
+
+
+class PropertyDetailView(LoginRequiredMixin, DetailView):
+    """
+    GET /portal/properties/{id}/
+    
+    View property details with meters.
+    """
+    model = Property
+    template_name = 'portal/property_detail.html'
+    context_object_name = 'property'
+    
+    def get_queryset(self):
+        """Prefetch meters to avoid N+1"""
+        return Property.objects.prefetch_related('utilitymeter_set')
+
+
+class PropertyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    GET/POST /portal/properties/new
+    
+    Create a new property.
+    """
+    model = Property
+    template_name = 'portal/property_form.html'
+    fields = ['name', 'street', 'postal_code', 'city', 'country', 'geo_lat', 'geo_lng', 'notes']
+    permission_required = 'landlord.add_property'
+    
+    def get_success_url(self):
+        return reverse_lazy('portal_property_detail', kwargs={'pk': self.object.pk})
+
+
+class PropertyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    GET/POST /portal/properties/{id}/edit
+    
+    Update an existing property.
+    """
+    model = Property
+    template_name = 'portal/property_form.html'
+    fields = ['name', 'street', 'postal_code', 'city', 'country', 'geo_lat', 'geo_lng', 'notes']
+    permission_required = 'landlord.change_property'
+    
+    def get_success_url(self):
+        return reverse_lazy('portal_property_detail', kwargs={'pk': self.object.pk})

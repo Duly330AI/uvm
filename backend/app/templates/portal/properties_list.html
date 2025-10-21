@@ -1,0 +1,151 @@
+{% extends "portal/base.html" %}
+
+{% block portal %}
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">Gebäude</h1>
+    {% if perms.landlord.add_property %}
+    <a href="{% url 'portal_property_create' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+      + Gebäude hinzufügen
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Search and Filters -->
+  <div class="mb-6 bg-white p-4 rounded shadow">
+    <form method="get" class="flex flex-wrap gap-4">
+      <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Name, Stadt oder PLZ suchen..." 
+             class="flex-1 min-w-[200px] px-3 py-2 border rounded">
+      
+      <select name="country" class="px-3 py-2 border rounded">
+        <option value="">Alle Länder</option>
+        <option value="DE" {% if request.GET.country == 'DE' %}selected{% endif %}>Deutschland</option>
+        <option value="AT" {% if request.GET.country == 'AT' %}selected{% endif %}>Österreich</option>
+        <option value="CH" {% if request.GET.country == 'CH' %}selected{% endif %}>Schweiz</option>
+      </select>
+
+      <label class="flex items-center gap-2">
+        <input type="checkbox" name="show_archived" {% if request.GET.show_archived %}checked{% endif %}>
+        <span>Archivierte anzeigen</span>
+      </label>
+
+      <button type="submit" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+        Suchen
+      </button>
+    </form>
+  </div>
+
+  <!-- Properties Table -->
+  {% if properties %}
+  <div class="bg-white shadow-md rounded overflow-hidden">
+    <table class="min-w-full">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Adresse</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stadt</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Land</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Zähler</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        {% for property in properties %}
+        <tr class="{% if property.is_archived %}bg-gray-50 opacity-60{% endif %} hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <a href="{% url 'portal_property_detail' property.pk %}" class="text-blue-600 hover:underline font-medium">
+              {{ property.name }}
+            </a>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            {{ property.street|default:"-" }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            {{ property.postal_code }} {{ property.city }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            {{ property.get_country_display }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+              {{ property.meters_count }} Zähler
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            {% if property.is_archived %}
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                Archiviert
+              </span>
+            {% else %}
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                Aktiv
+              </span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <a href="{% url 'portal_property_detail' property.pk %}" class="text-blue-600 hover:text-blue-900 mr-3">Details</a>
+            {% if perms.landlord.change_property and not property.is_archived %}
+            <a href="{% url 'portal_property_update' property.pk %}" class="text-indigo-600 hover:text-indigo-900">Bearbeiten</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if is_paginated %}
+  <div class="mt-6 flex justify-center">
+    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.country %}&country={{ request.GET.country }}{% endif %}{% if request.GET.show_archived %}&show_archived=on{% endif %}" 
+         class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+        Vorherige
+      </a>
+      {% endif %}
+      
+      <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+        Seite {{ page_obj.number }} von {{ page_obj.paginator.num_pages }}
+      </span>
+      
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.country %}&country={{ request.GET.country }}{% endif %}{% if request.GET.show_archived %}&show_archived=on{% endif %}" 
+         class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+        Nächste
+      </a>
+      {% endif %}
+    </nav>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <!-- Empty State -->
+  <div class="bg-white shadow rounded-lg p-12 text-center">
+    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900">Keine Gebäude gefunden</h3>
+    <p class="mt-1 text-sm text-gray-500">
+      {% if request.GET.q or request.GET.country or request.GET.show_archived %}
+      Keine Ergebnisse für Ihre Suche. Versuchen Sie andere Filter.
+      {% else %}
+      Erstellen Sie Ihr erstes Gebäude, um loszulegen.
+      {% endif %}
+    </p>
+    <div class="mt-6">
+      {% if request.GET.q or request.GET.country or request.GET.show_archived %}
+      <a href="{% url 'portal_properties' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+        Alle Filter zurücksetzen
+      </a>
+      {% elif perms.landlord.add_property %}
+      <a href="{% url 'portal_property_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+        + Gebäude hinzufügen
+      </a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

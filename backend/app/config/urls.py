@@ -22,6 +22,10 @@ from landlord.views import (
     ChatMessageView,
     ChatPageView,
     chat_session_create_plain,
+    PropertyListView,
+    PropertyDetailView,
+    PropertyCreateView,
+    PropertyUpdateView,
 )
 
 
@@ -133,6 +137,11 @@ urlpatterns = [
     path("portal/tenants/<int:pk>/edit", views_portal.tenant_edit, name="portal_tenant_edit"),
     path("portal/tenants/<int:pk>/deactivate", views_portal.tenant_deactivate, name="portal_tenant_deactivate"),
     path("portal/tenants/<int:pk>/delete", views_portal.tenant_delete, name="portal_tenant_delete"),
+    # Property Management (Properties CRUD)
+    path("portal/properties/", PropertyListView.as_view(), name="portal_properties"),
+    path("portal/properties/new", PropertyCreateView.as_view(), name="portal_property_create"),
+    path("portal/properties/<int:pk>/", PropertyDetailView.as_view(), name="portal_property_detail"),
+    path("portal/properties/<int:pk>/edit", PropertyUpdateView.as_view(), name="portal_property_update"),
     # Vendor Portal (M11)
     path("vendor/", views_vendor.vendor_login, name="vendor_login"),
     path("vendor/auth/<str:token_id>/", views_vendor.vendor_magic_link, name="vendor_magic_link"),
