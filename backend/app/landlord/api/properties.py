@@ -9,8 +9,15 @@ Implements RESTful API for Property CRUD operations with:
 - Archive/Unarchive actions
 - RBAC and throttling
 """
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.db.models import Count, Q
 from landlord.models import Property
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
 from rest_framework import status
 from rest_framework.generics import (
     CreateAPIView,
@@ -71,10 +78,10 @@ class PropertyListAPIView(ListAPIView):
     throttle_classes = [PortalReadThrottle]
     pagination_class = PropertyPagination
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Property]:  # type: ignore[override]
         """Build queryset with filters, search, and ordering"""
         queryset = Property.objects.all()
-        params = self.request.query_params
+        params = self.request.query_params  # type: ignore[attr-defined]
 
         # Filter by archive status (default: exclude archived)
         is_archived = params.get('is_archived', 'false').lower()
