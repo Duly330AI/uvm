@@ -1,13 +1,13 @@
-TemplateDoesNotExist at /portal/utility/readings/create
-portal/utility_reading_form.html
+FieldError at /portal/properties/
+Cannot resolve keyword 'utilitymeter' into field. Choices are: archived_at, archived_by, archived_by_id, city, country, created_at, documents, geo_lat, geo_lng, id, is_archived, maintenance_items, name, notes, postal_code, street, units, updated_at, utility_meters
 Request Method:	GET
-Request URL:	http://localhost:8000/portal/utility/readings/create
+Request URL:	http://localhost:8000/portal/properties/
 Django Version:	5.1.13
-Exception Type:	TemplateDoesNotExist
+Exception Type:	FieldError
 Exception Value:
-portal/utility_reading_form.html
-Exception Location:	/usr/local/lib/python3.12/site-packages/django/template/loader.py, line 19, in get_template
-Raised during:	landlord.views_utility.utility_reading_create
+Cannot resolve keyword 'utilitymeter' into field. Choices are: archived_at, archived_by, archived_by_id, city, country, created_at, documents, geo_lat, geo_lng, id, is_archived, maintenance_items, name, notes, postal_code, street, units, updated_at, utility_meters
+Exception Location:	/usr/local/lib/python3.12/site-packages/django/db/models/sql/query.py, line 1769, in names_to_path
+Raised during:	landlord.views.PropertyListView
 Python Executable:	/usr/local/bin/python
 Python Version:	3.12.12
 Python Path:
@@ -17,17 +17,7 @@ Python Path:
  '/usr/local/lib/python3.12',
  '/usr/local/lib/python3.12/lib-dynload',
  '/usr/local/lib/python3.12/site-packages']
-Server time:	Sun, 19 Oct 2025 13:48:25 +0200
-Template-loader postmortem
-Django tried loading these templates, in this order:
-
-Using engine django:
-
-django.template.loaders.filesystem.Loader: /app/templates/portal/utility_reading_form.html (Source does not exist)
-django.template.loaders.app_directories.Loader: /usr/local/lib/python3.12/site-packages/django/contrib/admin/templates/portal/utility_reading_form.html (Source does not exist)
-django.template.loaders.app_directories.Loader: /usr/local/lib/python3.12/site-packages/django/contrib/auth/templates/portal/utility_reading_form.html (Source does not exist)
-django.template.loaders.app_directories.Loader: /usr/local/lib/python3.12/site-packages/rest_framework/templates/portal/utility_reading_form.html (Source does not exist)
-django.template.loaders.app_directories.Loader: /app/landlord/templates/portal/utility_reading_form.html (Source does not exist)
+Server time:	Tue, 21 Oct 2025 06:18:25 +0200
 Traceback Switch to copy-and-paste view
 /usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py, line 55, in inner
                 response = get_response(request)
@@ -37,25 +27,61 @@ Local vars
                 response = wrapped_callback(request, *callback_args, **callback_kwargs)
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ …
 Local vars
-/usr/local/lib/python3.12/site-packages/django/contrib/auth/decorators.py, line 60, in _view_wrapper
-                    return view_func(request, *args, **kwargs)
-                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ …
+/usr/local/lib/python3.12/site-packages/django/views/generic/base.py, line 105, in view
+            return self.dispatch(request, *args, **kwargs)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ …
 Local vars
-/app/landlord/views_utility.py, line 122, in utility_reading_create
-    return render(request, 'portal/utility_reading_form.html', context)
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ …
+/usr/local/lib/python3.12/site-packages/django/contrib/auth/mixins.py, line 73, in dispatch
+        return super().dispatch(request, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ …
 Local vars
-/usr/local/lib/python3.12/site-packages/django/shortcuts.py, line 25, in render
-    content = loader.render_to_string(template_name, context, request, using=using)
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ …
+/usr/local/lib/python3.12/site-packages/django/views/generic/base.py, line 144, in dispatch
+        return handler(request, *args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ …
 Local vars
-/usr/local/lib/python3.12/site-packages/django/template/loader.py, line 61, in render_to_string
-        template = get_template(template_name, using=using)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ …
+/usr/local/lib/python3.12/site-packages/django/views/generic/list.py, line 154, in get
+        self.object_list = self.get_queryset()
+                                ^^^^^^^^^^^^^^^^^^^ …
 Local vars
-/usr/local/lib/python3.12/site-packages/django/template/loader.py, line 19, in get_template
-    raise TemplateDoesNotExist(template_name, chain=chain)
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ …
+/app/landlord/views.py, line 323, in get_queryset
+        qs = qs.annotate(meters_count=Count('utilitymeter'))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ …
+Local vars
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py, line 1630, in annotate
+        return self._annotate(args, kwargs, select=True)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ …
+Local vars
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py, line 1680, in _annotate
+                clone.query.add_annotation(
+                      ^ …
+Local vars
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/query.py, line 1194, in add_annotation
+        annotation = annotation.resolve_expression(self, allow_joins=True, reuse=None)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ …
+Local vars
+/usr/local/lib/python3.12/site-packages/django/db/models/aggregates.py, line 63, in resolve_expression
+        c = super().resolve_expression(query, allow_joins, reuse, summarize)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ …
+Local vars
+/usr/local/lib/python3.12/site-packages/django/db/models/expressions.py, line 1073, in resolve_expression
+            c.source_expressions[pos] = arg.resolve_expression(
+                                               …
+Local vars
+/usr/local/lib/python3.12/site-packages/django/db/models/expressions.py, line 895, in resolve_expression
+        return query.resolve_ref(self.name, allow_joins, reuse, summarize)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ …
+Local vars
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/query.py, line 2011, in resolve_ref
+            join_info = self.setup_joins(
+                               …
+Local vars
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/query.py, line 1864, in setup_joins
+                path, final_field, targets, rest = self.names_to_path(
+                                                          …
+Local vars
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/query.py, line 1769, in names_to_path
+                    raise FieldError(
+                          ^ …
 Local vars
 Request information
 USER
@@ -80,8 +106,6 @@ csrftoken
 '********************'
 sessionid
 '********************'
-messages
-'W1siX19qc29uX21lc3NhZ2UiLDAsNDAsIkZlaGxlciBiZWkgQmVyZWNobnVuZzogcG9ydGFsL3V0aWxpdHlfY2FsY3VsYXRpb25fcHJldmlldy5odG1sIiwiIl1d:1vARsi:pxkL2tbSyzr5SYm6mlu9hqlHYqhvYmUfdbmTqkDesnw'
 META
 Variable	Value
 CONTENT_LENGTH
@@ -109,19 +133,23 @@ GPG_KEY
 HOME
 '/root'
 HOSTNAME
-'1a91a18051e9'
+'0b51e484883e'
 HTTP_ACCEPT
 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7'
 HTTP_ACCEPT_ENCODING
 'gzip, deflate, br, zstd'
 HTTP_ACCEPT_LANGUAGE
 'en,de-DE;q=0.9,de;q=0.8'
+HTTP_CACHE_CONTROL
+'max-age=0'
 HTTP_CONNECTION
 'keep-alive'
 HTTP_COOKIE
 '********************'
 HTTP_HOST
 'localhost:8000'
+HTTP_REFERER
+'http://localhost:8000/portal/'
 HTTP_SEC_CH_UA
 '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"'
 HTTP_SEC_CH_UA_MOBILE
@@ -133,7 +161,7 @@ HTTP_SEC_FETCH_DEST
 HTTP_SEC_FETCH_MODE
 'navigate'
 HTTP_SEC_FETCH_SITE
-'none'
+'same-origin'
 HTTP_SEC_FETCH_USER
 '?1'
 HTTP_UPGRADE_INSECURE_REQUESTS
@@ -146,7 +174,7 @@ LANG
 PATH
 '/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 PATH_INFO
-'/portal/utility/readings/create'
+'/portal/properties/'
 PIP_NO_CACHE_DIR
 '1'
 PYTHONDONTWRITEBYTECODE
@@ -184,7 +212,7 @@ SECRET_KEY
 SECURE_SSL_REDIRECT
 '0'
 SERVER_NAME
-'1a91a18051e9'
+'0b51e484883e'
 SERVER_PORT
 '8000'
 SERVER_PROTOCOL
@@ -202,7 +230,7 @@ wsgi.errors
 wsgi.file_wrapper
 <class 'wsgiref.util.FileWrapper'>
 wsgi.input
-<django.core.handlers.wsgi.LimitedStream object at 0x7f6da4fcf9d0>
+<django.core.handlers.wsgi.LimitedStream object at 0x6ffe9ef820b0>
 wsgi.multiprocess
 False
 wsgi.multithread

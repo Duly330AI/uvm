@@ -9,11 +9,11 @@ def migrate_country_names_to_codes(apps, schema_editor):
     """
     Migrate existing country names to country codes BEFORE changing field size:
     - Deutschland → DE
-    - Österreich → AT  
+    - Österreich → AT
     - Schweiz → CH
     """
     Property = apps.get_model('landlord', 'Property')
-    
+
     # Mapping of old names to new codes
     country_mapping = {
         'Deutschland': 'DE',
@@ -23,10 +23,10 @@ def migrate_country_names_to_codes(apps, schema_editor):
         'Schweiz': 'CH',
         'Switzerland': 'CH',
     }
-    
+
     for old_name, new_code in country_mapping.items():
         Property.objects.filter(country=old_name).update(country=new_code)
-    
+
     # Any remaining countries default to DE
     valid_codes = ['DE', 'AT', 'CH']
     Property.objects.exclude(country__in=valid_codes).update(country='DE')

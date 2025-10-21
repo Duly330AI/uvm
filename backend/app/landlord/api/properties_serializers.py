@@ -36,10 +36,10 @@ class PropertyListSerializer(serializers.ModelSerializer):
 
 class UtilityMeterSerializer(serializers.ModelSerializer):
     """Serializer for UtilityMeter (nested in PropertyDetailSerializer)"""
-    
+
     meter_type_display = serializers.CharField(source='get_meter_type_display', read_only=True)
     scope_type_display = serializers.CharField(source='get_scope_type_display', read_only=True)
-    
+
     class Meta:
         model = UtilityMeter
         fields = [
@@ -62,7 +62,7 @@ class UtilityMeterSerializer(serializers.ModelSerializer):
 
 class UtilityMeterCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating a new UtilityMeter"""
-    
+
     class Meta:
         model = UtilityMeter
         fields = [
@@ -77,14 +77,14 @@ class UtilityMeterCreateSerializer(serializers.ModelSerializer):
             'installed_at',
             'notes',
         ]
-    
+
     def validate(self, data):
         """Custom validation for UtilityMeter creation"""
         # Scope consistency validation
         scope_type = data.get('scope_type')
         property_obj = data.get('property')
         unit = data.get('unit')
-        
+
         if scope_type == 'property' and not property_obj:
             raise serializers.ValidationError({
                 'property': 'Gebäudezähler benötigt eine Property-Zuordnung'
@@ -101,13 +101,13 @@ class UtilityMeterCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 'property': 'Wohnungszähler kann keine Property haben'
             })
-        
+
         return data
 
 
 class UtilityMeterUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating a UtilityMeter"""
-    
+
     class Meta:
         model = UtilityMeter
         fields = [

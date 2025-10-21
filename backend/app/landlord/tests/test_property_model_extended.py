@@ -9,8 +9,9 @@ Tests cover:
 - Task 1.2: Geo-coordinate validation (lat/lng ranges)
 - Task 1.3: Country choices and validation
 """
-import pytest
 from decimal import Decimal
+
+import pytest
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -18,14 +19,8 @@ from django.utils import timezone
 from landlord.models import Property
 
 User = get_user_model()
-from decimal import Decimal
 
-import pytest
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
-from django.db import IntegrityError
-from django.utils import timezone
-from landlord.models import Property
 
 User = get_user_model()
 
@@ -358,7 +353,7 @@ class TestPropertyCountryChoices:
         p_de = Property.objects.create(name="Germany", street="St", postal_code="12345", city="Berlin", country='DE')
         p_at = Property.objects.create(name="Austria", street="St", postal_code="12345", city="Vienna", country='AT')
         p_ch = Property.objects.create(name="Switzerland", street="St", postal_code="12345", city="Zurich", country='CH')
-        
+
         assert p_de.country == 'DE'
         assert p_at.country == 'AT'
         assert p_ch.country == 'CH'
@@ -368,7 +363,7 @@ class TestPropertyCountryChoices:
         p_de = Property.objects.create(name="Test", street="St", postal_code="12345", city="Berlin", country='DE')
         p_at = Property.objects.create(name="Test", street="St", postal_code="12345", city="Vienna", country='AT')
         p_ch = Property.objects.create(name="Test", street="St", postal_code="12345", city="Zurich", country='CH')
-        
+
         assert p_de.get_country_display() == 'Deutschland'
         assert p_at.get_country_display() == 'Österreich'
         assert p_ch.get_country_display() == 'Schweiz'
@@ -382,10 +377,10 @@ class TestPropertyCountryChoices:
             city="City",
             country='US'  # Invalid!
         )
-        
+
         with pytest.raises(ValidationError) as exc_info:
             p.full_clean()
-        
+
         # Should have validation error on country field
         assert 'country' in exc_info.value.error_dict
 

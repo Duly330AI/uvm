@@ -9,9 +9,8 @@ Implements RESTful API for Property CRUD operations with:
 - Archive/Unarchive actions
 - RBAC and throttling
 """
-from django.db import transaction
 from django.db.models import Count, Q
-from landlord.models import Property, UtilityMeter
+from landlord.models import Property
 from rest_framework import status
 from rest_framework.generics import (
     CreateAPIView,
@@ -30,9 +29,6 @@ from .properties_serializers import (
     PropertyDetailSerializer,
     PropertyListSerializer,
     PropertyUpdateSerializer,
-    UtilityMeterSerializer,
-    UtilityMeterCreateSerializer,
-    UtilityMeterUpdateSerializer,
 )
 
 

@@ -5,9 +5,9 @@ Tests for nested Meter CRUD under Property
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from landlord.models import Property, UtilityMeter
 from rest_framework import status
 from rest_framework.test import APIClient
-from landlord.models import Property, UtilityMeter
 
 User = get_user_model()
 
@@ -60,7 +60,7 @@ class TestPropertyMeterListAPI:
         url = reverse('portal-property-meters-list', kwargs={'property_id': sample_property.pk})
         response = api_client.get(url)
         assert response.status_code in [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN]
-    
+
     def test_list_returns_meters(self, api_client, regular_user, sample_property, sample_meter):
         api_client.force_authenticate(user=regular_user)
         url = reverse('portal-property-meters-list', kwargs={'property_id': sample_property.pk})
@@ -82,7 +82,7 @@ class TestPropertyMeterCreateAPI:
         }
         response = api_client.post(url, data, format='json')
         assert response.status_code == status.HTTP_403_FORBIDDEN
-    
+
     def test_create_success_admin(self, api_client, admin_user, sample_property):
         api_client.force_authenticate(user=admin_user)
         url = reverse('portal-property-meters-create', kwargs={'property_id': sample_property.pk})
@@ -109,7 +109,7 @@ class TestPropertyMeterUpdateAPI:
             serial_number='DEF456',
             is_default=False
         )
-        
+
         api_client.force_authenticate(user=admin_user)
         url = reverse('portal-property-meters-update', kwargs={
             'property_id': sample_property.pk,
@@ -117,9 +117,9 @@ class TestPropertyMeterUpdateAPI:
         })
         data = {'is_default': True}
         response = api_client.patch(url, data, format='json')
-        
+
         assert response.status_code == status.HTTP_200_OK
-        
+
         # Verify only meter2 is default now
         sample_meter.refresh_from_db()
         meter2.refresh_from_db()

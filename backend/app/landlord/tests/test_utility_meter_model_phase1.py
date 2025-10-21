@@ -9,7 +9,7 @@ Tests cover:
 import pytest
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from landlord.models import Property, Unit, UtilityMeter
+from landlord.models import Property, UtilityMeter
 
 
 @pytest.mark.django_db

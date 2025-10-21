@@ -930,7 +930,7 @@ class UtilityMeter(TimeStampedModel):
         sn = f" ({self.serial_number})" if self.serial_number else ""
         default = " [DEFAULT]" if self.is_default else ""
         return f"{self.get_meter_type_display()} - {scope_name}{sn}{default}"
-    
+
     def save(self, *args, **kwargs):
         """Override save to normalize serial_number to uppercase"""
         if self.serial_number:
