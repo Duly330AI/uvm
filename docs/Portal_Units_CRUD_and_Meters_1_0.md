@@ -6,7 +6,7 @@
 **Scope:** Neues Portal-Modul **„Wohnungen"** (Units) mit **CRUD** und **Zählerverwaltung** **auf Unit-Ebene**.
 **Hinweis:** Properties werden separat in _Portal_Properties_CRUD_and_Meters_1_1.md_ spezifiziert. Django-Admin bleibt unverändert als „uncut Admin".
 
-**Implementierungs-Status:** 🚧 **IN PROGRESS**
+**Implementierungs-Status:** ✅ **COMPLETED (2025-10-21)**
 
 ---
 
