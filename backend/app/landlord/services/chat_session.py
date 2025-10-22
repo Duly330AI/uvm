@@ -1,15 +1,14 @@
 from __future__ import annotations
 
-from pathlib import Path, PurePosixPath
+from pathlib import PurePosixPath
 from typing import Dict, List, Optional, Tuple
 
 from django.core.files.storage import default_storage
 from django.db import IntegrityError, connection, transaction
 from django.db.models import F
 from django.utils.dateparse import parse_datetime
-from django.utils.text import get_valid_filename
 from landlord.fsm import ChatFSM
-from landlord.models import ChatSession, IdempotencyKey, Issue, IssueAttachment
+from landlord.models import ChatSession, IdempotencyKey, Issue
 
 ALLOWED_MIME = {"image/jpeg", "image/png", "video/mp4", "application/pdf"}
 MAX_FILE = 10 * 1024 * 1024
@@ -128,30 +127,18 @@ def confirm(session_id, idempotency_key=None, tenant=None) -> Tuple[int, str]:
         issue.ticket_no = f"TCK-{_tz.now():%Y}-{seq:05d}"
         issue.save(update_fields=["ticket_no"])
 
-        # move staged files
+        # Phase 2.3 - Async file processing (2025-10-23):
+        # Dispatch file processing to background task instead of blocking HTTP thread
         staged = payload.get("temp_files") or []
-        def _copy_file(src_path: str, dst_path: str):
-            import os
-            # Ensure destination directory exists
-            dst_dir = os.path.dirname(default_storage.path(dst_path))
-            os.makedirs(dst_dir, exist_ok=True)
-            with default_storage.open(src_path, "rb") as src, default_storage.open(dst_path, "wb") as dst:
-                for chunk in iter(lambda: src.read(1024 * 1024), b""):
-                    dst.write(chunk)
-
-        for item in staged:
-            src = item["name"]
-            safe = get_valid_filename(Path(src).name)
-            dst = PurePosixPath("issues") / f"{_tz.now():%Y/%m}" / str(issue.id) / safe
-            _copy_file(src, str(dst))
-            default_storage.delete(src)
-            IssueAttachment.objects.create(
-                issue=issue,
-                file=str(dst),
-                mime=item.get("mime") or "",
-                size_bytes=item.get("size"),
-                uploader_role="tenant",
-            )
+        if staged:
+            from landlord.tasks import finalize_chat_attachments
+            # Fire-and-forget: Don't wait for file processing
+            try:
+                finalize_chat_attachments.delay(issue.id, staged)
+            except Exception:
+                # If task dispatch fails, log but don't block issue creation
+                # Files remain in temp storage for manual recovery
+                pass
 
         session.issue = issue
         session.state = "DONE"

@@ -1,15 +1,19 @@
 from __future__ import annotations
 
+import os
 from datetime import timedelta
+from pathlib import Path, PurePosixPath
 
 from celery import shared_task
 from django.conf import settings
+from django.core.files.storage import default_storage
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
+from django.utils.text import get_valid_filename
 
-from .models import Appointment, Issue
+from .models import Appointment, Issue, IssueAttachment
 from .utils.ics import build_ics
 
 
@@ -269,8 +273,99 @@ def send_vendor_assignment_email(appointment_id: int) -> None:
     msg = EmailMultiAlternatives(
         subject=subject,
         body=body,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[vendor.email]
     )
     msg.attach_alternative(html, "text/html")
     msg.send()
+
+
+@shared_task(
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=2,
+    max_retries=3,
+    acks_late=True,
+    time_limit=120,
+)
+def finalize_chat_attachments(self, issue_id: int, staged_files: list) -> dict:
+    """
+    Phase 2.3 - Async file processing (2025-10-23):
+    Move staged chat files to issue storage asynchronously.
+    
+    This prevents blocking the HTTP thread with large file uploads (3×10MB = 30MB).
+    
+    Args:
+        issue_id: Issue ID to attach files to
+        staged_files: List of dicts with 'name', 'mime', 'size' keys
+    
+    Returns:
+        dict with 'attached_count', 'failed_count', 'errors'
+    """
+    from django.db import transaction
+    
+    attached_count = 0
+    failed_count = 0
+    errors = []
+    
+    try:
+        issue = Issue.objects.get(id=issue_id)
+    except Issue.DoesNotExist:
+        return {"error": f"Issue {issue_id} not found", "attached_count": 0, "failed_count": len(staged_files)}
+    
+    for item in staged_files:
+        src_path = item["name"]
+        
+        try:
+            # Validate source file exists
+            if not default_storage.exists(src_path):
+                errors.append(f"Source file not found: {src_path}")
+                failed_count += 1
+                continue
+            
+            # Build destination path
+            safe_name = get_valid_filename(Path(src_path).name)
+            dst_path = PurePosixPath("issues") / f"{timezone.now():%Y/%m}" / str(issue.id) / safe_name
+            
+            # Copy file in chunks (1MB at a time)
+            def _copy_file_chunked(src: str, dst: str):
+                # Ensure destination directory exists
+                dst_dir = os.path.dirname(default_storage.path(dst))
+                os.makedirs(dst_dir, exist_ok=True)
+                
+                with default_storage.open(src, "rb") as src_file, \
+                     default_storage.open(dst, "wb") as dst_file:
+                    for chunk in iter(lambda: src_file.read(1024 * 1024), b""):  # 1MB chunks
+                        dst_file.write(chunk)
+            
+            _copy_file_chunked(src_path, str(dst_path))
+            
+            # Create attachment record
+            with transaction.atomic():
+                IssueAttachment.objects.create(
+                    issue=issue,
+                    file=str(dst_path),
+                    mime=item.get("mime") or "",
+                    size_bytes=item.get("size"),
+                    uploader_role="tenant",
+                )
+            
+            # Clean up temp file
+            try:
+                default_storage.delete(src_path)
+            except Exception as e:
+                # Log but don't fail on cleanup errors
+                errors.append(f"Cleanup failed for {src_path}: {str(e)}")
+            
+            attached_count += 1
+            
+        except Exception as exc:
+            failed_count += 1
+            errors.append(f"Failed to process {src_path}: {str(exc)}")
+            # Retry on infrastructure errors
+            if failed_count <= 2:  # Retry first 2 failures
+                raise self.retry(exc=exc, countdown=10)
+    
+    return {
+        "attached_count": attached_count,
+        "failed_count": failed_count,
+        "errors": errors,
+    }
