@@ -14,8 +14,15 @@ if SECRET_KEY == "change-me":
         "python -c \"from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())\""
     )
 
+# ALLOWED_HOSTS Validation (Phase 1.7 - 2025-10-22)
 # Set your production hosts via env DJANGO_ALLOWED_HOSTS (comma separated) or configure here
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",") if os.getenv("DJANGO_ALLOWED_HOSTS") else []
+if not ALLOWED_HOSTS or ALLOWED_HOSTS == [""]:
+    raise ImproperlyConfigured(
+        "DJANGO_ALLOWED_HOSTS environment variable is required in production. "
+        "Set it to a comma-separated list of allowed hostnames, e.g.: "
+        "DJANGO_ALLOWED_HOSTS=example.com,www.example.com"
+    )
 
 # Database: Override with SSL enforcement in production
 DATABASE_URL = os.getenv("DATABASE_URL")

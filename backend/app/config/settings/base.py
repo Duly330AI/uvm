@@ -153,6 +153,14 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
     "EXCEPTION_HANDLER": "config.api.exception_handler.custom_exception_handler",
+    # DRF Permission Classes (Phase 1.6 - 2025-10-22)
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    # Authentication Classes
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+    ],
 }
 
 # Upload memory caps
