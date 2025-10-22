@@ -1,12 +1,48 @@
 # UVM - Universal Vermieter Management: AI Agent Instructions
 
+## 🚀 CURRENT FOCUS: Production-Ready Refactoring (Master Action Plan)
+
+**Phase:** Production-Ready Optimization (40h total)  
+**Status:** Phase 1.1 ✅ Complete | Starting Phase 1.2  
+**Progress:** 0.5h / 40h (1.25%)  
+**Goal:** Security hardening → Performance optimization → Code quality → Monitoring
+
+### **Active Work:**
+- ✅ **Phase 1.1 DONE:** Gunicorn 22.0.0 → 23.0.0 (CVE-2024-6827 fixed)
+- 🔄 **Phase 1.2 NEXT:** Production Settings Default (WSGI/ASGI/Celery → prod)
+- 📋 **Master Plan:** `docs/MASTER_ACTION_PLAN.md`
+- ✅ **Completed Tasks:** `docs/MASTER_ACTION_PLAN_DONE.md`
+- 📊 **Audit Reports:** `docs/codex_executive_summary.md` + 6 detailed reports
+
+### **Workflow:**
+1. Pick task from MASTER_ACTION_PLAN.md
+2. Implement & test
+3. Move completed task to MASTER_ACTION_PLAN_DONE.md
+4. Update progress tracker
+5. Commit with descriptive message
+6. Continue to next task
+
+### **Key Documents:**
+- `docs/MASTER_ACTION_PLAN.md` - Remaining tasks (40h plan)
+- `docs/MASTER_ACTION_PLAN_DONE.md` - Completed tasks log
+- `docs/codex_executive_summary.md` - Codex audit findings (62/100 score)
+- `docs/DEPENDENCY_AUDIT_RESULTS.md` - Security vulnerabilities
+- `docs/DJANGO_BEST_PRACTICES_REPORT.md` - Config issues
+- `docs/DATABASE_QUERY_OPTIMIZATION_REPORT.md` - N+1 queries, indexes
+- `docs/CODE_COMPLEXITY_ANALYSIS_REPORT.md` - FSM (CC 46), Chat View (CC 40)
+- `docs/TEST_COVERAGE_GAPS_REPORT.md` - auth.py 0%, fsm.py 7%, coverage 69%
+- `docs/PERFORMANCE_BOTTLENECKS_REPORT.md` - CSV import O(N×M), unbounded lists
+
+---
+
 ## Project Overview
 
 **UVM** is a Django-based property management system with chat-based tenant issue reporting, staff portals, vendor integration, utility billing, and document management. It uses Docker Compose with PostgreSQL, Redis, Celery, and supports both development and production deployments.
 
 **Tech Stack:** Django 5.1 + Python 3.12, HTMX + TailwindCSS + Alpine.js, PostgreSQL 16, Redis 7, Celery, Docker
 
-**Current Status:** 44% complete (37.25h / 84h), actively implementing M13-M16 features
+**Original Status:** 44% feature-complete (M1-M16 done)  
+**Current Focus:** Production-ready hardening (Security + Performance + Quality + Monitoring)
 
 ## Architecture & Key Patterns
 
@@ -200,19 +236,43 @@ docker compose exec web pytest tests/test_chat_api.py::test_chat_flow_confirm_id
 
 ## Current Development Focus
 
-**Phase 4 (M15-M16):** Maintenance calendar and checklist systems are COMPLETE ✅
+**Production-Ready Refactoring (Master Action Plan)**
+
+**Phase 1: Security Fixes (6h total)**
+- ✅ 1.1 Gunicorn CVE Fix (0.5h) - DONE 2025-10-22
+- 🔄 1.2 Production Settings Default (1h) - IN PROGRESS
+- ⏳ 1.3 SECRET_KEY Hardening (0.5h)
+- ⏳ 1.4 Password Validators (0.5h)
+- ⏳ 1.5 Cookie Hardening (0.5h)
+- ⏳ 1.6 DRF Permissions (1h)
+- ⏳ 1.7 ALLOWED_HOSTS Validation (0.5h)
+- ⏳ 1.8 Deploy Check in CI (0.5h)
+
+**Phase 2: Performance (10h total)**
+- CSV Import O(N×M) → O(N)
+- Payment List Pagination
+- Chat Upload Async
+- N+1 Query Elimination
+
+**Phase 3: Code Quality (16h total)**
+- FSM Refactoring (CC 46 → <20)
+- Chat View Decomposition
+- Test Coverage 69% → 80%
+
+**Phase 4: Monitoring (8h total)**
+- Sentry.io Setup
+- Audit Logging
+- Final Security Review
 
 **Next priorities:**
-
-- M13: Workflow management (~4h estimated)
 - Security audit + performance testing (12h)
-- See `ROADMAP.md` for full milestone tracking
+- See `docs/MASTER_ACTION_PLAN.md` for full milestone tracking
 
 **Recent changes:**
-
-- Security fixes (2025-10-20): SSL redirect via env var, test dependencies isolated
+- 2025-10-22: Gunicorn 23.0.0 (CVE-2024-6827 patched), Master Action Plan created
+- 2025-10-20: Security fixes (SSL redirect via env var, test dependencies isolated)
 - M15 Wartungskalender: Complete with 6 views, 11 tests passing
 - M16 Checklisten: Complete with PDF export, inline editing via AJAX
 - M14 Nebenkostenabrechnung: HeizkostenV-compliant utility billing with CSV export
 
-When working on new features, consult `ROADMAP.md` for context on milestone dependencies and `docs/SPEC_v_0_5_19_10.md` for detailed technical requirements.
+When working on new features, consult `docs/MASTER_ACTION_PLAN.md` for current task and `docs/codex_executive_summary.md` for audit findings.
