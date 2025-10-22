@@ -290,54 +290,54 @@ def finalize_chat_attachments(self, issue_id: int, staged_files: list) -> dict:
     """
     Phase 2.3 - Async file processing (2025-10-23):
     Move staged chat files to issue storage asynchronously.
-    
+
     This prevents blocking the HTTP thread with large file uploads (3×10MB = 30MB).
-    
+
     Args:
         issue_id: Issue ID to attach files to
         staged_files: List of dicts with 'name', 'mime', 'size' keys
-    
+
     Returns:
         dict with 'attached_count', 'failed_count', 'errors'
     """
     from django.db import transaction
-    
+
     attached_count = 0
     failed_count = 0
     errors = []
-    
+
     try:
         issue = Issue.objects.get(id=issue_id)
     except Issue.DoesNotExist:
         return {"error": f"Issue {issue_id} not found", "attached_count": 0, "failed_count": len(staged_files)}
-    
+
     for item in staged_files:
         src_path = item["name"]
-        
+
         try:
             # Validate source file exists
             if not default_storage.exists(src_path):
                 errors.append(f"Source file not found: {src_path}")
                 failed_count += 1
                 continue
-            
+
             # Build destination path
             safe_name = get_valid_filename(Path(src_path).name)
             dst_path = PurePosixPath("issues") / f"{timezone.now():%Y/%m}" / str(issue.id) / safe_name
-            
+
             # Copy file in chunks (1MB at a time)
             def _copy_file_chunked(src: str, dst: str):
                 # Ensure destination directory exists
                 dst_dir = os.path.dirname(default_storage.path(dst))
                 os.makedirs(dst_dir, exist_ok=True)
-                
+
                 with default_storage.open(src, "rb") as src_file, \
                      default_storage.open(dst, "wb") as dst_file:
                     for chunk in iter(lambda: src_file.read(1024 * 1024), b""):  # 1MB chunks
                         dst_file.write(chunk)
-            
+
             _copy_file_chunked(src_path, str(dst_path))
-            
+
             # Create attachment record
             with transaction.atomic():
                 IssueAttachment.objects.create(
@@ -347,23 +347,23 @@ def finalize_chat_attachments(self, issue_id: int, staged_files: list) -> dict:
                     size_bytes=item.get("size"),
                     uploader_role="tenant",
                 )
-            
+
             # Clean up temp file
             try:
                 default_storage.delete(src_path)
             except Exception as e:
                 # Log but don't fail on cleanup errors
                 errors.append(f"Cleanup failed for {src_path}: {str(e)}")
-            
+
             attached_count += 1
-            
+
         except Exception as exc:
             failed_count += 1
             errors.append(f"Failed to process {src_path}: {str(exc)}")
             # Retry on infrastructure errors
             if failed_count <= 2:  # Retry first 2 failures
                 raise self.retry(exc=exc, countdown=10)
-    
+
     return {
         "attached_count": attached_count,
         "failed_count": failed_count,

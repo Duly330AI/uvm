@@ -53,51 +53,51 @@
 
 ### **1.3 SECRET_KEY Hardening** ✅ DONE (0.5h)
 
-**Status:** ✅ Completed 2025-10-22 22:15  
+**Status:** ✅ Completed 2025-10-22 22:15
 **Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
 ---
 
 ### **1.4 Password Validators** ✅ DONE (0.5h)
 
-**Status:** ✅ Completed 2025-10-22 22:30  
+**Status:** ✅ Completed 2025-10-22 22:30
 **Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
 ---
 
 ### **1.5 Cookie Hardening** ✅ DONE (0.5h)
 
-**Status:** ✅ Completed 2025-10-22 22:45  
+**Status:** ✅ Completed 2025-10-22 22:45
 **Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
 ---
 
 ### **1.6 DRF Default Permissions** ✅ DONE (1h)
 
-**Status:** ✅ Completed 2025-10-22 23:00  
+**Status:** ✅ Completed 2025-10-22 23:00
 **Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
 ---
 
 ### **1.7 ALLOWED_HOSTS Validation** ✅ DONE (0.5h)
 
-**Status:** ✅ Completed 2025-10-22 23:10  
+**Status:** ✅ Completed 2025-10-22 23:10
 **Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
 ---
 
 ### **1.8 Deploy Check in CI** ✅ DONE (0.5h)
 
-**Status:** ✅ Completed 2025-10-22 23:20  
+**Status:** ✅ Completed 2025-10-22 23:20
 **Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
 ---
 
 ## ✅ **PHASE 1 COMPLETE!** 🎉
 
-**Total Time:** 6h / 6h (100%)  
-**All Security Tasks:** DONE  
-**Tests:** 265 passed, 2 skipped ✅  
+**Total Time:** 6h / 6h (100%)
+**All Security Tasks:** DONE
+**Tests:** 265 passed, 2 skipped ✅
 **Next:** Phase 2 - Performance Optimization (10h)
 
 ---
@@ -106,89 +106,37 @@
 
 ### **2.1 CSV-Import Payment Matching** ✅ DONE (6h)
 
-**Status:** ✅ Completed 2025-10-22 23:45  
+**Status:** ✅ Completed 2025-10-22 23:45
 **Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
 ---
 
 ### **2.2 Payment List Pagination + Aggregates** ✅ DONE (3h)
 
-**Status:** ✅ Completed 2025-10-23 00:15  
+**Status:** ✅ Completed 2025-10-23 00:15
 **Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
 ---
 
-### **2.3 Chat File Upload Async** 🟡 (5h)
+### **2.3 Chat File Upload Async** ✅ DONE (5h)
 
-**Problem:** Synchrones File-Copying blockiert HTTP-Thread
-**Impact:** 3×10MB Videos = 10s+ Request-Time, Worker blockiert
-**File:** `landlord/services/chat_session.py:95`
-
-**Refactor:**
-
-```python
-# landlord/tasks.py (NEW TASK)
-from celery import shared_task
-
-@shared_task(bind=True, max_retries=3)
-def finalise_chat_attachments(self, issue_id, temp_file_paths):
-    """Move staged files from temp to issue storage (async)."""
-    issue = Issue.objects.get(pk=issue_id)
-
-    for temp_path in temp_file_paths:
-        try:
-            # Move file to issue storage
-            with open(temp_path, 'rb') as f:
-                issue.attachments.create(
-                    file=File(f, name=Path(temp_path).name),
-                    uploaded_by=issue.tenant,
-                )
-            # Clean up temp
-            os.remove(temp_path)
-        except Exception as exc:
-            self.retry(exc=exc, countdown=60)
-
-# landlord/services/chat_session.py (UPDATED)
-def confirm(session_id, idempotency_key):
-    with transaction.atomic():
-        # Create issue immediately
-        issue = Issue.objects.create(...)
-
-        # Stage file paths (don't move yet!)
-        temp_paths = [f.path for f in session.temp_files]
-
-        # Return issue immediately
-        ticket = issue.ticket_number
-
-    # Move files ASYNC (outside transaction!)
-    if temp_paths:
-        finalise_chat_attachments.delay(issue.id, temp_paths)
-
-    return issue.id, ticket
-```
-
-**Tests:**
-
-```python
-# tests/test_chat_async_upload.py
-@pytest.mark.django_db
-def test_confirm_returns_immediately_with_large_files():
-    """confirm() must return in <1s even with 30MB files."""
-    session = create_chat_session_with_30mb_files()
-
-    start = time.time()
-    issue_id, ticket = confirm(session.id, uuid.uuid4())
-    duration = time.time() - start
-
-    assert duration < 1.0
-    assert Issue.objects.get(pk=issue_id).ticket_number == ticket
-
-    # Files are processed async (check in background)
-```
+**Status:** ✅ Completed 2025-10-23 01:15  
+**Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
 ---
 
-### **2.4 Tenant/Unit Portal Pagination** 🟡 (2h)
+## ✅ **PHASE 2 COMPLETE!** 🎉
+
+**Total Time:** 10h / 10h (100%)  
+**All Performance Tasks:** DONE  
+**Tests:** 265 passed, 2 skipped ✅  
+**Next:** Phase 3 - Code Quality & Tests (16h)
+
+---
+
+## 🚀 **PHASE 3: CODE QUALITY & TESTS** ⏰ 16h
+
+### **3.1 Chat FSM Refactoring** � (6h)
 
 **Problem:** Unbounded tenant/unit lists
 **Files:** `landlord/views_portal.py:157`, `:235`

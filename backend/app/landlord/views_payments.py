@@ -22,7 +22,7 @@ from landlord.models import Contract, PaymentTransaction
 def payments_list(request):
     """
     M12b: List all payment transactions
-    
+
     Phase 2.2 - Performance Optimization (2025-10-22):
     - Added pagination (50 per page) to prevent OOM with >1000 payments
     - Use DB aggregates (Sum, Count) instead of Python sum()
@@ -82,7 +82,7 @@ def payments_list(request):
 def payment_csv_upload(request):
     """
     M12b: Upload CSV with payment transactions
-    
+
     Phase 2.1 - Performance Optimization (2025-10-22):
     - Preload all active contracts once: O(N) instead of O(N×M)
     - Build in-memory lookup dictionaries for fast matching
@@ -235,7 +235,7 @@ def _get_value(row: dict, possible_keys: list) -> str:
 def _build_contract_lookup(contracts: list) -> dict:
     """
     Phase 2.1: Build lookup dictionaries for O(1) contract matching.
-    
+
     Returns dict with:
     - 'by_email': {email -> contract}
     - 'by_rent': {amount_str -> [contracts]}
@@ -272,9 +272,9 @@ def _build_contract_lookup(contracts: list) -> dict:
 def _match_contract_cached(sender_name: str, amount: Decimal, reference: str, lookup: dict) -> Optional[Contract]:
     """
     Phase 2.1: Match payment to contract using pre-built lookup dictionaries.
-    
+
     O(1) lookup instead of O(M) iteration over all contracts.
-    
+
     Matching strategy:
     1. Try exact rent + email match
     2. Try exact rent + unit label match
@@ -287,14 +287,14 @@ def _match_contract_cached(sender_name: str, amount: Decimal, reference: str, lo
     # Strategy 1: Exact rent match + email/unit verification
     if rent_key in lookup['by_rent']:
         candidates = lookup['by_rent'][rent_key]
-        
+
         # Try email match first
         for contract in candidates:
             if contract.tenant and contract.tenant.primary_email:
                 email = contract.tenant.primary_email.lower()
                 if email in sender_lower:
                     return contract
-        
+
         # Try unit label match
         for contract in candidates:
             if contract.unit and contract.unit.unit_label:
@@ -319,7 +319,7 @@ def _match_contract(sender_name: str, amount: Decimal, reference: str) -> Option
     """
     DEPRECATED: Old O(N×M) implementation kept for backward compatibility.
     Use _match_contract_cached() instead.
-    
+
     Try to match payment to a contract based on:
     1. Sender name matches tenant email or name
     2. Amount matches expected rent
