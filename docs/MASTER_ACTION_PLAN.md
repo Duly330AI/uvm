@@ -104,123 +104,17 @@
 
 ## 🚀 **PHASE 2: PERFORMANCE CRITICAL FIXES** ⏰ 10h
 
-### **2.1 CSV-Import Payment Matching** 🔴 (6h)
+### **2.1 CSV-Import Payment Matching** ✅ DONE (6h)
 
-**Problem:** O(N×M) Contract.objects.filter pro CSV-Zeile
-**Impact:** 2000 Zeilen × 1000 Contracts = Millionen ORM-Iterationen, Minuten blockiert
-**File:** `landlord/views_payments.py:118`
-
-**Refactor:**
-
-```python
-# landlord/views_payments.py
-def upload_csv(request):
-    # ... existing file parsing ...
-
-    # OLD: O(N×M)
-    # for row in csv_reader:
-    #     contract = Contract.objects.filter(...).first()  # ❌
-
-    # NEW: Cache contracts upfront - O(N)
-    active_contracts = list(
-        Contract.objects.filter(
-            status__in=["active", "expiring"]
-        ).select_related("tenant", "unit")
-    )
-
-    # Build in-memory lookup dictionaries
-    contract_by_email = {c.tenant.email.lower(): c for c in active_contracts if c.tenant.email}
-    contract_by_iban = {c.tenant.iban: c for c in active_contracts if c.tenant.iban}
-    contract_by_unit = {c.unit.label: c for c in active_contracts if c.unit}
-
-    for row in csv_reader:
-        # In-memory lookup - O(1)
-        contract = (
-            contract_by_email.get(row['email'].lower()) or
-            contract_by_iban.get(row['iban']) or
-            contract_by_unit.get(row['unit_label'])
-        )
-        if contract:
-            # ... create payment
-```
-
-**Benchmark Test:**
-
-```python
-# tests/test_payment_csv_performance.py
-def test_csv_upload_1000_rows_under_2s():
-    """CSV import must complete in <2s for 1000 rows."""
-    start = time.time()
-    upload_csv_file_with_1000_rows()
-    duration = time.time() - start
-    assert duration < 2.0, f"Took {duration}s, expected <2s"
-```
-
-**Verification:**
-
-```bash
-# Profile with django-silk
-docker compose exec web python manage.py silk --profile
-# Upload CSV, check silk dashboard for query count
-```
+**Status:** ✅ Completed 2025-10-22 23:45  
+**Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
 ---
 
-### **2.2 Payment List Pagination + Aggregates** 🔴 (3h)
+### **2.2 Payment List Pagination + Aggregates** ✅ DONE (3h)
 
-**Problem:** Unbounded QuerySet + Python sum() im Memory
-**Impact:** >1000 Payments → OOM, Template-Rendering blockiert
-**File:** `landlord/views_payments.py:24`
-
-```python
-# landlord/views_payments.py
-from django.core.paginator import Paginator
-from django.db.models import Sum
-
-def payments_list(request):
-    # OLD: Unbounded
-    # payments = Payment.objects.select_related(...).all()
-    # total = sum(p.amount for p in payments)  # ❌ Python sum!
-
-    # NEW: Paginated + DB Aggregates
-    payments_qs = Payment.objects.select_related(
-        "contract__tenant", "contract__unit"
-    ).order_by("-transaction_date", "-id")
-
-    # Pagination
-    paginator = Paginator(payments_qs, 50)
-    page_number = request.GET.get("page", 1)
-    page_obj = paginator.get_page(page_number)
-
-    # DB-side aggregates
-    totals = payments_qs.aggregate(
-        total_amount=Sum("amount"),
-        total_count=Count("id")
-    )
-
-    return render(request, "portal/payments_list.html", {
-        "page_obj": page_obj,
-        "totals": totals,
-    })
-```
-
-**Load Test:**
-
-```python
-# tests/test_performance_payment_list.py
-@pytest.mark.django_db
-def test_payment_list_with_5000_records():
-    """Payment list must render in <250ms for 5000 records."""
-    # Create 5000 payments
-    Payment.objects.bulk_create([...])
-
-    start = time.time()
-    response = client.get("/portal/payments/")
-    duration = time.time() - start
-
-    assert response.status_code == 200
-    assert duration < 0.25, f"Took {duration}s, expected <250ms"
-```
+**Status:** ✅ Completed 2025-10-23 00:15  
+**Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
 ---
 
