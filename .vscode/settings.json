@@ -11,7 +11,7 @@
   "python.analysis.diagnosticMode": "openFilesOnly",
   "python.analysis.useLibraryCodeForTypes": true,
   "python.languageServer": "Pylance",
-  
+
   // Pylance: Only show REAL bugs, hide Django ORM magic
   "python.analysis.diagnosticSeverityOverrides": {
     // Disable Django-specific false positives
@@ -27,13 +27,13 @@
     "reportIndexIssue": "none",
     "reportOperatorIssue": "none",
     "reportCallIssue": "warning",
-    
+
     // Keep critical errors
     "reportUndefinedVariable": "error",
     "reportMissingImports": "error",
     "reportSyntaxError": "error"
   },
-  
+
   "python.testing.pytestEnabled": true,
   "python.testing.unittestEnabled": false,
   "python.testing.pytestArgs": ["backend/app"],
@@ -43,8 +43,8 @@
   "ruff.organizeImports": true,
   "ruff.lint.enable": true,
   "ruff.configuration": "${workspaceFolder}/pyproject.toml",
-  "ruff.lint.select": ["E", "F", "UP", "B", "SIM"],
-  "ruff.lint.ignore": ["F405", "F841"],
+  "ruff.lint.select": ["F", "UP", "B"],
+  "ruff.lint.ignore": ["F405", "F841", "E501"],
 
   // ---------- Code Actions on Save (neues Schema: Strings statt Booleans) ----------
   "editor.codeActionsOnSave": {
@@ -78,7 +78,7 @@
 
   // ---------- cSpell Configuration ----------
   "cSpell.enabled": true,
-  "cSpell.diagnosticLevel": "Hint",  // Only hints, not in Problems panel
+  "cSpell.diagnosticLevel": "Hint", // Only hints, not in Problems panel
   "cSpell.language": "en,de",
   "cSpell.enabledFileTypes": {
     "python": true,
