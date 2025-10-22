@@ -1,9 +1,9 @@
 # 🎯 UVM Production-Ready Master Action Plan
 
-**Created:** 2025-10-22  
-**Updated:** 2025-10-22 (nach vollständiger Codex-Report-Review)  
-**Based on:** Codex Performance Audit (7 Reports + Executive Summary)  
-**Overall Score:** 62/100 → **Target: 85/100** (Production-Ready)  
+**Created:** 2025-10-22
+**Updated:** 2025-10-22 (nach vollständiger Codex-Report-Review)
+**Based on:** Codex Performance Audit (7 Reports + Executive Summary)
+**Overall Score:** 62/100 → **Target: 85/100** (Production-Ready)
 **Total Effort:** ~48h (Codex) → **Realistic: 38h** (fokussiert + detailliert)
 
 ---
@@ -11,6 +11,7 @@
 ## 📊 **CODEX AUDIT ZUSAMMENFASSUNG:**
 
 ### **✅ Was ist GUT:**
+
 - ✅ **Solide Architektur:** Django 5.1, Clean Code, 69% Test Coverage
 - ✅ **Keine SQL Injection:** Nur Django ORM, keine Raw Queries
 - ✅ **Gute Patterns:** Services-Layer, FSM, Celery Tasks
@@ -18,6 +19,7 @@
 - ✅ **Maintainability Index:** Alle Module scored **A**
 
 ### **❌ Was ist KRITISCH:**
+
 - 🔴 **Security:** Gunicorn CVE, SECRET_KEY exposed, Dev-Settings in Prod
 - 🔴 **Performance:** CSV-Import O(N×M), Payment-Listen unbegrenzt
 - 🔴 **Code Quality:** Chat FSM zu komplex (CC 46), Chat View (CC 40)
@@ -25,6 +27,7 @@
 - 🔴 **Async Tasks:** Email-Queue ohne Concurrency-Limit (22% Coverage)
 
 ### **🟡 Was ist MEDIUM:**
+
 - 🟡 **Query Optimization:** Tenant Erase N+1, Unit Delete 7 queries
 - 🟡 **Caching:** Dashboard KPIs, Utility Meter Lookups
 - 🟡 **Validation:** Duplicated Unit-Meter Logic
@@ -34,26 +37,10 @@
 
 ## 🚀 **PHASE 1: CRITICAL SECURITY FIXES (SOFORT!)** ⏰ 6h
 
-### **1.1 Gunicorn Request-Smuggling Fix** 🔴 (0.5h)
+### **1.1 Gunicorn Request-Smuggling Fix** ✅ DONE (0.5h)
 
-**Problem:** CVE-2024-6827 - HTTP Request Smuggling
-**Impact:** Proxy-Bypass, Cache-Poisoning, Daten-Leak
-**File:** `pyproject.toml`
-
-```diff
-# pyproject.toml
-dependencies = [
--  "gunicorn==22.0.0",
-+  "gunicorn==23.0.0",
-]
-```
-
-**Verification:**
-
-```bash
-docker compose build web
-docker compose exec web pytest backend/app/landlord -q
-```
+**Status:** ✅ Completed 2025-10-22 20:45  
+**Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
 ---
 
@@ -206,32 +193,33 @@ if not ALLOWED_HOSTS or ALLOWED_HOSTS == [""]:
 
 ### **2.1 CSV-Import Payment Matching** 🔴 (6h)
 
-**Problem:** O(N×M) Contract.objects.filter pro CSV-Zeile  
-**Impact:** 2000 Zeilen × 1000 Contracts = Millionen ORM-Iterationen, Minuten blockiert  
+**Problem:** O(N×M) Contract.objects.filter pro CSV-Zeile
+**Impact:** 2000 Zeilen × 1000 Contracts = Millionen ORM-Iterationen, Minuten blockiert
 **File:** `landlord/views_payments.py:118`
 
 **Refactor:**
+
 ```python
 # landlord/views_payments.py
 def upload_csv(request):
     # ... existing file parsing ...
-    
+
     # OLD: O(N×M)
     # for row in csv_reader:
     #     contract = Contract.objects.filter(...).first()  # ❌
-    
+
     # NEW: Cache contracts upfront - O(N)
     active_contracts = list(
         Contract.objects.filter(
             status__in=["active", "expiring"]
         ).select_related("tenant", "unit")
     )
-    
+
     # Build in-memory lookup dictionaries
     contract_by_email = {c.tenant.email.lower(): c for c in active_contracts if c.tenant.email}
     contract_by_iban = {c.tenant.iban: c for c in active_contracts if c.tenant.iban}
     contract_by_unit = {c.unit.label: c for c in active_contracts if c.unit}
-    
+
     for row in csv_reader:
         # In-memory lookup - O(1)
         contract = (
@@ -244,6 +232,7 @@ def upload_csv(request):
 ```
 
 **Benchmark Test:**
+
 ```python
 # tests/test_payment_csv_performance.py
 def test_csv_upload_1000_rows_under_2s():
@@ -255,6 +244,7 @@ def test_csv_upload_1000_rows_under_2s():
 ```
 
 **Verification:**
+
 ```bash
 # Profile with django-silk
 docker compose exec web python manage.py silk --profile
@@ -265,8 +255,8 @@ docker compose exec web python manage.py silk --profile
 
 ### **2.2 Payment List Pagination + Aggregates** 🔴 (3h)
 
-**Problem:** Unbounded QuerySet + Python sum() im Memory  
-**Impact:** >1000 Payments → OOM, Template-Rendering blockiert  
+**Problem:** Unbounded QuerySet + Python sum() im Memory
+**Impact:** >1000 Payments → OOM, Template-Rendering blockiert
 **File:** `landlord/views_payments.py:24`
 
 ```python
@@ -278,23 +268,23 @@ def payments_list(request):
     # OLD: Unbounded
     # payments = Payment.objects.select_related(...).all()
     # total = sum(p.amount for p in payments)  # ❌ Python sum!
-    
+
     # NEW: Paginated + DB Aggregates
     payments_qs = Payment.objects.select_related(
         "contract__tenant", "contract__unit"
     ).order_by("-transaction_date", "-id")
-    
+
     # Pagination
     paginator = Paginator(payments_qs, 50)
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
-    
+
     # DB-side aggregates
     totals = payments_qs.aggregate(
         total_amount=Sum("amount"),
         total_count=Count("id")
     )
-    
+
     return render(request, "portal/payments_list.html", {
         "page_obj": page_obj,
         "totals": totals,
@@ -302,6 +292,7 @@ def payments_list(request):
 ```
 
 **Load Test:**
+
 ```python
 # tests/test_performance_payment_list.py
 @pytest.mark.django_db
@@ -309,11 +300,11 @@ def test_payment_list_with_5000_records():
     """Payment list must render in <250ms for 5000 records."""
     # Create 5000 payments
     Payment.objects.bulk_create([...])
-    
+
     start = time.time()
     response = client.get("/portal/payments/")
     duration = time.time() - start
-    
+
     assert response.status_code == 200
     assert duration < 0.25, f"Took {duration}s, expected <250ms"
 ```
@@ -322,11 +313,12 @@ def test_payment_list_with_5000_records():
 
 ### **2.3 Chat File Upload Async** 🟡 (5h)
 
-**Problem:** Synchrones File-Copying blockiert HTTP-Thread  
-**Impact:** 3×10MB Videos = 10s+ Request-Time, Worker blockiert  
+**Problem:** Synchrones File-Copying blockiert HTTP-Thread
+**Impact:** 3×10MB Videos = 10s+ Request-Time, Worker blockiert
 **File:** `landlord/services/chat_session.py:95`
 
 **Refactor:**
+
 ```python
 # landlord/tasks.py (NEW TASK)
 from celery import shared_task
@@ -335,7 +327,7 @@ from celery import shared_task
 def finalise_chat_attachments(self, issue_id, temp_file_paths):
     """Move staged files from temp to issue storage (async)."""
     issue = Issue.objects.get(pk=issue_id)
-    
+
     for temp_path in temp_file_paths:
         try:
             # Move file to issue storage
@@ -354,35 +346,36 @@ def confirm(session_id, idempotency_key):
     with transaction.atomic():
         # Create issue immediately
         issue = Issue.objects.create(...)
-        
+
         # Stage file paths (don't move yet!)
         temp_paths = [f.path for f in session.temp_files]
-        
+
         # Return issue immediately
         ticket = issue.ticket_number
-    
+
     # Move files ASYNC (outside transaction!)
     if temp_paths:
         finalise_chat_attachments.delay(issue.id, temp_paths)
-    
+
     return issue.id, ticket
 ```
 
 **Tests:**
+
 ```python
 # tests/test_chat_async_upload.py
 @pytest.mark.django_db
 def test_confirm_returns_immediately_with_large_files():
     """confirm() must return in <1s even with 30MB files."""
     session = create_chat_session_with_30mb_files()
-    
+
     start = time.time()
     issue_id, ticket = confirm(session.id, uuid.uuid4())
     duration = time.time() - start
-    
+
     assert duration < 1.0
     assert Issue.objects.get(pk=issue_id).ticket_number == ticket
-    
+
     # Files are processed async (check in background)
 ```
 
@@ -390,7 +383,7 @@ def test_confirm_returns_immediately_with_large_files():
 
 ### **2.4 Tenant/Unit Portal Pagination** 🟡 (2h)
 
-**Problem:** Unbounded tenant/unit lists  
+**Problem:** Unbounded tenant/unit lists
 **Files:** `landlord/views_portal.py:157`, `:235`
 
 ```python
@@ -399,20 +392,20 @@ from django.core.paginator import Paginator
 
 def tenants_list(request):
     tenants_qs = Tenant.objects.select_related("unit").order_by("name")
-    
+
     # Pagination
     paginator = Paginator(tenants_qs, 50)
     page_obj = paginator.get_page(request.GET.get("page", 1))
-    
+
     return render(request, "portal/tenants_list.html", {"page_obj": page_obj})
 
 def units_list(request):
     units_qs = Unit.objects.select_related("property").order_by("label")
-    
+
     # Pagination
     paginator = Paginator(units_qs, 50)
     page_obj = paginator.get_page(request.GET.get("page", 1))
-    
+
     return render(request, "portal/units_list.html", {"page_obj": page_obj})
 ```
 
@@ -420,7 +413,7 @@ def units_list(request):
 
 ### **2.5 Dashboard KPI Caching** 🟡 (2h)
 
-**Problem:** Dashboard re-computes KPIs bei jedem Request  
+**Problem:** Dashboard re-computes KPIs bei jedem Request
 **File:** `landlord/views_reports.py:16`
 
 ```python
@@ -430,7 +423,7 @@ from django.core.cache import cache
 def dashboard(request):
     cache_key = "dashboard:kpis:30d"
     kpis = cache.get(cache_key)
-    
+
     if not kpis:
         # Expensive aggregates
         kpis = {
@@ -440,7 +433,7 @@ def dashboard(request):
             # ...
         }
         cache.set(cache_key, kpis, 300)  # 5 minutes TTL
-    
+
     return render(request, "portal/dashboard.html", {"kpis": kpis})
 
 # Invalidate on issue status change
@@ -450,7 +443,7 @@ def update_status(issue_id, new_status):
         issue = Issue.objects.select_for_update().get(pk=issue_id)
         issue.status = new_status
         issue.save()
-    
+
     # Invalidate cache
     cache.delete("dashboard:kpis:30d")
 ```
@@ -459,7 +452,7 @@ def update_status(issue_id, new_status):
 
 ### **2.6 Celery Email Queue Concurrency** 🟡 (1h)
 
-**Problem:** Email-Queue ohne Rate-Limit  
+**Problem:** Email-Queue ohne Rate-Limit
 **File:** `config/settings/base.py:70`
 
 ```python
@@ -722,11 +715,12 @@ docker compose exec web python manage.py migrate
 
 ### **3.1 Chat FSM Refactoring** 🔴 (6h)
 
-**Problem:** CC 46 (Grade F!), 11 sequential branches, keine Tests  
-**Impact:** Unmaintainable, Regressions undetected  
+**Problem:** CC 46 (Grade F!), 11 sequential branches, keine Tests
+**Impact:** Unmaintainable, Regressions undetected
 **File:** `landlord/fsm.py:24`
 
 **Strategy - State Handler Pattern:**
+
 ```python
 # landlord/fsm_handlers.py (NEW FILE)
 
@@ -734,7 +728,7 @@ def handle_greeting(message: str, payload: dict) -> tuple[str, str, dict, list]:
     """Handle GREETING state."""
     if not message.strip():
         raise ValueError("VALIDATION:text:empty")
-    
+
     # Category detection
     category = detect_category(message)
     return ("CAPTURE_SUMMARY", get_prompt("CAPTURE_SUMMARY"), {"category": category}, [])
@@ -743,7 +737,7 @@ def handle_capture_summary(message: str, payload: dict) -> tuple[str, str, dict,
     """Handle CAPTURE_SUMMARY state."""
     if len(message) < 10:
         raise ValueError("VALIDATION:summary:too_short")
-    
+
     category = payload.get("category") or detect_category(message)
     return ("CAPTURE_OCCURRED_AT", get_prompt("CAPTURE_OCCURRED_AT"), {"summary": message, "category": category}, [])
 
@@ -755,7 +749,7 @@ def handle_capture_occurred_at(message: str, payload: dict) -> tuple[str, str, d
             raise ValueError("VALIDATION:occurred_at:invalid_format")
         if dt > timezone.now():
             raise ValueError("VALIDATION:occurred_at:future")
-        
+
         return ("CAPTURE_LOCATION", get_prompt("CAPTURE_LOCATION"), {"occurred_at": dt}, [])
     except Exception:
         raise ValueError("VALIDATION:occurred_at:parse_error")
@@ -765,23 +759,23 @@ def handle_capture_occurred_at(message: str, payload: dict) -> tuple[str, str, d
 def detect_category(text: str) -> str:
     """Shared category detection logic."""
     text_lower = text.lower()
-    
+
     # Heating keywords
     if any(kw in text_lower for kw in ["heizung", "warm", "temperatur", "kalt"]):
         return "heating"
-    
+
     # Water keywords
     if any(kw in text_lower for kw in ["wasser", "dusche", "bad", "waschbecken", "leck"]):
         return "water"
-    
+
     # Electricity keywords
     if any(kw in text_lower for kw in ["strom", "licht", "elektrik", "sicherung"]):
         return "electricity"
-    
+
     # Structural keywords
     if any(kw in text_lower for kw in ["wand", "dach", "fenster", "tür", "schimmel"]):
         return "structural"
-    
+
     return "other"
 
 # landlord/fsm.py (REFACTORED)
@@ -800,7 +794,7 @@ class ChatFSM:
         "CREATE_ISSUE": handle_create_issue,
         "DONE": handle_done,
     }
-    
+
     @staticmethod
     def next(state: str, message: str, payload: dict) -> tuple:
         """
@@ -810,11 +804,12 @@ class ChatFSM:
         handler = ChatFSM.STATE_HANDLERS.get(state)
         if not handler:
             raise ValueError(f"VALIDATION:state:unknown ({state})")
-        
+
         return handler(message, payload)
 ```
 
 **Comprehensive Tests:**
+
 ```python
 # tests/test_fsm_handlers.py
 import pytest
@@ -825,7 +820,7 @@ class TestGreetingHandler:
         next_state, prompt, delta, warnings = handle_greeting("Die Heizung ist kaputt", {})
         assert next_state == "CAPTURE_SUMMARY"
         assert delta["category"] == "heating"
-    
+
     def test_greeting_empty_text_raises(self):
         with pytest.raises(ValueError, match="VALIDATION:text:empty"):
             handle_greeting("", {})
@@ -835,7 +830,7 @@ class TestCaptureOccurredAt:
         tomorrow = (timezone.now() + timedelta(days=1)).isoformat()
         with pytest.raises(ValueError, match="VALIDATION:occurred_at:future"):
             handle_capture_occurred_at(tomorrow, {})
-    
+
     def test_valid_past_date(self):
         yesterday = (timezone.now() - timedelta(days=1)).isoformat()
         next_state, _, delta, _ = handle_capture_occurred_at(yesterday, {})
@@ -846,7 +841,7 @@ class TestCaptureSeverity:
     def test_hazard_keywords_bump_severity(self):
         """Hazard keywords should escalate severity to HIGH."""
         next_state, _, delta, warnings = handle_capture_severity(
-            "Es gibt Schimmel und Asbest!", 
+            "Es gibt Schimmel und Asbest!",
             {"severity": "low"}
         )
         assert delta["severity"] == "high"
@@ -865,6 +860,7 @@ class TestCategoryDetection:
 ```
 
 **Estimated Effort:**
+
 - Refactoring: 3h
 - Tests (11 states × 3 test cases): 3h
 - **Total: 6h**
@@ -873,10 +869,11 @@ class TestCategoryDetection:
 
 ### **3.2 Chat View Decomposition** 🔴 (3h)
 
-**Problem:** CC 40 (Grade E!), 120+ lines, 4 nested if-ladders  
+**Problem:** CC 40 (Grade E!), 120+ lines, 4 nested if-ladders
 **File:** `landlord/views.py:163`
 
 **Extract Helpers:**
+
 ```python
 # landlord/views_helpers.py (NEW FILE)
 
@@ -884,7 +881,7 @@ def validate_chat_state(session, expected_states):
     """Guard: Ensure session is in expected state(s)."""
     if isinstance(expected_states, str):
         expected_states = [expected_states]
-    
+
     if session.state not in expected_states:
         raise ValidationError({
             "code": "STATE_MISMATCH",
@@ -901,22 +898,22 @@ def parse_chat_files(request):
 def build_chat_payload(validated_data, raw_data):
     """Merge validated data with raw text fields."""
     payload = dict(validated_data)
-    
+
     # Ensure 'text' is forwarded if present but omitted in validation
     raw_text = (raw_data.get("text") or "").strip()
     if raw_text:
         payload["text"] = raw_text
-        
+
         # Map text → summary for GREETING/CAPTURE_SUMMARY
         if "summary" not in payload:
             payload["summary"] = raw_text
-    
+
     return payload
 
 def apply_fsm_transition(session, message, payload):
     """Apply FSM transition and update session."""
     from .fsm import ChatFSM
-    
+
     try:
         next_state, prompt, delta, warnings = ChatFSM.next(
             session.state, message, payload
@@ -926,7 +923,7 @@ def apply_fsm_transition(session, message, payload):
         if str(e).startswith("VALIDATION:"):
             raise ValidationError({"detail": str(e)})
         raise
-    
+
     return next_state, prompt, delta, warnings
 
 # landlord/views.py (REFACTORED)
@@ -936,13 +933,13 @@ class ChatMessageView(CreateAPIView):
     def post(self, request, session_id):
         # 1. Throttle check
         enforce_burst_throttle(session_id=session_id)
-        
+
         # 2. Load session with locking
         session = get_object_or_404(
             ChatSession.objects.select_for_update(),
             pk=session_id
         )
-        
+
         # 3. Validate version (optimistic locking)
         data = request.data
         if session.version != data.get("version"):
@@ -950,7 +947,7 @@ class ChatMessageView(CreateAPIView):
                 {"code": "STATE_VERSION_CONFLICT"},
                 status=status.HTTP_409_CONFLICT
             )
-        
+
         # 4. Serialize & validate
         serializer = ChatMessageSerializer(
             data=data,
@@ -961,16 +958,16 @@ class ChatMessageView(CreateAPIView):
                 {"code": "VALIDATION_ERROR", "detail": serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         # 5. Build payload
         payload = build_chat_payload(serializer.validated_data, data)
         files = parse_chat_files(request)
-        
+
         # 6. Apply FSM transition
         next_state, prompt, delta, warnings = apply_fsm_transition(
             session, payload.get("text", ""), payload
         )
-        
+
         # 7. Call message service
         try:
             updated_session = message(
@@ -987,7 +984,7 @@ class ChatMessageView(CreateAPIView):
                     status=status.HTTP_409_CONFLICT
                 )
             raise
-        
+
         # 8. Return response
         return Response({
             "state": updated_session.state,
@@ -998,6 +995,7 @@ class ChatMessageView(CreateAPIView):
 ```
 
 **Tests:**
+
 ```python
 # tests/test_chat_view_helpers.py
 
@@ -1019,7 +1017,7 @@ def test_build_chat_payload_maps_text_to_summary():
 
 ### **3.3 Critical Test Coverage Gaps** 🔴 (5h)
 
-**Gap 1: Session Auth (0% Coverage!)**  
+**Gap 1: Session Auth (0% Coverage!)**
 **File:** `landlord/auth.py`
 
 ```python
@@ -1034,11 +1032,11 @@ def test_tenant_login_required_redirects_unauthenticated():
     @tenant_login_required
     def protected_view(request):
         return HttpResponse("OK")
-    
+
     rf = RequestFactory()
     request = rf.get("/portal/")
     request.session = {}
-    
+
     response = protected_view(request)
     assert response.status_code == 302
     assert "/tenant/login/" in response.url
@@ -1049,7 +1047,7 @@ def test_get_tenant_from_session_clears_stale_session():
     rf = RequestFactory()
     request = rf.get("/")
     request.session = {"tenant_id": 99999}  # Non-existent
-    
+
     tenant = get_tenant_from_session(request)
     assert tenant is None
     assert "tenant_id" not in request.session
@@ -1058,16 +1056,16 @@ def test_get_tenant_from_session_clears_stale_session():
 def test_get_tenant_from_session_returns_valid_tenant():
     """Valid tenant_id should return Tenant object."""
     tenant = Tenant.objects.create(name="Test", email="test@example.com")
-    
+
     rf = RequestFactory()
     request = rf.get("/")
     request.session = {"tenant_id": tenant.id}
-    
+
     result = get_tenant_from_session(request)
     assert result == tenant
 ```
 
-**Gap 2: Chat Session Service (16% Coverage!)**  
+**Gap 2: Chat Session Service (16% Coverage!)**
 **File:** `landlord/services/chat_session.py`
 
 ```python
@@ -1082,7 +1080,7 @@ def test_stage_files_rejects_oversized_upload():
         b"x" * (11 * 1024 * 1024),  # 11MB
         content_type="image/jpeg"
     )
-    
+
     with pytest.raises(ValueError, match="File too large"):
         _stage_files(session, [large_file])
 
@@ -1095,7 +1093,7 @@ def test_stage_files_rejects_invalid_mime_type():
         b"MZ",  # EXE header
         content_type="application/x-msdownload"
     )
-    
+
     with pytest.raises(ValueError, match="Invalid file type"):
         _stage_files(session, [exe_file])
 
@@ -1103,7 +1101,7 @@ def test_stage_files_rejects_invalid_mime_type():
 def test_message_raises_on_version_conflict():
     """Concurrent updates should raise RuntimeError."""
     session = ChatSession.objects.create(state="GREETING", version=1)
-    
+
     with pytest.raises(RuntimeError, match="STATE_VERSION_CONFLICT"):
         message(
             session_id=session.id,
@@ -1121,13 +1119,13 @@ def test_confirm_is_idempotent():
         payload={"summary": "Heizung kaputt", "category": "heating"}
     )
     idempotency_key = uuid.uuid4()
-    
+
     # First call
     issue_id_1, ticket_1 = confirm(session.id, idempotency_key)
-    
+
     # Second call (idempotent)
     issue_id_2, ticket_2 = confirm(session.id, idempotency_key)
-    
+
     assert issue_id_1 == issue_id_2
     assert ticket_1 == ticket_2
     assert Issue.objects.filter(id=issue_id_1).count() == 1
@@ -1139,21 +1137,21 @@ def test_confirm_moves_temp_files_to_issue_storage():
         state="CONFIRM",
         payload={"summary": "Wasser", "category": "water"}
     )
-    
+
     # Stage temp files
     temp_file = SimpleUploadedFile("test.jpg", b"fake image", content_type="image/jpeg")
     _stage_files(session, [temp_file])
-    
+
     # Confirm
     issue_id, ticket = confirm(session.id, uuid.uuid4())
-    
+
     # Assert files are attached
     issue = Issue.objects.get(pk=issue_id)
     assert issue.attachments.count() == 1
     assert issue.attachments.first().file.name.endswith("test.jpg")
 ```
 
-**Gap 3: Async Tasks (22% Coverage!)**  
+**Gap 3: Async Tasks (22% Coverage!)**
 **File:** `landlord/tasks.py`
 
 ```python
@@ -1168,14 +1166,14 @@ def test_send_issue_created_includes_ics_attachment():
         tenant=tenant,
         category="heating"
     )
-    
+
     send_issue_created.delay(issue.id)
-    
+
     assert len(mail.outbox) == 1
     email = mail.outbox[0]
     assert email.subject == f"Neues Ticket: {issue.ticket_number}"
     assert email.to == [issue.tenant.email]
-    
+
     # Check ICS attachment
     assert len(email.attachments) == 1
     filename, content, mime = email.attachments[0]
@@ -1190,9 +1188,9 @@ def test_send_issue_created_skips_if_no_tenant_email():
         summary="Test",
         tenant=tenant_no_email,
     )
-    
+
     send_issue_created.delay(issue.id)
-    
+
     # No email sent
     assert len(mail.outbox) == 0
 
@@ -1201,10 +1199,10 @@ def test_send_status_changed_retries_on_smtp_error():
     """SMTP errors should trigger retry with backoff."""
     with patch("smtplib.SMTP.sendmail", side_effect=smtplib.SMTPException("Server error")):
         issue = Issue.objects.create(summary="Test", tenant=tenant)
-        
+
         with pytest.raises(smtplib.SMTPException):
             send_status_changed.apply(args=[issue.id, "in_progress"], throw=True)
-        
+
         # Assert retry was scheduled
         # (Check Celery task state or mock retry())
 ```
@@ -1213,7 +1211,7 @@ def test_send_status_changed_retries_on_smtp_error():
 
 ### **3.4 Medium Complexity Refactoring** 🟡 (2h)
 
-**IssuesAdminListView (CC 20)**  
+**IssuesAdminListView (CC 20)**
 **File:** `landlord/api/issues.py:30`
 
 ```python
@@ -1222,7 +1220,7 @@ from django_filters import rest_framework as filters
 
 class IssueFilter(filters.FilterSet):
     """Django-filter based filtering for cleaner code."""
-    
+
     status = filters.MultipleChoiceFilter(choices=Issue.STATUS_CHOICES)
     severity = filters.NumberFilter()
     severity_min = filters.NumberFilter(field_name="severity", lookup_expr="gte")
@@ -1231,14 +1229,14 @@ class IssueFilter(filters.FilterSet):
     created_from = filters.DateTimeFilter(field_name="created_at", lookup_expr="gte")
     created_to = filters.DateTimeFilter(field_name="created_at", lookup_expr="lte")
     search = filters.CharFilter(method="filter_search")
-    
+
     def filter_search(self, queryset, name, value):
         return queryset.filter(
-            Q(summary__icontains=value) | 
+            Q(summary__icontains=value) |
             Q(ticket_number__icontains=value) |
             Q(tenant__name__icontains=value)
         )
-    
+
     class Meta:
         model = Issue
         fields = ["status", "severity", "category", "created_from", "created_to", "search"]
@@ -1247,7 +1245,7 @@ class IssuesAdminListView(ListAPIView):
     queryset = Issue.objects.select_related("tenant", "unit").all()
     serializer_class = IssueListSerializer
     filterset_class = IssueFilter  # ← Use django-filter!
-    
+
     # Removed 60 lines of manual filtering! 🎉
 ```
 
@@ -1265,6 +1263,7 @@ omit = ["*/migrations/*", "*/tests/*"]
 ```
 
 **Add config smoke tests:**
+
 ```python
 # tests/test_config_smoke.py
 
@@ -1287,29 +1286,28 @@ def test_wsgi_application_imports():
 ---
 
 ## 🚀 **PHASE 4: MONITORING & FINAL HARDENING** ⏰ 8h```python
+
 # landlord/fsm_handlers.py (NEW FILE)
 
 def handle_greeting(message: str, payload: dict) -> tuple[str, str, dict]:
-    """Handle GREETING state."""
-    # Extract logic from FSM.next()
-    return ("CAPTURE_SUMMARY", "prompt", {})
+"""Handle GREETING state.""" # Extract logic from FSM.next()
+return ("CAPTURE_SUMMARY", "prompt", {})
 
 def handle_capture_summary(message: str, payload: dict) -> tuple[str, str, dict]:
-    """Handle CAPTURE_SUMMARY state."""
-    # Validation + Category detection
-    return ("CAPTURE_OCCURRED_AT", "prompt", {"summary": message})
+"""Handle CAPTURE_SUMMARY state.""" # Validation + Category detection
+return ("CAPTURE_OCCURRED_AT", "prompt", {"summary": message})
 
 # ... one handler per state
 
 # landlord/fsm.py (REFACTORED)
-from .fsm_handlers import *
+
+from .fsm_handlers import \*
 
 class ChatFSM:
-    HANDLERS = {
-        "GREETING": handle_greeting,
-        "CAPTURE_SUMMARY": handle_capture_summary,
-        # ...
-    }
+HANDLERS = {
+"GREETING": handle_greeting,
+"CAPTURE_SUMMARY": handle_capture_summary, # ...
+}
 
     @staticmethod
     def next(state: str, message: str, payload: dict) -> tuple:
@@ -1317,7 +1315,8 @@ class ChatFSM:
         if not handler:
             raise ValueError(f"Invalid state: {state}")
         return handler(message, payload)
-```
+
+````
 
 **Tests:**
 
@@ -1334,7 +1333,7 @@ def test_summary_validation():
 def test_category_detection():
     _, _, delta = handle_capture_summary("Die Heizung ist kaputt", {})
     assert delta["category"] == "heating"
-```
+````
 
 ---
 
@@ -1485,6 +1484,7 @@ class AuditMiddleware:
 ## 📊 **UPDATED TIMELINE & PRIORISIERUNG:**
 
 ### **ZUSAMMENFASSUNG (38h total):**
+
 ```
 Phase 1: Security          6h  (Critical - Sofort!)
 Phase 2: Performance      10h  (Critical - Woche 1)
@@ -1497,6 +1497,7 @@ TOTAL:                    40h  über 3 Wochen
 ---
 
 ### **WOCHE 1 (CRITICAL - 16h):**
+
 ```
 Tag 1 (4h):
   ✅ 1.1 Gunicorn CVE Fix (0.5h)
@@ -1521,6 +1522,7 @@ Ende Woche 1: Security ✅, Performance 60% ✅
 ---
 
 ### **WOCHE 2 (HIGH - 16h):**
+
 ```
 Tag 1 (5h):
   ✅ 2.3 Chat Upload Async (Teil 2: 2h)
@@ -1542,6 +1544,7 @@ Ende Woche 2: Performance ✅, FSM/Chat View ✅
 ---
 
 ### **WOCHE 3 (MEDIUM - 8h):**
+
 ```
 Tag 1 (3h):
   ✅ 3.3 Critical Test Gaps (Teil 2: 3h)
@@ -1566,6 +1569,7 @@ Ende Woche 3: PRODUCTION-READY! 🚀
 ## 🎯 **SUCCESS CRITERIA (detailliert):**
 
 ### **After Phase 1 (Security - 6h):**
+
 - ✅ 0 CVEs (Gunicorn 23.0.0)
 - ✅ `python manage.py check --deploy --settings=config.settings.prod` → 0 warnings
 - ✅ Production settings als Default (wsgi/asgi/celery)
@@ -1578,6 +1582,7 @@ Ende Woche 3: PRODUCTION-READY! 🚀
 ---
 
 ### **After Phase 2 (Performance - 10h):**
+
 - ✅ **CSV Import:** 1000 Zeilen in <2s (vorher: ~60s)
 - ✅ **Payment List:** Paginiert (50/page), DB-Aggregates statt Python-Sum
 - ✅ **Chat Upload:** Async file-move, Response <1s (vorher: ~10s)
@@ -1589,6 +1594,7 @@ Ende Woche 3: PRODUCTION-READY! 🚀
 - ✅ **Attachment Check:** DB aggregate statt Python sum
 
 **Load Test Results:**
+
 ```bash
 # Payment List: 5000 records in <250ms
 # CSV Upload: 2000 rows in <2s
@@ -1598,6 +1604,7 @@ Ende Woche 3: PRODUCTION-READY! 🚀
 ---
 
 ### **After Phase 3 (Code Quality - 16h):**
+
 - ✅ **FSM Complexity:** CC 46 → <20 (Grade F → B)
 - ✅ **Chat View Complexity:** CC 40 → <20 (Grade E → B)
 - ✅ **Test Coverage:** 69% → ≥80%
@@ -1610,6 +1617,7 @@ Ende Woche 3: PRODUCTION-READY! 🚀
 - ✅ **API Filters:** django-filter für IssuesAdminListView (CC 20 → 8)
 
 **Radon Metrics:**
+
 ```bash
 # Before:
 Functions ≥ CC C: 24
@@ -1624,6 +1632,7 @@ Maintainability Index: All A
 ---
 
 ### **After Phase 4 (Monitoring - 8h):**
+
 - ✅ **Sentry.io:** Active error tracking
   - DSN configured in prod settings
   - PII disabled (DSGVO-compliant)
@@ -1648,46 +1657,52 @@ Maintainability Index: All A
 Nach Abschluss aller 4 Phasen (40h):
 
 ### **Security:**
-✅ 0 CVEs (Gunicorn, pip)  
-✅ Django deploy check: 0 warnings  
-✅ SECRET_KEY rotation  
-✅ HTTPS enforced  
-✅ Cookies secured  
-✅ Password strength validated  
-✅ DRF permissions locked  
+
+✅ 0 CVEs (Gunicorn, pip)
+✅ Django deploy check: 0 warnings
+✅ SECRET_KEY rotation
+✅ HTTPS enforced
+✅ Cookies secured
+✅ Password strength validated
+✅ DRF permissions locked
 
 ### **Performance:**
-✅ CSV Import: <2s (1000 rows)  
-✅ Payment List: <250ms (5000 records)  
-✅ Chat Upload: <1s response  
-✅ Dashboard: <100ms (cached)  
-✅ N+1 Queries: Eliminated  
-✅ Pagination: All lists  
+
+✅ CSV Import: <2s (1000 rows)
+✅ Payment List: <250ms (5000 records)
+✅ Chat Upload: <1s response
+✅ Dashboard: <100ms (cached)
+✅ N+1 Queries: Eliminated
+✅ Pagination: All lists
 
 ### **Quality:**
-✅ Code Complexity: CC <20  
-✅ Test Coverage: ≥80%  
-✅ Radon MI: All A  
-✅ FSM: Fully tested  
-✅ Async Tasks: Covered  
+
+✅ Code Complexity: CC <20
+✅ Test Coverage: ≥80%
+✅ Radon MI: All A
+✅ FSM: Fully tested
+✅ Async Tasks: Covered
 
 ### **Monitoring:**
-✅ Sentry.io: Active  
-✅ Audit Logs: Implemented  
-✅ Health Checks: Extended  
-✅ CI/CD: Automated checks  
+
+✅ Sentry.io: Active
+✅ Audit Logs: Implemented
+✅ Health Checks: Extended
+✅ CI/CD: Automated checks
 
 ### **Documentation:**
-✅ Codex Reports: 7 files  
-✅ Master Action Plan: This document  
-✅ Security Audit: Completed  
-✅ README: Deployment instructions  
+
+✅ Codex Reports: 7 files
+✅ Master Action Plan: This document
+✅ Security Audit: Completed
+✅ README: Deployment instructions
 
 ---
 
 ## 💰 **ROI-KALKULATION:**
 
 ### **Investment:**
+
 ```
 Arbeit:           40h
 Aufwand:          40h × 80 EUR/h = 3.200 EUR
@@ -1695,6 +1710,7 @@ Codex-Audit:      Bereits erledigt (2h)
 ```
 
 ### **Wertsteigerung:**
+
 ```
 Vorher:           12.000 EUR (MVP, 62/100 Score)
 Nachher:          40.000 EUR (Production-Ready, 85/100 Score)
@@ -1702,12 +1718,14 @@ Steigerung:       +28.000 EUR
 ```
 
 ### **ROI:**
+
 ```
 ROI = (28.000 - 3.200) / 3.200 × 100
     = 775% 🚀
 ```
 
 **Oder anders:**
+
 ```
 Wert pro Arbeitsstunde: 28.000 / 40 = 700 EUR/h! 💰
 ```
@@ -1725,6 +1743,7 @@ Wert pro Arbeitsstunde: 28.000 / 40 = 700 EUR/h! 💰
 ---
 
 **BEREIT ZU STARTEN?** 😊
+
 - ✅ Test Coverage ≥80%
 - ✅ Alle Critical Module getestet
 

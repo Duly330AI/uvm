@@ -15,7 +15,7 @@ dependencies = [
   "python-dotenv==1.0.1",
   "dj-database-url==2.2.0",
   "argon2-cffi==23.1.0",
-  "gunicorn==22.0.0",
+  "gunicorn==23.0.0",  # Security Fix 2025-10-22: CVE-2024-6827 (HTTP Request Smuggling)
   "uvicorn==0.30.6",
   # Security Fix 2025-10-20: Test dependencies moved to optional-dependencies
 ]
