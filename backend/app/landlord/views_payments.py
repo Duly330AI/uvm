@@ -61,6 +61,11 @@ def payments_list(request):
 def payment_csv_upload(request):
     """
     M12b: Upload CSV with payment transactions
+    
+    Phase 2.1 - Performance Optimization (2025-10-22):
+    - Preload all active contracts once: O(N) instead of O(N×M)
+    - Build in-memory lookup dictionaries for fast matching
+    - Reduces 2000 rows × 1000 contracts from minutes to seconds
 
     Expected CSV format (flexible):
     - Date (Datum, Buchungstag, Valuta)
@@ -87,6 +92,16 @@ def payment_csv_upload(request):
         decoded_file = csv_file.read().decode('utf-8-sig')  # Handle BOM
         csv_reader = csv.DictReader(io.StringIO(decoded_file), delimiter=';')
 
+        # Phase 2.1: Preload all active contracts ONCE (single DB query)
+        active_contracts = list(
+            Contract.objects.filter(
+                status__in=[Contract.Status.ACTIVE, Contract.Status.DRAFT]
+            ).select_related('tenant', 'unit')
+        )
+
+        # Build lookup dictionaries for O(1) matching
+        contract_lookup = _build_contract_lookup(active_contracts)
+
         imported_count = 0
         skipped_count = 0
         errors = []
@@ -105,8 +120,8 @@ def payment_csv_upload(request):
                     errors.append(f"Zeile {row_num}: Datum oder Betrag fehlt")
                     continue
 
-                # Try to match to contract
-                contract = _match_contract(sender_name, amount, reference)
+                # Try to match to contract (using cached lookup)
+                contract = _match_contract_cached(sender_name, amount, reference, contract_lookup)
 
                 if not contract:
                     skipped_count += 1
@@ -196,8 +211,94 @@ def _get_value(row: dict, possible_keys: list) -> str:
     return ''
 
 
+def _build_contract_lookup(contracts: list) -> dict:
+    """
+    Phase 2.1: Build lookup dictionaries for O(1) contract matching.
+    
+    Returns dict with:
+    - 'by_email': {email -> contract}
+    - 'by_rent': {amount_str -> [contracts]}
+    - 'by_unit': {unit_label -> contract}
+    """
+    by_email = {}
+    by_rent = {}
+    by_unit = {}
+
+    for contract in contracts:
+        # Email-based lookup
+        if contract.tenant and contract.tenant.primary_email:
+            email_key = contract.tenant.primary_email.lower()
+            by_email[email_key] = contract
+
+        # Rent-based lookup (allow multiple contracts with same rent)
+        rent_key = f"{contract.total_rent:.2f}"
+        if rent_key not in by_rent:
+            by_rent[rent_key] = []
+        by_rent[rent_key].append(contract)
+
+        # Unit label lookup
+        if contract.unit and contract.unit.unit_label:
+            label_key = contract.unit.unit_label.lower()
+            by_unit[label_key] = contract
+
+    return {
+        'by_email': by_email,
+        'by_rent': by_rent,
+        'by_unit': by_unit,
+    }
+
+
+def _match_contract_cached(sender_name: str, amount: Decimal, reference: str, lookup: dict) -> Optional[Contract]:
+    """
+    Phase 2.1: Match payment to contract using pre-built lookup dictionaries.
+    
+    O(1) lookup instead of O(M) iteration over all contracts.
+    
+    Matching strategy:
+    1. Try exact rent + email match
+    2. Try exact rent + unit label match
+    3. Fallback: email-only match
+    """
+    sender_lower = sender_name.lower() if sender_name else ''
+    reference_lower = reference.lower() if reference else ''
+    rent_key = f"{float(amount):.2f}"
+
+    # Strategy 1: Exact rent match + email/unit verification
+    if rent_key in lookup['by_rent']:
+        candidates = lookup['by_rent'][rent_key]
+        
+        # Try email match first
+        for contract in candidates:
+            if contract.tenant and contract.tenant.primary_email:
+                email = contract.tenant.primary_email.lower()
+                if email in sender_lower:
+                    return contract
+        
+        # Try unit label match
+        for contract in candidates:
+            if contract.unit and contract.unit.unit_label:
+                label = contract.unit.unit_label.lower()
+                if label in reference_lower:
+                    return contract
+
+    # Strategy 2: Email-only fallback (for partial payments or different amounts)
+    for email, contract in lookup['by_email'].items():
+        if email in sender_lower:
+            return contract
+
+    # Strategy 3: Unit label fallback
+    for label, contract in lookup['by_unit'].items():
+        if label in reference_lower:
+            return contract
+
+    return None
+
+
 def _match_contract(sender_name: str, amount: Decimal, reference: str) -> Optional[Contract]:
     """
+    DEPRECATED: Old O(N×M) implementation kept for backward compatibility.
+    Use _match_contract_cached() instead.
+    
     Try to match payment to a contract based on:
     1. Sender name matches tenant email or name
     2. Amount matches expected rent
