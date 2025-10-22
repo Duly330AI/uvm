@@ -18,12 +18,12 @@ from django.utils import timezone
 def _detect_category(text: str) -> str | None:
     """
     Detect issue category from text keywords (German).
-    
+
     Returns:
         Category string or None if no match
     """
     t = text.lower()
-    
+
     if any(k in t for k in ["wasser", "leck", "leitung"]):
         return "water"
     elif any(k in t for k in ["heizung", "warm", "kalt"]):
@@ -32,36 +32,36 @@ def _detect_category(text: str) -> str | None:
         return "electricity"
     elif any(k in t for k in ["bau", "wand", "decke", "boden"]):
         return "structural"
-    
+
     return None
 
 
 def handle_greeting(message: Dict, payload: Dict) -> Tuple[str, str, Dict, List[str]]:
     """
     GREETING state: Initial message from user.
-    
+
     If text provided, treat as summary and advance to CAPTURE_OCCURRED_AT.
     Otherwise, ask for summary.
     """
     warnings: List[str] = []
     delta: Dict = {}
-    
+
     text = (message.get("text") or "").strip()
-    
+
     if text:
         # User provided initial summary
         delta["summary"] = text
         category = _detect_category(text)
         if category:
             delta["category"] = category
-        
+
         return (
             "CAPTURE_OCCURRED_AT",
             "Wann ist das Problem aufgetreten? (Datum/Zeit)",
             delta,
             warnings
         )
-    
+
     # No text, ask for summary
     return (
         "CAPTURE_SUMMARY",
@@ -74,23 +74,23 @@ def handle_greeting(message: Dict, payload: Dict) -> Tuple[str, str, Dict, List[
 def handle_capture_summary(message: Dict, payload: Dict) -> Tuple[str, str, Dict, List[str]]:
     """
     CAPTURE_SUMMARY state: Get problem description.
-    
+
     If occurred_at provided (skipping ahead), validate and advance.
     Otherwise, capture summary text.
     """
     warnings: List[str] = []
     delta: Dict = {}
-    
+
     # Check if user skipped ahead with occurred_at
     if message.get("occurred_at") is not None:
         occurred_at = message.get("occurred_at")
         if occurred_at is None:
             raise ValueError("VALIDATION:occurred_at:required")
-        
+
         now = timezone.now() + timezone.timedelta(minutes=5)
         if occurred_at > now:
             raise ValueError("VALIDATION:occurred_at:future")
-        
+
         delta["occurred_at"] = occurred_at.isoformat()
         return (
             "CAPTURE_LOCATION",
@@ -98,17 +98,17 @@ def handle_capture_summary(message: Dict, payload: Dict) -> Tuple[str, str, Dict
             delta,
             warnings
         )
-    
+
     # Capture summary text
     text = (message.get("text") or "").strip()
     if not text:
         raise ValueError("VALIDATION:summary:required")
-    
+
     delta["summary"] = text
     category = _detect_category(text)
     if category:
         delta["category"] = category
-    
+
     return (
         "CAPTURE_OCCURRED_AT",
         "Wann ist das Problem aufgetreten? (Datum/Zeit)",
@@ -120,23 +120,23 @@ def handle_capture_summary(message: Dict, payload: Dict) -> Tuple[str, str, Dict
 def handle_capture_occurred_at(message: Dict, payload: Dict) -> Tuple[str, str, Dict, List[str]]:
     """
     CAPTURE_OCCURRED_AT state: Get when problem occurred.
-    
+
     Validates datetime is not in the future.
     """
     warnings: List[str] = []
     delta: Dict = {}
-    
+
     occurred_at = message.get("occurred_at")
     if not occurred_at:
         raise ValueError("VALIDATION:occurred_at:required")
-    
+
     # Validate not future (allow 5min grace period)
     now = timezone.now() + timezone.timedelta(minutes=5)
     if occurred_at > now:
         raise ValueError("VALIDATION:occurred_at:future")
-    
+
     delta["occurred_at"] = occurred_at.isoformat()
-    
+
     return (
         "CAPTURE_LOCATION",
         "Wo genau befindet sich das Problem (Ort im Objekt)?",
@@ -148,20 +148,20 @@ def handle_capture_occurred_at(message: Dict, payload: Dict) -> Tuple[str, str, 
 def handle_capture_location(message: Dict, payload: Dict) -> Tuple[str, str, Dict, List[str]]:
     """
     CAPTURE_LOCATION state: Get location hint.
-    
+
     Validates max length 120 chars.
     """
     warnings: List[str] = []
     delta: Dict = {}
-    
+
     location = (message.get("location") or "").strip()
     if not location:
         raise ValueError("VALIDATION:location:required")
     if len(location) > 120:
         raise ValueError("VALIDATION:location:maxlen")
-    
+
     delta["location_hint"] = location
-    
+
     return (
         "CAPTURE_SEVERITY",
         "Wie schwer ist das Problem? (1-5)",
@@ -173,25 +173,25 @@ def handle_capture_location(message: Dict, payload: Dict) -> Tuple[str, str, Dic
 def handle_capture_severity(message: Dict, payload: Dict) -> Tuple[str, str, Dict, List[str]]:
     """
     CAPTURE_SEVERITY state: Get severity level 1-5.
-    
+
     Boosts severity to 5 if danger keywords detected (gas, fire, electric shock).
     """
     warnings: List[str] = []
     delta: Dict = {}
-    
+
     sev = message.get("severity")
     if not isinstance(sev, int) or not (1 <= sev <= 5):
         raise ValueError("VALIDATION:severity:range")
-    
+
     # Check for danger keywords - boost to max severity
     text_blob = " ".join(str(v) for v in message.values()).lower()
     for kw in {"gas", "gasgeruch", "stromschlag", "brand"}:
         if kw in text_blob:
             sev = max(sev, 5)
             warnings.append(f"Gefahrhinweis: {kw}")
-    
+
     delta["severity"] = sev
-    
+
     return (
         "CAPTURE_MEDIA",
         "Möchten Sie Fotos/Videos/PDFs hinzufügen? (optional)",
@@ -203,12 +203,12 @@ def handle_capture_severity(message: Dict, payload: Dict) -> Tuple[str, str, Dic
 def handle_capture_media(message: Dict, payload: Dict) -> Tuple[str, str, Dict, List[str]]:
     """
     CAPTURE_MEDIA state: Optional file uploads.
-    
+
     Files validated separately, just transition to next state.
     """
     warnings: List[str] = []
     delta: Dict = {}
-    
+
     return (
         "CAPTURE_CONTACT",
         "Wie erreichen wir Sie am besten (Telefon oder E-Mail)?",
@@ -223,11 +223,11 @@ def handle_capture_contact(message: Dict, payload: Dict) -> Tuple[str, str, Dict
     """
     warnings: List[str] = []
     delta: Dict = {}
-    
+
     contact = (message.get("contact") or "").strip()
     if contact:
         delta["contact_times"] = contact
-    
+
     return (
         "CONFIRM",
         "Bitte prüfen Sie die Eingaben und bestätigen Sie.",
@@ -242,7 +242,7 @@ def handle_confirm(message: Dict, payload: Dict) -> Tuple[str, str, Dict, List[s
     """
     warnings: List[str] = []
     delta: Dict = {}
-    
+
     return (
         "CREATE_ISSUE",
         "Ticket wird erstellt...",
@@ -257,7 +257,7 @@ def handle_create_issue(message: Dict, payload: Dict) -> Tuple[str, str, Dict, L
     """
     warnings: List[str] = []
     delta: Dict = {}
-    
+
     return (
         "DONE",
         "Vielen Dank – Ticket erstellt.",

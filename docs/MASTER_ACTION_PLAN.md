@@ -120,16 +120,16 @@
 
 ### **2.3 Chat File Upload Async** ✅ DONE (5h)
 
-**Status:** ✅ Completed 2025-10-23 01:15  
+**Status:** ✅ Completed 2025-10-23 01:15
 **Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
 ---
 
 ## ✅ **PHASE 2 COMPLETE!** 🎉
 
-**Total Time:** 10h / 10h (100%)  
-**All Performance Tasks:** DONE  
-**Tests:** 265 passed, 2 skipped ✅  
+**Total Time:** 10h / 10h (100%)
+**All Performance Tasks:** DONE
+**Tests:** 265 passed, 2 skipped ✅
 **Next:** Phase 3 - Code Quality & Tests (16h)
 
 ---
@@ -468,156 +468,21 @@ docker compose exec web python manage.py migrate
 
 ## 🚀 **PHASE 3: CODE QUALITY & TESTS** ⏰ 16h
 
-### **3.1 Chat FSM Refactoring** 🔴 (6h)
+### **3.1 Chat FSM Refactoring** ✅ DONE (6h)
 
-**Problem:** CC 46 (Grade F!), 11 sequential branches, keine Tests
-**Impact:** Unmaintainable, Regressions undetected
-**File:** `landlord/fsm.py:24`
+**Status:** ✅ Completed 2025-10-23 02:00  
+**Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
-**Strategy - State Handler Pattern:**
+---
 
-```python
-# landlord/fsm_handlers.py (NEW FILE)
+### **3.2 Chat View Decomposition** ✅ DONE (4h)
 
-def handle_greeting(message: str, payload: dict) -> tuple[str, str, dict, list]:
-    """Handle GREETING state."""
-    if not message.strip():
-        raise ValueError("VALIDATION:text:empty")
+**Status:** ✅ Completed 2025-10-23 02:30  
+**Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
-    # Category detection
-    category = detect_category(message)
-    return ("CAPTURE_SUMMARY", get_prompt("CAPTURE_SUMMARY"), {"category": category}, [])
+---
 
-def handle_capture_summary(message: str, payload: dict) -> tuple[str, str, dict, list]:
-    """Handle CAPTURE_SUMMARY state."""
-    if len(message) < 10:
-        raise ValueError("VALIDATION:summary:too_short")
-
-    category = payload.get("category") or detect_category(message)
-    return ("CAPTURE_OCCURRED_AT", get_prompt("CAPTURE_OCCURRED_AT"), {"summary": message, "category": category}, [])
-
-def handle_capture_occurred_at(message: str, payload: dict) -> tuple[str, str, dict, list]:
-    """Handle CAPTURE_OCCURRED_AT state."""
-    try:
-        dt = parse_datetime(message)
-        if not dt:
-            raise ValueError("VALIDATION:occurred_at:invalid_format")
-        if dt > timezone.now():
-            raise ValueError("VALIDATION:occurred_at:future")
-
-        return ("CAPTURE_LOCATION", get_prompt("CAPTURE_LOCATION"), {"occurred_at": dt}, [])
-    except Exception:
-        raise ValueError("VALIDATION:occurred_at:parse_error")
-
-# ... handlers for all 11 states
-
-def detect_category(text: str) -> str:
-    """Shared category detection logic."""
-    text_lower = text.lower()
-
-    # Heating keywords
-    if any(kw in text_lower for kw in ["heizung", "warm", "temperatur", "kalt"]):
-        return "heating"
-
-    # Water keywords
-    if any(kw in text_lower for kw in ["wasser", "dusche", "bad", "waschbecken", "leck"]):
-        return "water"
-
-    # Electricity keywords
-    if any(kw in text_lower for kw in ["strom", "licht", "elektrik", "sicherung"]):
-        return "electricity"
-
-    # Structural keywords
-    if any(kw in text_lower for kw in ["wand", "dach", "fenster", "tür", "schimmel"]):
-        return "structural"
-
-    return "other"
-
-# landlord/fsm.py (REFACTORED)
-from .fsm_handlers import *
-
-class ChatFSM:
-    STATE_HANDLERS = {
-        "GREETING": handle_greeting,
-        "CAPTURE_SUMMARY": handle_capture_summary,
-        "CAPTURE_OCCURRED_AT": handle_capture_occurred_at,
-        "CAPTURE_LOCATION": handle_capture_location,
-        "CAPTURE_SEVERITY": handle_capture_severity,
-        "CAPTURE_MEDIA": handle_capture_media,
-        "CAPTURE_CONTACT": handle_capture_contact,
-        "CONFIRM": handle_confirm,
-        "CREATE_ISSUE": handle_create_issue,
-        "DONE": handle_done,
-    }
-
-    @staticmethod
-    def next(state: str, message: str, payload: dict) -> tuple:
-        """
-        Transition to next state.
-        Returns: (next_state, prompt, delta, warnings)
-        """
-        handler = ChatFSM.STATE_HANDLERS.get(state)
-        if not handler:
-            raise ValueError(f"VALIDATION:state:unknown ({state})")
-
-        return handler(message, payload)
-```
-
-**Comprehensive Tests:**
-
-```python
-# tests/test_fsm_handlers.py
-import pytest
-from landlord.fsm_handlers import *
-
-class TestGreetingHandler:
-    def test_greeting_with_heating_keyword(self):
-        next_state, prompt, delta, warnings = handle_greeting("Die Heizung ist kaputt", {})
-        assert next_state == "CAPTURE_SUMMARY"
-        assert delta["category"] == "heating"
-
-    def test_greeting_empty_text_raises(self):
-        with pytest.raises(ValueError, match="VALIDATION:text:empty"):
-            handle_greeting("", {})
-
-class TestCaptureOccurredAt:
-    def test_future_date_rejected(self):
-        tomorrow = (timezone.now() + timedelta(days=1)).isoformat()
-        with pytest.raises(ValueError, match="VALIDATION:occurred_at:future"):
-            handle_capture_occurred_at(tomorrow, {})
-
-    def test_valid_past_date(self):
-        yesterday = (timezone.now() - timedelta(days=1)).isoformat()
-        next_state, _, delta, _ = handle_capture_occurred_at(yesterday, {})
-        assert next_state == "CAPTURE_LOCATION"
-        assert "occurred_at" in delta
-
-class TestCaptureSeverity:
-    def test_hazard_keywords_bump_severity(self):
-        """Hazard keywords should escalate severity to HIGH."""
-        next_state, _, delta, warnings = handle_capture_severity(
-            "Es gibt Schimmel und Asbest!",
-            {"severity": "low"}
-        )
-        assert delta["severity"] == "high"
-        assert any("hazard" in w.lower() for w in warnings)
-
-class TestCategoryDetection:
-    @pytest.mark.parametrize("text,expected", [
-        ("Die Heizung funktioniert nicht", "heating"),
-        ("Wasser läuft aus dem Bad", "water"),
-        ("Strom ist ausgefallen", "electricity"),
-        ("Schimmel an der Wand", "structural"),
-        ("Müll nicht abgeholt", "other"),
-    ])
-    def test_category_detection(self, text, expected):
-        assert detect_category(text) == expected
-```
-
-**Estimated Effort:**
-
-- Refactoring: 3h
-- Tests (11 states × 3 test cases): 3h
+### **3.3 Test Coverage → 80%** 🔴 (6h)
 - **Total: 6h**
 
 ---

@@ -11,7 +11,6 @@ from django.http import HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.utils.dateparse import parse_datetime
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.generic import (
@@ -173,13 +172,13 @@ class ChatMessageView(APIView):
             handle_service_error,
             prepare_message_payload,
         )
-        
+
         session = get_object_or_404(ChatSession, id=id)
-        
+
         # Check 1: Session expiry
         if response := check_session_expired(session):
             return response
-        
+
         # Check 2: Early version conflict (CAS)
         req_ver = None
         try:
@@ -187,16 +186,16 @@ class ChatMessageView(APIView):
                 req_ver = int(request.data.get("version"))
         except Exception:
             req_ver = None
-        
+
         if response := check_version_conflict(session, req_ver):
             return response
-        
+
         data = request.data.copy()
-        
+
         # Check 3: Early state mismatch (before serializer)
         if response := check_state_mismatch_early(session, data):
             return response
-        
+
         # Validate with serializer
         ser = ChatMessageSerializer(data=data, context={"state": session.state})
         if not ser.is_valid():
@@ -204,20 +203,20 @@ class ChatMessageView(APIView):
                 {"code": "VALIDATION_ERROR", "detail": ser.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         version = ser.validated_data["version"]
         files = request.FILES.getlist("files") if hasattr(request, "FILES") else None
-        
+
         # Check 4: State mismatch with validated data
         if response := check_state_mismatch_validated(session, ser.validated_data, data):
             return response
-        
+
         # Apply per-session burst throttle
         enforce_burst_throttle(session_id=str(session.id))
-        
+
         # Prepare message payload for FSM
         msg_payload = prepare_message_payload(session, ser.validated_data, data)
-        
+
         # Call service layer
         try:
             new_state, prompt, delta, warnings, new_version = message_svc(
@@ -229,7 +228,7 @@ class ChatMessageView(APIView):
             )
         except (RuntimeError, ValueError) as e:
             return handle_service_error(e)
-        
+
         # Success response
         return Response({
             "state": new_state,
