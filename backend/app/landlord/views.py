@@ -148,6 +148,10 @@ def chat_session_create_plain(request):
 
 
 class ChatMessageView(APIView):
+    """
+    Phase 3.2 - Refactored (2025-10-23):
+    Reduced CC 40 → <15 by extracting helpers to views_chat_helpers.py
+    """
     permission_classes = [permissions.AllowAny]
     parser_classes = [parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser]
 
@@ -161,62 +165,60 @@ class ChatMessageView(APIView):
         return super().get_throttles()
 
     def post(self, request, id: str):
+        from landlord.views_chat_helpers import (
+            check_session_expired,
+            check_state_mismatch_early,
+            check_state_mismatch_validated,
+            check_version_conflict,
+            handle_service_error,
+            prepare_message_payload,
+        )
+        
         session = get_object_or_404(ChatSession, id=id)
-        if session.expires_at and session.expires_at < timezone.now():
-            return Response({"code": "SESSION_EXPIRED"}, status=status.HTTP_410_GONE)
-
-        # Early CAS check: if client sends an old version, respond 409 immediately
+        
+        # Check 1: Session expiry
+        if response := check_session_expired(session):
+            return response
+        
+        # Check 2: Early version conflict (CAS)
         req_ver = None
         try:
             if hasattr(request, "data") and "version" in request.data:
                 req_ver = int(request.data.get("version"))
         except Exception:
             req_ver = None
-        if req_ver is not None and req_ver != int(session.version):
-            return Response({"code": "STATE_VERSION_CONFLICT"}, status=status.HTTP_409_CONFLICT)
-
+        
+        if response := check_version_conflict(session, req_ver):
+            return response
+        
         data = request.data.copy()
-        # Early STATE_MISMATCH guard before serializer to avoid 400 later in FSM
-        if session.state == "CAPTURE_OCCURRED_AT":
-            if "occurred_at" not in data and any(k in data for k in ("text", "severity", "location", "contact")):
-                return Response({"code": "STATE_MISMATCH", "expected": "CAPTURE_OCCURRED_AT"}, status=status.HTTP_409_CONFLICT)
-        if session.state == "CAPTURE_LOCATION":
-            if "location" not in data and any(k in data for k in ("text", "severity", "occurred_at", "contact")):
-                return Response({"code": "STATE_MISMATCH", "expected": "CAPTURE_LOCATION"}, status=status.HTTP_409_CONFLICT)
-
+        
+        # Check 3: Early state mismatch (before serializer)
+        if response := check_state_mismatch_early(session, data):
+            return response
+        
+        # Validate with serializer
         ser = ChatMessageSerializer(data=data, context={"state": session.state})
         if not ser.is_valid():
-            return Response({"code": "VALIDATION_ERROR", "detail": ser.errors}, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(
+                {"code": "VALIDATION_ERROR", "detail": ser.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         version = ser.validated_data["version"]
         files = request.FILES.getlist("files") if hasattr(request, "FILES") else None
-
-        # State mismatch guards: if user posts fields from a different step, respond 409
-        st = session.state
-        vd = ser.validated_data
-        raw_keys = set((data or {}).keys())
-        def any_other_fields(keys):
-            return any(k in vd for k in keys)
-        # If client sent a wrong field for the current step, prefer 409 over 400
-        if st == "CAPTURE_OCCURRED_AT" and "occurred_at" not in vd and (any_other_fields(["severity", "location", "contact", "text"]) or ("text" in raw_keys)):
-            return Response({"code": "STATE_MISMATCH", "expected": "CAPTURE_OCCURRED_AT"}, status=status.HTTP_409_CONFLICT)
-        if st == "CAPTURE_LOCATION" and "location" not in vd and (any_other_fields(["severity", "occurred_at", "contact", "text"]) or ("text" in raw_keys)):
-            return Response({"code": "STATE_MISMATCH", "expected": "CAPTURE_LOCATION"}, status=status.HTTP_409_CONFLICT)
-
-        # Apply per-session burst throttle after validation/state checks and before service call
+        
+        # Check 4: State mismatch with validated data
+        if response := check_state_mismatch_validated(session, ser.validated_data, data):
+            return response
+        
+        # Apply per-session burst throttle
         enforce_burst_throttle(session_id=str(session.id))
-        # Ensure 'text' is forwarded if present in request but omitted in validated_data
-        msg_payload = dict(ser.validated_data)
-        raw_text = (data.get("text") or "").strip()
-        if raw_text:
-            msg_payload["text"] = raw_text
-            # Map text to summary for FSM steps GREETING/CAPTURE_SUMMARY
-            if session.state in ("GREETING", "CAPTURE_SUMMARY") and "summary" not in msg_payload:
-                msg_payload["summary"] = raw_text
-        if "occurred_at" not in msg_payload and data.get("occurred_at"):
-            dt = parse_datetime(data.get("occurred_at"))
-            if dt is not None:
-                msg_payload["occurred_at"] = dt
+        
+        # Prepare message payload for FSM
+        msg_payload = prepare_message_payload(session, ser.validated_data, data)
+        
+        # Call service layer
         try:
             new_state, prompt, delta, warnings, new_version = message_svc(
                 session_id=session.id,
@@ -225,22 +227,10 @@ class ChatMessageView(APIView):
                 message=msg_payload,
                 files=files,
             )
-        except RuntimeError as e:
-            if str(e) == "STATE_VERSION_CONFLICT":
-                return Response({"code": "STATE_VERSION_CONFLICT"}, status=status.HTTP_409_CONFLICT)
-            return Response({"code": "ERROR"}, status=status.HTTP_400_BAD_REQUEST)
-        except ValueError as ve:
-            # From FSM
-            msg = str(ve)
-            if msg.startswith("VALIDATION:"):
-                _, field, detail = msg.split(":", 2)
-                return Response({"code": "VALIDATION_ERROR", "field": field, "detail": detail}, status=status.HTTP_400_BAD_REQUEST)
-            if msg.startswith("PAYLOAD_TOO_LARGE"):
-                return Response({"code": "PAYLOAD_TOO_LARGE"}, status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
-            if msg.startswith("UNSUPPORTED_MEDIA_TYPE"):
-                return Response({"code": "UNSUPPORTED_MEDIA_TYPE"}, status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-            return Response({"code": "STATE_MISMATCH", "expected": session.state}, status=status.HTTP_409_CONFLICT)
-
+        except (RuntimeError, ValueError) as e:
+            return handle_service_error(e)
+        
+        # Success response
         return Response({
             "state": new_state,
             "payload_partial": delta,
