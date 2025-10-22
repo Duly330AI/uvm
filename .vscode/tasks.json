@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "pytest (dev settings)",
+      "type": "shell",
+      "command": "docker compose exec -e DJANGO_SETTINGS_MODULE=config.settings.dev -e SECURE_SSL_REDIRECT=0 web pytest -q",
+      "problemMatcher": []
+    }
+  ]
+}
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "pytest quick run",
+			"type": "shell",
+			"command": "docker compose exec web pytest -q",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		}
+	]
+}

@@ -46,11 +46,11 @@ media/
 .env.*.local
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
 *~
+# .vscode/ - Shared team settings, NOT ignored
 
 # OS
 .DS_Store

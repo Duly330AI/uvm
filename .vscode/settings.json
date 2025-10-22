@@ -1,0 +1,147 @@
+{
+  "editor.formatOnSave": true,
+
+  // ---------- Python ----------
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoSearchPaths": true,
+  "python.analysis.extraPaths": ["${workspaceFolder}/backend/app"],
+  "python.analysis.diagnosticMode": "openFilesOnly",
+  "python.analysis.useLibraryCodeForTypes": true,
+  "python.languageServer": "Pylance",
+  
+  // Pylance: Only show REAL bugs, hide Django ORM magic
+  "python.analysis.diagnosticSeverityOverrides": {
+    // Disable Django-specific false positives
+    "reportAttributeAccessIssue": "none",
+    "reportOptionalMemberAccess": "none",
+    "reportOptionalSubscript": "none",
+    "reportGeneralTypeIssues": "none",
+    "reportArgumentType": "none",
+    "reportReturnType": "none",
+    "reportFunctionMemberAccess": "none",
+    "reportIncompatibleVariableOverride": "none",
+    "reportIncompatibleMethodOverride": "none",
+    "reportIndexIssue": "none",
+    "reportOperatorIssue": "none",
+    "reportCallIssue": "warning",
+    
+    // Keep critical errors
+    "reportUndefinedVariable": "error",
+    "reportMissingImports": "error",
+    "reportSyntaxError": "error"
+  },
+  
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": ["backend/app"],
+
+  // ---------- Ruff (native) ----------
+  "ruff.enable": true,
+  "ruff.organizeImports": true,
+  "ruff.lint.enable": true,
+  "ruff.configuration": "${workspaceFolder}/pyproject.toml",
+  "ruff.lint.select": ["E", "F", "UP", "B", "SIM"],
+  "ruff.lint.ignore": ["F405", "F841"],
+
+  // ---------- Code Actions on Save (neues Schema: Strings statt Booleans) ----------
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  },
+
+  // ---------- Prettier (für HTML/CSS/JS) ----------
+  "prettier.useEditorConfig": true,
+
+  // ---------- YAML (Compose Schema) ----------
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json": [
+      "docker-compose.yml",
+      "docker-compose.*.yml"
+    ]
+  },
+
+  // ---------- Dateien/Allgemein ----------
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+
+  // ---------- Django Templates ----------
+  "files.associations": {
+    "**/templates/**/*.html": "jinja-html"
+  },
+
+  // ---------- Python Interpreter (local venv) ----------
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+  "python.terminal.activateEnvironment": true,
+
+  // ---------- cSpell Configuration ----------
+  "cSpell.enabled": true,
+  "cSpell.diagnosticLevel": "Hint",  // Only hints, not in Problems panel
+  "cSpell.language": "en,de",
+  "cSpell.enabledFileTypes": {
+    "python": true,
+    "django-html": true,
+    "jinja-html": true,
+    "javascript": true,
+    "markdown": true,
+    "yaml": true
+  },
+  "cSpell.words": [
+    "Einheitliches",
+    "Küche",
+    "Strom",
+    "Sonstiges",
+    "Mieter",
+    "passwordless",
+    "Vertrag",
+    "Rechnung",
+    "Übergabe",
+    "Grundriss",
+    "Kostenvoranschlag",
+    "Entwurf",
+    "Aktiv",
+    "Beendet",
+    "Gekündigt",
+    "Wohnung",
+    "Objekt",
+    "Kaution",
+    "Kaltmiete",
+    "Nebenkosten",
+    "Warmmiete",
+    "Zahlungen",
+    "Ausstehend",
+    "Eingegangen",
+    "Überfällig",
+    "Storniert",
+    "unbefristet",
+    "Kündigungsdatum",
+    "Einzugsdatum",
+    "Vertragsende",
+    "Vertragsbeginn",
+    "Mietvertrag",
+    "Mietverträge",
+    "Vermieter",
+    "Verwaltung",
+    "Zahlungstag",
+    "Valutadatum",
+    "Verwendungszweck",
+    "Referenz",
+    "Auftraggeber",
+    "Buchungstag",
+    "Buchungstext",
+    "Kontonummer",
+    "landlord",
+    "testdata",
+    "django",
+    "HTMX",
+    "tailwindcss",
+    "pytest",
+    "psycopg",
+    "celery",
+    "postgres",
+    "CSRF",
+    "flatpickr"
+  ]
+}
