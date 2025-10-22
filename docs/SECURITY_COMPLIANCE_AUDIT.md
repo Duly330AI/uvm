@@ -1,8 +1,8 @@
 # 🔒 Security & DSGVO Audit - UVM Project (Copilot Chat)
 
-**Datum:** 2025-10-22  
-**Projekt:** Universal Vermieter Management (UVM)  
-**Verantwortlich:** Copilot Chat (kontextbewusst)  
+**Datum:** 2025-10-22
+**Projekt:** Universal Vermieter Management (UVM)
+**Verantwortlich:** Copilot Chat (kontextbewusst)
 **Status:** Nach Codex Performance Audit
 
 ---
@@ -12,12 +12,14 @@
 Führe **kontext-basiertes Security & Compliance Audit** durch.
 
 **Was Codex NICHT kann:**
+
 - ❌ Business-Logic Security (FSM, Payment-Flow)
 - ❌ DSGVO Compliance (Daten-Löschung, Audit-Logs)
 - ❌ Infrastruktur-Security (Docker, Redis, PostgreSQL)
 - ❌ Rechtliche Einschätzungen
 
 **Was ICH machen muss:**
+
 - ✅ Django Security Settings Review
 - ✅ Authentication & Authorization Audit
 - ✅ DSGVO Compliance Check
@@ -49,6 +51,7 @@ Führe **kontext-basiertes Security & Compliance Audit** durch.
 ```
 
 **Action:**
+
 - [ ] Prüfe alle Settings
 - [ ] Erstelle `docs/SECURITY_SETTINGS_AUDIT.md`
 
@@ -57,6 +60,7 @@ Führe **kontext-basiertes Security & Compliance Audit** durch.
 ### **2. Authentication & Authorization** 🔐
 
 **Files:**
+
 - `landlord/decorators.py` (tenant_login_required)
 - `landlord/views_portal.py` (@staff_member_required)
 - `landlord/views_tenant.py` (Magic-Link Auth)
@@ -73,6 +77,7 @@ Führe **kontext-basiertes Security & Compliance Audit** durch.
 ```
 
 **Tests:**
+
 - [ ] Test: Unauthenticated user → 403
 - [ ] Test: Tenant kann Staff-Portal nicht erreichen
 - [ ] Test: Expired Magic-Link → 403
@@ -83,6 +88,7 @@ Führe **kontext-basiertes Security & Compliance Audit** durch.
 ### **3. DSGVO Compliance** 📜
 
 **Files:**
+
 - `landlord/api/tenants.py` (tenant_erase)
 - `landlord/models.py` (Tenant, Issue, Payment)
 
@@ -97,11 +103,13 @@ Führe **kontext-basiertes Security & Compliance Audit** durch.
 ```
 
 **Tests:**
+
 - [x] Test: tenant_erase anonymisiert korrekt
 - [ ] Test: Audit-Log bei Daten-Zugriff
 - [ ] Test: Export aller Tenant-Daten (JSON)
 
 **Action:**
+
 - [ ] Prüfe tenant_erase Implementierung
 - [ ] Erstelle `docs/DSGVO_COMPLIANCE_AUDIT.md`
 
@@ -110,6 +118,7 @@ Führe **kontext-basiertes Security & Compliance Audit** durch.
 ### **4. API Security (DRF)** 🌐
 
 **Files:**
+
 - `landlord/api/*.py` (DRF Views)
 - `config/settings/base.py` (REST_FRAMEWORK)
 
@@ -124,6 +133,7 @@ Führe **kontext-basiertes Security & Compliance Audit** durch.
 ```
 
 **Tests:**
+
 - [ ] Test: Unauthenticated API request → 401
 - [x] Test: Throttle exceeded → 429 (bereits getestet!)
 - [ ] Test: Invalid input → 400 (Serializer validation)
@@ -133,6 +143,7 @@ Führe **kontext-basiertes Security & Compliance Audit** durch.
 ### **5. File Upload Security** 📁
 
 **Files:**
+
 - `landlord/models.py` (IssueAttachment, Document)
 - `landlord/views_documents.py` (document_upload)
 
@@ -147,11 +158,13 @@ Führe **kontext-basiertes Security & Compliance Audit** durch.
 ```
 
 **Tests:**
+
 - [ ] Test: Upload .exe file → 400 (rejected)
 - [ ] Test: Upload 50MB file → 413 (too large)
 - [ ] Test: Tenant A kann Tenant B's File nicht downloaden
 
 **Action:**
+
 - [ ] Prüfe File-Validation in views_documents.py
 - [ ] Teste Upload-Security
 
@@ -160,7 +173,8 @@ Führe **kontext-basiertes Security & Compliance Audit** durch.
 ### **6. Session Management** 🍪
 
 **Files:**
-- `config/settings/base.py` (SESSION_*)
+
+- `config/settings/base.py` (SESSION\_\*)
 - `landlord/views.py` (Magic-Link Session)
 
 ```python
@@ -173,6 +187,7 @@ Führe **kontext-basiertes Security & Compliance Audit** durch.
 ```
 
 **Tests:**
+
 - [ ] Test: Session expired → Login required
 - [ ] Test: CSRF Token missing → 403
 
@@ -191,6 +206,7 @@ Führe **kontext-basiertes Security & Compliance Audit** durch.
 ```
 
 **Scan:**
+
 ```bash
 # Suche nach gefährlichen Patterns:
 grep -r "cursor.execute" backend/app/landlord/
@@ -215,12 +231,14 @@ grep -r ".extra(" backend/app/landlord/
 ```
 
 **Scan:**
+
 ```bash
 # Suche nach |safe usage:
 grep -r "|safe" backend/app/templates/
 ```
 
 **Action:**
+
 - [ ] Prüfe jeden |safe Treffer
 - [ ] Rechtfertige oder entferne
 
@@ -229,6 +247,7 @@ grep -r "|safe" backend/app/templates/
 ### **9. Password Security** 🔑
 
 **Files:**
+
 - `config/settings/base.py` (PASSWORD_HASHERS)
 - User-Model (Django default)
 
@@ -247,6 +266,7 @@ grep -r "|safe" backend/app/templates/
 ### **10. Celery Task Security** ⚙️
 
 **Files:**
+
 - `landlord/tasks.py` (Celery Tasks)
 - `config/celery_app.py`
 
@@ -259,6 +279,7 @@ grep -r "|safe" backend/app/templates/
 ```
 
 **Tests:**
+
 - [ ] Test: Task mit invalid input → logged error, nicht crashed
 
 ---
@@ -287,6 +308,7 @@ sentry_sdk.init(
 ```
 
 **Tests:**
+
 - [ ] Test: Exception wird zu Sentry gesendet
 - [ ] Test: PII wird NICHT geloggt
 
@@ -328,11 +350,11 @@ sentry_sdk.init(
 
 ## 🎯 ERFOLGSKRITERIEN:
 
-✅ **Keine Critical Security Issues**  
-✅ **DSGVO-konform** (Tenant-Löschung, Audit-Logs)  
-✅ **Monitoring aktiv** (Sentry.io)  
-✅ **Alle Tests grün** (Security-Tests hinzugefügt)  
-✅ **Dokumentation vollständig**  
+✅ **Keine Critical Security Issues**
+✅ **DSGVO-konform** (Tenant-Löschung, Audit-Logs)
+✅ **Monitoring aktiv** (Sentry.io)
+✅ **Alle Tests grün** (Security-Tests hinzugefügt)
+✅ **Dokumentation vollständig**
 
 **Dann:** Production-Ready für Exit! 🚀
 
