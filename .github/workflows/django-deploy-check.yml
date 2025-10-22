@@ -12,21 +12,21 @@ on:
 jobs:
   deploy-check:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.12
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-    
+
     - name: Install dependencies
       run: |
         cd backend/app
         pip install --upgrade pip
         pip install -r requirements.txt
-    
+
     - name: Run Django Deploy Check
       env:
         # Minimal production-like env vars for deploy check
@@ -38,7 +38,7 @@ jobs:
       run: |
         cd backend/app
         python manage.py check --deploy --fail-level WARNING
-    
+
     - name: Verify Production Settings
       env:
         SECRET_KEY: ${{ secrets.DEPLOY_CHECK_SECRET_KEY || 'test-secret-key-for-ci-only-not-for-production-use-minimum-50-chars' }}
@@ -54,7 +54,7 @@ jobs:
         import django
         django.setup()
         from django.conf import settings
-        
+
         # Verify critical production settings
         assert settings.DEBUG == False, 'DEBUG must be False in production'
         assert settings.SECRET_KEY != 'change-me', 'SECRET_KEY must not be default'
@@ -63,6 +63,6 @@ jobs:
         assert settings.SESSION_COOKIE_SECURE == True, 'SESSION_COOKIE_SECURE must be True'
         assert settings.CSRF_COOKIE_SECURE == True, 'CSRF_COOKIE_SECURE must be True'
         assert settings.SESSION_COOKIE_HTTPONLY == True, 'SESSION_COOKIE_HTTPONLY must be True'
-        
+
         print('✅ All production security settings validated!')
         "
