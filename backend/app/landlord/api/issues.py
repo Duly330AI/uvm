@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 
 from django.db.models import Q
 from django.utils import timezone
@@ -53,7 +53,7 @@ class IssuesAdminListView(ListAPIView):
 
         cf = p.get("created_from")
         ct = p.get("created_to")
-        def _parse_aware(dt_str: Optional[str]):
+        def _parse_aware(dt_str: str | None):
             if not dt_str:
                 return None
             dt = parse_datetime(dt_str)
@@ -83,7 +83,7 @@ class IssuesAdminListView(ListAPIView):
             qs = qs.filter(severity__gte=4)
 
         ordering_param = p.get("ordering") or "-created_at"
-        parts: List[str] = [o.strip() for o in ordering_param.split(",") if o.strip()]
+        parts: list[str] = [o.strip() for o in ordering_param.split(",") if o.strip()]
         safe_parts = [o for o in parts if o in SAFE_ORDER]
         ordering = safe_parts or ["-created_at"]
         qs = qs.order_by(*ordering, "-id")

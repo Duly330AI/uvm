@@ -21,7 +21,7 @@ class IssueNotesView(ListCreateAPIView):
         try:
             issue = Issue.objects.get(pk=issue_id)
         except Issue.DoesNotExist:
-            raise NotFound("Issue not found")
+            raise NotFound("Issue not found") from None
         return IssueNote.objects.filter(issue=issue).select_related("author").order_by("-created_at", "-id")
 
     def get_serializer_class(self):  # type: ignore[override]

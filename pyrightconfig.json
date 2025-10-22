@@ -16,7 +16,7 @@
   "reportMissingTypeStubs": false,
   "reportMissingModuleSource": "warning",
   "reportUndefinedVariable": "error",
-  
+
   // Disable all Django ORM magic & type inference issues
   "reportFunctionMemberAccess": "none",
   "reportIncompatibleVariableOverride": "none",
