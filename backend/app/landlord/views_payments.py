@@ -9,7 +9,9 @@ from typing import Optional
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.paginator import Paginator
 from django.db import transaction
+from django.db.models import Count, Sum
 from django.shortcuts import redirect, render
 from django.utils import timezone
 
@@ -18,12 +20,20 @@ from landlord.models import Contract, PaymentTransaction
 
 @staff_member_required
 def payments_list(request):
-    """M12b: List all payment transactions"""
-    payments = PaymentTransaction.objects.select_related(
+    """
+    M12b: List all payment transactions
+    
+    Phase 2.2 - Performance Optimization (2025-10-22):
+    - Added pagination (50 per page) to prevent OOM with >1000 payments
+    - Use DB aggregates (Sum, Count) instead of Python sum()
+    - Order by transaction_date DESC for recent-first display
+    """
+    # Build queryset with filters
+    payments_qs = PaymentTransaction.objects.select_related(
         'contract',
         'contract__unit',
         'contract__tenant'
-    ).all()
+    ).order_by('-transaction_date', '-id')  # Recent first
 
     # Filters
     contract_id = request.GET.get('contract')
@@ -31,19 +41,29 @@ def payments_list(request):
     status = request.GET.get('status')
 
     if contract_id:
-        payments = payments.filter(contract_id=contract_id)
+        payments_qs = payments_qs.filter(contract_id=contract_id)
     if payment_type:
-        payments = payments.filter(payment_type=payment_type)
+        payments_qs = payments_qs.filter(payment_type=payment_type)
     if status:
-        payments = payments.filter(status=status)
+        payments_qs = payments_qs.filter(status=status)
 
-    # Calculate totals
-    total_amount = sum(p.amount for p in payments)
+    # Phase 2.2: DB-side aggregates (before pagination)
+    totals = payments_qs.aggregate(
+        total_amount=Sum('amount'),
+        total_count=Count('id')
+    )
+
+    # Phase 2.2: Pagination (50 per page)
+    paginator = Paginator(payments_qs, 50)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
 
     context = {
-        'payments': payments,
-        'total_amount': total_amount,
-        'total_sum': total_amount,  # Alias for backwards compatibility with tests
+        'page_obj': page_obj,
+        'payments': page_obj.object_list,  # For template compatibility
+        'total_amount': totals['total_amount'] or 0,
+        'total_sum': totals['total_amount'] or 0,  # Alias for backwards compatibility with tests
+        'total_count': totals['total_count'] or 0,
         'contracts': Contract.objects.all(),
         'payment_type_choices': PaymentTransaction.Type.choices,
         'status_choices': PaymentTransaction.Status.choices,
@@ -51,7 +71,8 @@ def payments_list(request):
             'contract': contract_id,
             'payment_type': payment_type,
             'status': status,
-        }
+        },
+        'paginator': paginator,
     }
     return render(request, 'portal/payments_list.html', context)
 
