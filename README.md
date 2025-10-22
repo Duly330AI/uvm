@@ -63,8 +63,6 @@
 ### **Nächste Schritte:**
 
 ```
-⏳ M13: Workflow-Management (8h → ~4h estimated)
-⏳ M13: Workflow-Management (8h → ~4h estimated)
 ⏳ Security Audit + Performance Testing (12h)
 ```
 
@@ -340,11 +338,10 @@ Features:
 ✅ M17a: Versionshistorie (2.5h)
 ✅ M12a: Vertrags-System (4.5h)
 ✅ M12b: Zahlungen CSV (2h)
+✅ M14: Nebenkostenabrechnung (6h)
+✅ M15: Wartungskalender (12h)
+✅ M16: Checklisten (12h)
 
-Nächste:
-⏳ M14: Nebenkostenabrechnung (20h)
-⏳ M16: Checklisten (12h)
-⏳ M15: Wartungskalender (12h)
 ```
 
 ---

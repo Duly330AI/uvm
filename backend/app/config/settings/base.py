@@ -101,6 +101,25 @@ PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
 ]
 
+# Password validation (Phase 1.4 - 2025-10-22)
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {
+            "min_length": 12,
+        },
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]
+
 
 # Internationalization
 LANGUAGE_CODE = "de-de"
@@ -199,9 +218,12 @@ if _hosts:
 # If DEBUG is False, enable stricter security defaults. These can be overridden
 # via environment variables when needed for staging/prod.
 if not DEBUG:
+    # Cookie Security (Phase 1.5 - 2025-10-22)
     SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
     SESSION_COOKIE_SAMESITE = "Lax"  # Prevent CSRF attacks via cross-site requests
     CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_HTTPONLY = True  # Prevent JavaScript access to CSRF token cookie
     CSRF_COOKIE_SAMESITE = "Lax"  # Additional CSRF protection
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
@@ -214,6 +236,8 @@ if not DEBUG:
 else:
     # Development-safe defaults
     SESSION_COOKIE_SECURE = False
+    SESSION_COOKIE_HTTPONLY = True  # Still protect in dev (doesn't break local testing)
     SESSION_COOKIE_SAMESITE = "Lax"  # Still set SameSite in dev for consistency
     CSRF_COOKIE_SECURE = False
+    CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript access in dev for easier debugging
     CSRF_COOKIE_SAMESITE = "Lax"
