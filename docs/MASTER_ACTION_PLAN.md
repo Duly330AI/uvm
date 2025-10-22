@@ -470,19 +470,20 @@ docker compose exec web python manage.py migrate
 
 ### **3.1 Chat FSM Refactoring** ✅ DONE (6h)
 
-**Status:** ✅ Completed 2025-10-23 02:00  
+**Status:** ✅ Completed 2025-10-23 02:00
 **Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
 ---
 
 ### **3.2 Chat View Decomposition** ✅ DONE (4h)
 
-**Status:** ✅ Completed 2025-10-23 02:30  
+**Status:** ✅ Completed 2025-10-23 02:30
 **Details:** See `MASTER_ACTION_PLAN_DONE.md`
 
 ---
 
 ### **3.3 Test Coverage → 80%** 🔴 (6h)
+
 - **Total: 6h**
 
 ---

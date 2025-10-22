@@ -340,6 +340,7 @@ pytest -q
 **Tests:** 265 passed ✅
 
 **Changes:**
+
 - landlord/tasks.py: Added async file processing task
 - landlord/services/chat_session.py: Issue creation + task dispatch
 - Chunked file copying (1MB) with retry logic
@@ -349,12 +350,13 @@ pytest -q
 ## ✅ **PHASE 2 COMPLETE!** 🎉
 
 **Summary:** All 3 performance optimizations done!
+
 - 2.1: CSV Import 60x faster
-- 2.2: Payment List 100x memory reduction  
+- 2.2: Payment List 100x memory reduction
 - 2.3: Chat Upload 50x response time
 
-**Total Time:** 10h / 10h (100%)  
-**Tests:** 265 passed ✅  
+**Total Time:** 10h / 10h (100%)
+**Tests:** 265 passed ✅
 **Next:** Phase 3 - Code Quality & Tests (16h)
 
 ---
@@ -363,33 +365,35 @@ pytest -q
 
 ### **Phase 3.1: Chat FSM Refactoring** ✅ (6h)
 
-**Completed:** 2025-10-23 02:00  
-**Problem:** CC 46 (Grade F), 11 sequential if-blocks, hard to test  
-**Solution:** State Handler Pattern with dedicated handler per state  
-**Result:** CC 46 → 3 (Grade A), modular & testable  
-**Performance:** 60% code reduction (148 → 58 lines)  
+**Completed:** 2025-10-23 02:00
+**Problem:** CC 46 (Grade F), 11 sequential if-blocks, hard to test
+**Solution:** State Handler Pattern with dedicated handler per state
+**Result:** CC 46 → 3 (Grade A), modular & testable
+**Performance:** 60% code reduction (148 → 58 lines)
 **Tests:** 265 passed ✅
 
 **Changes:**
+
 - landlord/fsm_handlers.py: NEW FILE with 11 state handlers
 - landlord/fsm.py: Simplified to dispatcher (CC ~3)
-- _detect_category() helper extracted for reuse
+- \_detect_category() helper extracted for reuse
 
 ---
 
 ### **Phase 3.2: Chat View Decomposition** ✅ (4h)
 
-**Completed:** 2025-10-23 02:30  
-**Problem:** ChatMessageView.post() CC ~40, 95-line monolith  
-**Solution:** Extract 7 helper functions to views_chat_helpers.py  
-**Result:** CC 40 → <15, 47% code reduction (95 → 50 lines)  
-**Maintainability:** Each concern isolated & testable  
+**Completed:** 2025-10-23 02:30
+**Problem:** ChatMessageView.post() CC ~40, 95-line monolith
+**Solution:** Extract 7 helper functions to views_chat_helpers.py
+**Result:** CC 40 → <15, 47% code reduction (95 → 50 lines)
+**Maintainability:** Each concern isolated & testable
 **Tests:** 265 passed ✅
 
 **Changes:**
+
 - landlord/views_chat_helpers.py: NEW FILE with 7 helpers
   - check_session_expired()
-  - check_version_conflict()  
+  - check_version_conflict()
   - check_state_mismatch_early()
   - check_state_mismatch_validated()
   - prepare_message_payload()
