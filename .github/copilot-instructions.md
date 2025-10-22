@@ -2,12 +2,13 @@
 
 ## 🚀 CURRENT FOCUS: Production-Ready Refactoring (Master Action Plan)
 
-**Phase:** Production-Ready Optimization (40h total)  
-**Status:** Phase 1.1 ✅ Complete | Starting Phase 1.2  
-**Progress:** 0.5h / 40h (1.25%)  
+**Phase:** Production-Ready Optimization (40h total)
+**Status:** Phase 1.1 ✅ Complete | Starting Phase 1.2
+**Progress:** 0.5h / 40h (1.25%)
 **Goal:** Security hardening → Performance optimization → Code quality → Monitoring
 
 ### **Active Work:**
+
 - ✅ **Phase 1.1 DONE:** Gunicorn 22.0.0 → 23.0.0 (CVE-2024-6827 fixed)
 - 🔄 **Phase 1.2 NEXT:** Production Settings Default (WSGI/ASGI/Celery → prod)
 - 📋 **Master Plan:** `docs/MASTER_ACTION_PLAN.md`
@@ -15,6 +16,7 @@
 - 📊 **Audit Reports:** `docs/codex_executive_summary.md` + 6 detailed reports
 
 ### **Workflow:**
+
 1. Pick task from MASTER_ACTION_PLAN.md
 2. Implement & test
 3. Move completed task to MASTER_ACTION_PLAN_DONE.md
@@ -23,6 +25,7 @@
 6. Continue to next task
 
 ### **Key Documents:**
+
 - `docs/MASTER_ACTION_PLAN.md` - Remaining tasks (40h plan)
 - `docs/MASTER_ACTION_PLAN_DONE.md` - Completed tasks log
 - `docs/codex_executive_summary.md` - Codex audit findings (62/100 score)
@@ -41,7 +44,7 @@
 
 **Tech Stack:** Django 5.1 + Python 3.12, HTMX + TailwindCSS + Alpine.js, PostgreSQL 16, Redis 7, Celery, Docker
 
-**Original Status:** 44% feature-complete (M1-M16 done)  
+**Original Status:** 44% feature-complete (M1-M16 done)
 **Current Focus:** Production-ready hardening (Security + Performance + Quality + Monitoring)
 
 ## Architecture & Key Patterns
@@ -239,6 +242,7 @@ docker compose exec web pytest tests/test_chat_api.py::test_chat_flow_confirm_id
 **Production-Ready Refactoring (Master Action Plan)**
 
 **Phase 1: Security Fixes (6h total)**
+
 - ✅ 1.1 Gunicorn CVE Fix (0.5h) - DONE 2025-10-22
 - 🔄 1.2 Production Settings Default (1h) - IN PROGRESS
 - ⏳ 1.3 SECRET_KEY Hardening (0.5h)
@@ -249,26 +253,31 @@ docker compose exec web pytest tests/test_chat_api.py::test_chat_flow_confirm_id
 - ⏳ 1.8 Deploy Check in CI (0.5h)
 
 **Phase 2: Performance (10h total)**
+
 - CSV Import O(N×M) → O(N)
 - Payment List Pagination
 - Chat Upload Async
 - N+1 Query Elimination
 
 **Phase 3: Code Quality (16h total)**
+
 - FSM Refactoring (CC 46 → <20)
 - Chat View Decomposition
 - Test Coverage 69% → 80%
 
 **Phase 4: Monitoring (8h total)**
+
 - Sentry.io Setup
 - Audit Logging
 - Final Security Review
 
 **Next priorities:**
+
 - Security audit + performance testing (12h)
 - See `docs/MASTER_ACTION_PLAN.md` for full milestone tracking
 
 **Recent changes:**
+
 - 2025-10-22: Gunicorn 23.0.0 (CVE-2024-6827 patched), Master Action Plan created
 - 2025-10-20: Security fixes (SSL redirect via env var, test dependencies isolated)
 - M15 Wartungskalender: Complete with 6 views, 11 tests passing

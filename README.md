@@ -81,6 +81,66 @@
 
 ### **1. Repository klonen:**
 
+```powershell
+git clone https://github.com/Duly330AI/uvm.git
+cd uvm
+```
+
+### **2. Environment-Datei erstellen:**
+
+```powershell
+cp .env.example .env
+# Edit .env und setze SECRET_KEY, DATABASE_URL, etc.
+```
+
+### **3. Container starten:**
+
+```powershell
+docker compose up -d
+```
+
+### **4. Datenbank migrieren:**
+
+```powershell
+docker compose exec web python manage.py migrate
+docker compose exec web python manage.py createsuperuser
+```
+
+### **5. Öffnen:**
+
+- **Portal:** http://localhost:8000/portal/
+- **Admin:** http://localhost:8000/admin/
+- **Mailhog:** http://localhost:8025/
+
+---
+
+## 💻 Local Development
+
+**Important:** The project defaults to production settings since Phase 1.2 (2025-10-22).
+
+### **For local development, override with dev settings:**
+
+```powershell
+# Option 1: Set environment variable (recommended)
+$env:DJANGO_SETTINGS_MODULE="config.settings.dev"
+
+# Option 2: Add to .env file
+echo "DJANGO_SETTINGS_MODULE=config.settings.dev" >> .env
+
+# Then restart containers
+docker compose down && docker compose up -d
+```
+
+### **Verify current settings:**
+
+```powershell
+docker compose exec web python manage.py diffsettings | Select-String "SETTINGS_MODULE"
+```
+
+---
+
+### **1. Repository klonen:**
+
 ```bash
 git clone https://github.com/Duly330AI/uvm.git
 cd uvm
