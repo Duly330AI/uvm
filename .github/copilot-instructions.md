@@ -2,15 +2,16 @@
 
 ## 🚀 CURRENT FOCUS: Production-Ready Refactoring (Master Action Plan)
 
-**Phase:** Production-Ready Optimization (40h total)
-**Status:** Phase 1.1 ✅ Complete | Starting Phase 1.2
-**Progress:** 0.5h / 40h (1.25%)
+**Phase:** Production-Ready Optimization (40h total)  
+**Status:** Phase 1.3 ✅ Complete | Starting Phase 1.4  
+**Progress:** 2h / 40h (5%)  
 **Goal:** Security hardening → Performance optimization → Code quality → Monitoring
 
 ### **Active Work:**
-
 - ✅ **Phase 1.1 DONE:** Gunicorn 22.0.0 → 23.0.0 (CVE-2024-6827 fixed)
-- 🔄 **Phase 1.2 NEXT:** Production Settings Default (WSGI/ASGI/Celery → prod)
+- ✅ **Phase 1.2 DONE:** Production Settings Default (WSGI/ASGI/Celery → prod)
+- ✅ **Phase 1.3 DONE:** SECRET_KEY Hardening (no fallback, must be set)
+- 🔄 **Phase 1.4 NEXT:** Password Validators (12 char min, complexity)
 - 📋 **Master Plan:** `docs/MASTER_ACTION_PLAN.md`
 - ✅ **Completed Tasks:** `docs/MASTER_ACTION_PLAN_DONE.md`
 - 📊 **Audit Reports:** `docs/codex_executive_summary.md` + 6 detailed reports
@@ -285,3 +286,7 @@ docker compose exec web pytest tests/test_chat_api.py::test_chat_flow_confirm_id
 - M14 Nebenkostenabrechnung: HeizkostenV-compliant utility billing with CSV export
 
 When working on new features, consult `docs/MASTER_ACTION_PLAN.md` for current task and `docs/codex_executive_summary.md` for audit findings.
+
+**Critical:** Always keep this document up to date with current focus and progress!
+**Critical:** Always keep `docs\MASTER_ACTION_PLAN.md` synchronized with actual work and completed tasks!
+**Critical:** After completing a task, immediately log it in `docs/MASTER_ACTION_PLAN_DONE.md` with time spent and verification steps!

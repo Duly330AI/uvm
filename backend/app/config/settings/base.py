@@ -13,14 +13,15 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 load_dotenv(BASE_DIR / ".env")
 
 
-# SECRET_KEY with validation (Security Fix 2025-10-20)
-SECRET_KEY = os.getenv("SECRET_KEY", "change-me")
+# SECRET_KEY Hardening (Phase 1.3 - 2025-10-22)
+# No default fallback - must be explicitly set in environment
+SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
     raise ImproperlyConfigured(
         "SECRET_KEY environment variable is required but not set. "
-        "Please set SECRET_KEY in your .env file or environment."
+        "Generate a secure key with: "
+        "python -c \"from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())\""
     )
-# Warn about insecure default in development, enforce in production (checked in prod.py)
 
 DEBUG = False
 
