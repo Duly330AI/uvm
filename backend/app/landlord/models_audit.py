@@ -20,11 +20,11 @@ from django.utils import timezone
 class AuditLog(models.Model):
     """
     Audit trail for compliance and security monitoring.
-    
+
     Records critical administrative actions with full context.
     Immutable - never modified or deleted once created.
     """
-    
+
     # Action categories for filtering
     ACTION_CREATE = 'create'
     ACTION_UPDATE = 'update'
@@ -34,7 +34,7 @@ class AuditLog(models.Model):
     ACTION_GDPR_ERASE = 'gdpr_erase'
     ACTION_EXPORT = 'export'
     ACTION_PERMISSION_CHANGE = 'permission_change'
-    
+
     ACTION_CHOICES = [
         (ACTION_CREATE, 'Create'),
         (ACTION_UPDATE, 'Update'),
@@ -45,7 +45,7 @@ class AuditLog(models.Model):
         (ACTION_EXPORT, 'Data Export'),
         (ACTION_PERMISSION_CHANGE, 'Permission Change'),
     ]
-    
+
     # Who performed the action
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -59,7 +59,7 @@ class AuditLog(models.Model):
         max_length=255,
         help_text="Email stored for reference even if user is deleted"
     )
-    
+
     # What action was performed
     action = models.CharField(
         max_length=50,
@@ -67,7 +67,7 @@ class AuditLog(models.Model):
         db_index=True,
         help_text="Type of action performed"
     )
-    
+
     # What resource was affected (using GenericForeignKey for flexibility)
     content_type = models.ForeignKey(
         ContentType,
@@ -77,20 +77,20 @@ class AuditLog(models.Model):
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     resource = GenericForeignKey('content_type', 'object_id')
-    
+
     # Additional context
     resource_repr = models.CharField(
         max_length=255,
         help_text="String representation of resource at time of action"
     )
-    
+
     # Structured details (JSON)
     details = models.JSONField(
         default=dict,
         blank=True,
         help_text="Additional structured data about the action"
     )
-    
+
     # When & where
     timestamp = models.DateTimeField(
         default=timezone.now,
@@ -106,14 +106,14 @@ class AuditLog(models.Model):
         blank=True,
         help_text="User agent string from request"
     )
-    
+
     # Request context
     request_id = models.CharField(
         max_length=36,
         blank=True,
         help_text="Request ID for correlation with application logs"
     )
-    
+
     class Meta:
         ordering = ['-timestamp']
         indexes = [
@@ -124,16 +124,16 @@ class AuditLog(models.Model):
         ]
         verbose_name = "Audit Log"
         verbose_name_plural = "Audit Logs"
-    
+
     def __str__(self):
         return f"{self.timestamp.isoformat()} - {self.user_email} - {self.get_action_display()} - {self.resource_repr}"
-    
+
     def save(self, *args, **kwargs):
         """Override save to make logs immutable after creation."""
         if self.pk is not None:
             raise ValueError("AuditLog entries cannot be modified once created")
         super().save(*args, **kwargs)
-    
+
     def delete(self, *args, **kwargs):
         """Prevent deletion of audit logs."""
         raise ValueError("AuditLog entries cannot be deleted")

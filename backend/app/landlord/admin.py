@@ -696,7 +696,7 @@ class MaintenanceItemAdmin(admin.ModelAdmin):
 class AuditLogAdmin(admin.ModelAdmin):
 	"""
 	Read-only admin for audit logs.
-	
+
 	Audit logs are immutable for compliance - no editing or deletion allowed.
 	"""
 	list_display = (
@@ -730,18 +730,18 @@ class AuditLogAdmin(admin.ModelAdmin):
 		'user_agent',
 		'request_id',
 	)
-	
+
 	date_hierarchy = 'timestamp'
 	ordering = ('-timestamp',)
-	
+
 	def has_add_permission(self, request):
 		"""Prevent manual creation - only via audit service."""
 		return False
-	
+
 	def has_delete_permission(self, request, obj=None):
 		"""Prevent deletion - audit logs are immutable."""
 		return False
-	
+
 	def has_change_permission(self, request, obj=None):
 		"""Prevent editing - audit logs are immutable."""
 		return False
