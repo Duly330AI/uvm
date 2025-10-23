@@ -165,14 +165,14 @@ class Unit(TimeStampedModel):
 class Tenant(TimeStampedModel):
     """
     Mieter-Modell
-    
+
     KRITISCH (2025-10-23): Erweitert um Namensfelder für rechtlich gültige Mietverträge.
     - Rechtliche Grundlage: § 550 BGB (Mietvertrag braucht Vertragsparteien)
     - DSGVO-konform: Art. 6 Abs. 1 lit. b (Vertragserfüllung)
     """
     # User-Account (optional - für Tenant Portal Login)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
-    
+
     # Persönliche Daten (KRITISCH - für Mietvertrag erforderlich!)
     first_name = models.CharField(
         max_length=100,
@@ -194,19 +194,19 @@ class Tenant(TimeStampedModel):
         verbose_name="Geburtsdatum",
         help_text="Optional - für SCHUFA, Altersverifikation"
     )
-    
+
     # Kontaktdaten
     primary_email = models.EmailField()
     phone = models.CharField(max_length=50, blank=True)
-    
+
     # Wohneinheit
     unit = models.ForeignKey(Unit, on_delete=models.PROTECT, related_name="tenants", db_index=True)
-    
+
     # Einzug/Auszug
     moved_in_at = models.DateField(null=True, blank=True)
     moved_out_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
-    
+
     # Notfallkontakt (Best Practice)
     emergency_contact_name = models.CharField(
         max_length=200,
@@ -219,7 +219,7 @@ class Tenant(TimeStampedModel):
         blank=True,
         verbose_name="Notfallkontakt Telefon"
     )
-    
+
     # Zusätzliche Informationen
     notes = models.TextField(
         blank=True,
@@ -244,7 +244,7 @@ class Tenant(TimeStampedModel):
         if self.first_name or self.last_name:
             return f"{self.first_name} {self.last_name}".strip()
         return self.primary_email
-    
+
     @property
     def full_name(self) -> str:
         """Vollständiger Name für Templates/Exports."""

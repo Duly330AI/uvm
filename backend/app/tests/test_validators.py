@@ -26,7 +26,7 @@ class TestCountryWhitelist:
         """Invalid country raises ValidationError."""
         with pytest.raises(ValidationError, match="not allowed"):
             validate_country_whitelist('US')
-        
+
         with pytest.raises(ValidationError, match="not allowed"):
             validate_country_whitelist('FR')
 
@@ -34,14 +34,14 @@ class TestCountryWhitelist:
         """ValidationError has correct error code."""
         with pytest.raises(ValidationError) as exc_info:
             validate_country_whitelist('GB')
-        
+
         assert exc_info.value.code == 'invalid_country'
 
     def test_case_sensitive(self):
         """Validator is case-sensitive."""
         with pytest.raises(ValidationError):
             validate_country_whitelist('de')  # lowercase fails
-        
+
         with pytest.raises(ValidationError):
             validate_country_whitelist('De')  # mixed case fails
 
@@ -59,7 +59,7 @@ class TestPostalCodeDE:
         """Non-5-digit codes raise ValidationError."""
         with pytest.raises(ValidationError, match="5 digits"):
             validate_postal_code_de('1234')  # Too short
-        
+
         with pytest.raises(ValidationError, match="5 digits"):
             validate_postal_code_de('123456')  # Too long
 
@@ -67,7 +67,7 @@ class TestPostalCodeDE:
         """Non-numeric codes raise ValidationError."""
         with pytest.raises(ValidationError, match="5 digits"):
             validate_postal_code_de('1234A')
-        
+
         with pytest.raises(ValidationError, match="5 digits"):
             validate_postal_code_de('ABCDE')
 
@@ -75,7 +75,7 @@ class TestPostalCodeDE:
         """ValidationError has correct error code."""
         with pytest.raises(ValidationError) as exc_info:
             validate_postal_code_de('ABC')
-        
+
         assert exc_info.value.code == 'invalid_postal_code_de'
 
 
@@ -100,10 +100,10 @@ class TestSerialNumberFormat:
         """Invalid characters raise ValidationError."""
         with pytest.raises(ValidationError, match="letters, numbers, dashes, and slashes"):
             validate_serial_number_format('ABC 123')  # Space not allowed
-        
+
         with pytest.raises(ValidationError, match="letters, numbers, dashes, and slashes"):
             validate_serial_number_format('ABC#123')  # Hash not allowed
-        
+
         with pytest.raises(ValidationError, match="letters, numbers, dashes, and slashes"):
             validate_serial_number_format('ABC.123')  # Dot not allowed
 
@@ -111,13 +111,13 @@ class TestSerialNumberFormat:
         """ValidationError has correct error code."""
         with pytest.raises(ValidationError) as exc_info:
             validate_serial_number_format('ABC*123')
-        
+
         assert exc_info.value.code == 'invalid_serial_number'
 
     def test_unicode_not_allowed(self):
         """Unicode characters raise ValidationError."""
         with pytest.raises(ValidationError):
             validate_serial_number_format('ABC€123')
-        
+
         with pytest.raises(ValidationError):
             validate_serial_number_format('ABCä123')

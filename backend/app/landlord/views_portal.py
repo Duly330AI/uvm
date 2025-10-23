@@ -205,7 +205,7 @@ def tenants_list(request):
 def tenant_create(request):
     """
     Create new tenant.
-    
+
     Updated 2025-10-23: Supports first_name, last_name fields.
     """
     if request.method == "POST":
@@ -260,7 +260,7 @@ def tenant_create(request):
 def tenant_edit(request, pk: int):
     """
     Edit existing tenant.
-    
+
     Updated 2025-10-23: Supports first_name, last_name fields.
     """
     tenant = get_object_or_404(Tenant, pk=pk)

@@ -1,144 +1,90 @@
-{% extends "portal/base.html" %}
-
-{% block portal %}
+{% extends "portal/base.html" %} {% block portal %}
 <div class="max-w-3xl mx-auto p-6">
-  <h1 class="text-2xl font-bold mb-6">
-    {% if is_edit %}Mieter bearbeiten{% else %}Neuer Mieter{% endif %}
-  </h1>
+  <h1 class="text-2xl font-bold mb-6">{% if is_edit %}Mieter bearbeiten{% else %}Neuer Mieter{% endif %}</h1>
 
   <form method="post" class="bg-white border rounded-xl p-6 space-y-6">
     {% csrf_token %}
-    
+
     <!-- Persönliche Daten -->
     <div class="border-b pb-4">
       <h2 class="text-lg font-semibold mb-3">Persönliche Daten</h2>
-      
+
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium mb-1">Vorname</label>
-          <input
-            type="text"
-            name="first_name"
-            value="{% if tenant %}{{ tenant.first_name }}{% endif %}"
-            class="w-full border rounded-lg px-3 py-2"
-            placeholder="Max"
-          />
-          <p class="text-xs text-slate-500 mt-1">
-            Erforderlich für Mietvertrag
-          </p>
+          <input type="text" name="first_name" value="{% if tenant %}{{ tenant.first_name }}{% endif %}" class="w-full border rounded-lg px-3 py-2" placeholder="Max" />
+          <p class="text-xs text-slate-500 mt-1">Erforderlich für Mietvertrag</p>
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium mb-1">Nachname</label>
-          <input
-            type="text"
-            name="last_name"
-            value="{% if tenant %}{{ tenant.last_name }}{% endif %}"
-            class="w-full border rounded-lg px-3 py-2"
-            placeholder="Mustermann"
-          />
-          <p class="text-xs text-slate-500 mt-1">
-            Erforderlich für Mietvertrag
-          </p>
+          <input type="text" name="last_name" value="{% if tenant %}{{ tenant.last_name }}{% endif %}" class="w-full border rounded-lg px-3 py-2" placeholder="Mustermann" />
+          <p class="text-xs text-slate-500 mt-1">Erforderlich für Mietvertrag</p>
         </div>
       </div>
-      
+
       <div class="mt-4">
         <label class="block text-sm font-medium mb-1">Geburtsdatum (optional)</label>
-        <input
-          type="date"
-          name="date_of_birth"
-          value="{% if tenant.date_of_birth %}{{ tenant.date_of_birth|date:'Y-m-d' }}{% endif %}"
-          class="w-full border rounded-lg px-3 py-2"
-        />
+        <input type="date" name="date_of_birth" value="{% if tenant.date_of_birth %}{{ tenant.date_of_birth|date:'Y-m-d' }}{% endif %}" class="w-full border rounded-lg px-3 py-2" />
       </div>
     </div>
-    
+
     <!-- Kontaktdaten -->
     <div class="border-b pb-4">
       <h2 class="text-lg font-semibold mb-3">Kontaktdaten</h2>
-      
+
       <div>
         <label class="block text-sm font-medium mb-1">E-Mail-Adresse *</label>
-        <input
-          type="email"
-          name="primary_email"
-          required
-          value="{% if tenant %}{{ tenant.primary_email }}{% endif %}"
-          class="w-full border rounded-lg px-3 py-2"
-          placeholder="mieter@example.com"
-        />
-        <p class="text-xs text-slate-500 mt-1">
-          Wird für Magic-Link Login verwendet
-        </p>
+        <input type="email" name="primary_email" required value="{% if tenant %}{{ tenant.primary_email }}{% endif %}" class="w-full border rounded-lg px-3 py-2" placeholder="mieter@example.com" />
+        <p class="text-xs text-slate-500 mt-1">Wird für Magic-Link Login verwendet</p>
       </div>
 
       <div class="mt-4">
         <label class="block text-sm font-medium mb-1">Telefon</label>
-        <input
-          type="tel"
-          name="phone"
-          value="{% if tenant %}{{ tenant.phone }}{% endif %}"
-          class="w-full border rounded-lg px-3 py-2"
-          placeholder="+49 176 12345678"
-        />
+        <input type="tel" name="phone" value="{% if tenant %}{{ tenant.phone }}{% endif %}" class="w-full border rounded-lg px-3 py-2" placeholder="+49 176 12345678" />
       </div>
     </div>
-    
+
     <!-- Wohnung & Einzug -->
     <div class="border-b pb-4">
       <h2 class="text-lg font-semibold mb-3">Wohnung & Einzug</h2>
-      
+
       {% if not is_edit %}
       <div>
         <label class="block text-sm font-medium mb-1">Wohneinheit *</label>
         <select name="unit" required class="w-full border rounded-lg px-3 py-2">
           <option value="">Bitte wählen...</option>
           {% for unit in units %}
-          <option value="{{ unit.id }}">
-            {{ unit.property.name }} - Wohnung {{ unit.unit_label }}
-          </option>
+          <option value="{{ unit.id }}">{{ unit.property.name }} - Wohnung {{ unit.unit_label }}</option>
           {% endfor %}
         </select>
       </div>
       {% else %}
       <div>
         <label class="block text-sm font-medium mb-1">Wohneinheit</label>
-        <div class="text-slate-600 px-3 py-2 bg-slate-50 rounded-lg">
-          {{ tenant.unit.property.name }} - Wohnung {{ tenant.unit.unit_label }}
-        </div>
+        <div class="text-slate-600 px-3 py-2 bg-slate-50 rounded-lg">{{ tenant.unit.property.name }} - Wohnung {{ tenant.unit.unit_label }}</div>
       </div>
       {% endif %}
 
       <div class="mt-4">
         <label class="block text-sm font-medium mb-1">Eingezogen am</label>
-        <input
-          type="date"
-          name="moved_in_at"
-          value="{% if tenant.moved_in_at %}{{ tenant.moved_in_at|date:'Y-m-d' }}{% endif %}"
-          class="w-full border rounded-lg px-3 py-2"
-        />
+        <input type="date" name="moved_in_at" value="{% if tenant.moved_in_at %}{{ tenant.moved_in_at|date:'Y-m-d' }}{% endif %}" class="w-full border rounded-lg px-3 py-2" />
       </div>
 
       {% if is_edit %}
       <div class="mt-4">
         <label class="inline-flex items-center gap-2">
-          <input
-            type="checkbox"
-            name="is_active"
-            {% if tenant.is_active %}checked{% endif %}
-            class="rounded"
-          />
+          <input type="checkbox" name="is_active" {% if tenant.is_active %}checked{% endif %} class="rounded" />
           <span class="text-sm">Aktiv (nicht ausgezogen)</span>
         </label>
       </div>
       {% endif %}
     </div>
-    
+
     <!-- Notfallkontakt -->
     <div class="border-b pb-4">
       <h2 class="text-lg font-semibold mb-3">Notfallkontakt (optional)</h2>
-      
+
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium mb-1">Name</label>
@@ -150,7 +96,7 @@
             placeholder="Erika Mustermann"
           />
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium mb-1">Telefon</label>
           <input
@@ -163,16 +109,11 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Notizen -->
     <div class="pb-4">
       <label class="block text-sm font-medium mb-1">Interne Notizen (optional)</label>
-      <textarea
-        name="notes"
-        rows="3"
-        class="w-full border rounded-lg px-3 py-2"
-        placeholder="Interne Notizen (nicht für Mieter sichtbar)..."
-      >{% if tenant %}{{ tenant.notes }}{% endif %}</textarea>
+      <textarea name="notes" rows="3" class="w-full border rounded-lg px-3 py-2" placeholder="Interne Notizen (nicht für Mieter sichtbar)...">{% if tenant %}{{ tenant.notes }}{% endif %}</textarea>
     </div>
 
     {% if not is_edit %}
@@ -181,26 +122,14 @@
         <input type="checkbox" name="send_welcome" class="rounded" />
         <span class="text-sm">Willkommens-E-Mail senden (mit Magic-Link)</span>
       </label>
-      <p class="text-xs text-slate-500 mt-1 ml-6">
-        Mieter erhält Link zum Aktivieren des Portals
-      </p>
+      <p class="text-xs text-slate-500 mt-1 ml-6">Mieter erhält Link zum Aktivieren des Portals</p>
     </div>
     {% endif %}
 
     <!-- Buttons -->
     <div class="flex gap-3 pt-4">
-      <button
-        type="submit"
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-      >
-        {% if is_edit %}Speichern{% else %}Mieter anlegen{% endif %}
-      </button>
-      <a
-        href="{% url 'portal_tenants' %}"
-        class="px-4 py-2 border rounded-lg hover:bg-slate-50"
-      >
-        Abbrechen
-      </a>
+      <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">{% if is_edit %}Speichern{% else %}Mieter anlegen{% endif %}</button>
+      <a href="{% url 'portal_tenants' %}" class="px-4 py-2 border rounded-lg hover:bg-slate-50"> Abbrechen </a>
     </div>
   </form>
 </div>

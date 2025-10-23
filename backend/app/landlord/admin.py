@@ -122,7 +122,7 @@ class TenantAdmin(admin.ModelAdmin):
 		"unit__property__name"
 	)
 	readonly_fields = ("created_at", "updated_at")
-	
+
 	fieldsets = (
 		("Persönliche Daten", {
 			"fields": ("first_name", "last_name", "date_of_birth", "user")
@@ -142,7 +142,7 @@ class TenantAdmin(admin.ModelAdmin):
 			"classes": ("collapse",)
 		}),
 	)
-	
+
 	def full_name_display(self, obj):
 		"""Zeige vollständigen Namen."""
 		return f"{obj.first_name} {obj.last_name}".strip() or "(Kein Name)"
