@@ -1,71 +1,199 @@
-# UVM – AI Agent Playbook (Stand 2025-10-23)
+# UVM – AI Agent Playbook
 
-## 🎯 Aktueller Fokus
-- Production-harter Refactoring-Plan (40 h) **abgeschlossen**
-- Security Score 90/100 · Coverage ~80 %
-- Kernfeatures (M1–M16) produktionsreif; M17–M20 optional
-- Primary workstreams jetzt: Dokumentation, Release-Readiness, optionale Integrationen
+**Project:** Property Management Platform (Django 5.1, Python 3.12)  
+**Status:** Production-Ready (80% complete, M1–M16 ✅) · Security 90/100 · Tests 384 passed · Coverage 79–80%
 
-## 📌 Projekt-Snapshot
-- **Feature Status:** 80 % gesamt · Core 100 %
-- **Tests:** 384 passed / 7 skipped (siehe `pytest -q`)
-- **Coverage:** 79–80 % (validators/public_link 100 %)
-- **Tenant-Modell:** `first_name`, `last_name`, `date_of_birth`, `emergency_contact_*`, `notes` seit Migration `0026_add_tenant_names`
-- **Master Action Plan:** Phasen 1–4 erledigt → siehe `docs/MASTER_ACTION_PLAN_DONE.md`
+---
 
-## 🛠️ Arbeitsablauf für neue Tasks
-1. Prüfe `docs/MASTER_ACTION_PLAN.md` für offene To-dos/M17–M20 Vorbereitungen
-2. Aktualisiere bei Start eines Tasks diese Datei mit Status & Fokus
-3. Implementiere Änderungen (`backend/app/...`), ergänze Tests bei Bedarf
-4. Führe `pytest -q` sowie zielgerichtete Tests aus
-5. Dokumentiere Anpassungen (README, ROADMAP, relevante Docs)
-6. Verschiebe abgeschlossene Tasks nach `docs/MASTER_ACTION_PLAN_DONE.md`
-7. Stelle sicher, dass Security-/Performance-Guides aktuell bleiben
+## 🏗️ Architecture Overview
 
-## 🧩 Architektur & Konventionen
-- **Backend:** Django 5.1, Python 3.12, Service-Layer (`landlord/services`)
-- **FSM:** Ausgelagert nach `landlord/fsm_handlers.py`, Zustände per Registry, Tests in `tests/test_fsm_*`
-- **Async:** Celery (`config/celery_app.py`), Chat-Anhänge → `finalize_chat_attachments`
-- **Audit Logging:** `landlord/models_audit.py`, `landlord/services/audit.py` – keine Mutationen, HMAC für sensitive Aktionen
-- **Security Defaults:** Prod-Settings (`config.settings.prod`) per WSGI/ASGI; Secrets ausschließlich via Env (`docs/SECURITY_ENV_VARS.md`)
+**Monolith Structure:** Single `landlord` app with layered architecture
+- **Models:** `landlord/models.py` (1400+ lines, all domain models)
+- **Services:** `landlord/services/*.py` (business logic, transactions)
+- **Views:** Split by domain (`views_portal.py`, `views_tenant.py`, `views_contracts.py`, etc.)
+- **FSM:** State Handler Pattern (`fsm.py` dispatcher → `fsm_handlers.py` registry)
 
-### Coding Standards
-- Line length 100, Ruff + Black (siehe `pyproject.toml`)
-- Typisierung mit `from __future__ import annotations`
-- Tests unter `backend/app/tests/` (Pytest + Django fixtures)
-- Neue Dienste im passenden `services/` Modul kapseln
+**Key Components:**
+- **Chat System:** Multi-step FSM (`GREETING` → `CAPTURE_SUMMARY` → ... → `CREATE_ISSUE`)
+- **Async Jobs:** Celery (`finalize_chat_attachments`, email tasks)
+- **Auth:** Magic-Link (tenant/vendor), Django Admin (staff)
+- **Audit:** Immutable logs (`models_audit.py`) with HMAC signatures
 
-## 🔍 Test & Qualität
-```bash
-# Dev-Mode aktivieren
+---
+
+## 🔧 Critical Development Patterns
+
+### 1. Settings Management (CRITICAL!)
+```python
+# Production is DEFAULT (wsgi.py, asgi.py, celery_app.py)
+# Override for local dev:
 export DJANGO_SETTINGS_MODULE=config.settings.dev
+# OR add to .env: DJANGO_SETTINGS_MODULE=config.settings.dev
+```
+**Why:** Security hardening (Phase 1.2) moved prod to default. Always override locally!
 
-# Vollsuite
+### 2. State Handler Pattern (FSM)
+```python
+# fsm_handlers.py - Each state = one function
+def handle_capture_summary(message, payload):
+    # Validate, detect category, return (next_state, prompt, delta, warnings)
+    return ("CAPTURE_OCCURRED_AT", prompt, {"summary": text}, [])
+
+# Register in STATE_HANDLERS dict at bottom of file
+STATE_HANDLERS = {
+    "CAPTURE_SUMMARY": handle_capture_summary,
+    # ...
+}
+```
+**Why:** Reduced CC from 46 → 3. Add new states by adding handler + registry entry.
+
+### 3. Service Layer Transactions
+```python
+# services/chat_session.py
+def message(session_id, version, state, message, files=None):
+    # 1. Validate FSM transition OUTSIDE transaction
+    fsm = ChatFSM()
+    new_state, prompt, delta, warnings = fsm.next(state, message, {})
+    
+    # 2. Optimistic locking with version check
+    with transaction.atomic():
+        rows = ChatSession.objects.filter(id=session_id, version=version).update(...)
+        if rows == 0:
+            raise RuntimeError("STATE_VERSION_CONFLICT")
+        # 3. Merge payload in Python (prevents lost updates)
+```
+**Why:** Prevents race conditions in concurrent chat sessions. Always check `version`.
+
+### 4. Async File Processing
+```python
+# Chat uploads staged to temp/, moved async after Issue creation
+payload.setdefault("temp_files", []).extend(staged)  # During chat
+# Later: finalize_chat_attachments.delay(issue_id)  # Celery task
+```
+**Why:** 50x response time improvement (10s → 200ms). Never block HTTP thread for file I/O.
+
+---
+
+## 🧪 Testing Essentials
+
+### Running Tests
+```bash
+# Full suite (384 tests)
 docker compose exec web pytest -q
 
-# Coverage Bericht
+# With coverage report
 docker compose exec web pytest --cov=landlord --cov=config --cov-report=html
+
+# Specific module
+docker compose exec web pytest tests/test_fsm_handlers.py -v
+
+# Skip infrastructure tests locally
+docker compose exec -e SECURE_SSL_REDIRECT=0 web pytest -q
 ```
-- Skipped Tests dokumentieren (pytest markers + README Hinweis)
-- PRs sollen rote Tests verhindern; bei Infrastrukturtests `$SECURE_SSL_REDIRECT=0`
 
-## 🚀 Deployment Hinweise
-- Produktionsleitfaden: `docs/DEPLOYMENT.md`
-- Nach Schema: migrate → check --deploy → pytest → collectstatic → healthz
-- Tenant-Felder erfordern aktualisierte Admin-Formulare & Vertragsvorlagen
-- Sentry optional: `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `SENTRY_TRACES_SAMPLE_RATE`
+### Test Markers
+```python
+@pytest.mark.throttle  # For rate-limit tests (others auto-skip throttle)
+@pytest.mark.skip(reason="Infra dependency")  # Document skipped tests
+```
 
-## 📚 Schlüssel-Dokumente
-- `README.md` · `ROADMAP.md`
-- `docs/MASTER_ACTION_PLAN.md` / `_DONE.md`
-- `docs/codex_executive_summary.md` (Score 90/100)
-- `docs/TEST_COVERAGE_GAPS_REPORT.md` (aktualisiert, jetzt grüne Bereiche)
-- `docs/DEPLOYMENT.md`, `docs/OPERATIONS_RUNBOOK.md`
+### Coverage Targets
+- Overall: 79–80% (validators/public_link 100%)
+- New modules: Aim for 90%+ before merging
+- Critical paths: FSM handlers, service transactions, auth flows
 
-## ✅ Merkliste nach Änderungen
-- [ ] Code + Tests aktualisiert
-- [ ] Dokumentation synchronisiert (README/ROADMAP/copilot instructions)
-- [ ] Master Action Plan gepflegt
-- [ ] Security & Performance Reports bei relevanten Änderungen notiert
+---
 
-Bleibe bei Änderungen konsistent, dokumentiere Tenant-bezogene Daten sorgfältig (Art. 6 DSGVO), und halte den Exit-ready Status (80 %) stets sichtbar.
+## 🔐 Security Conventions
+
+### 1. No Default Secrets
+```python
+# config/settings/base.py
+SECRET_KEY = os.getenv("SECRET_KEY")  # NO fallback!
+if not SECRET_KEY:
+    raise ImproperlyConfigured("Generate with: python -c '...'")
+```
+
+### 2. Audit Logging (Immutable)
+```python
+from landlord.services.audit import log_audit
+
+log_audit(
+    action="tenant_erased",
+    actor=request.user,
+    target_object=tenant,
+    metadata={"reason": "GDPR request"},
+    request=request  # Captures IP, User-Agent
+)
+```
+**Why:** GDPR compliance. Logs cannot be edited/deleted after creation.
+
+### 3. Tenant Data (§ 550 BGB)
+```python
+# Tenant model requires first_name/last_name for legal contracts
+# Migration 0026_add_tenant_names added these fields
+# Always validate in forms/serializers before saving
+```
+
+---
+
+## 📦 Docker & Local Dev
+
+### Start Development Stack
+```powershell
+docker compose up -d
+docker compose exec web python manage.py migrate
+docker compose exec web python manage.py createsuperuser
+
+# Mailhog for magic-link testing: http://localhost:8025
+# Admin: http://localhost:8000/admin/
+# Portal: http://localhost:8000/portal/
+```
+
+### Live Reload
+Source code mounted at `./backend/app:/app` – changes auto-reload Django dev server.
+
+### Worker Logs
+```bash
+docker compose logs -f worker  # Watch Celery tasks
+docker compose logs -f beat    # Watch scheduled jobs
+```
+
+---
+
+## 🚀 Deployment Checklist
+
+Before deploying:
+1. `docker compose exec web python manage.py check --deploy` (0 warnings required)
+2. `docker compose exec web pytest -q` (384 tests passing)
+3. Update `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS` in prod env
+4. Rotate `SECRET_KEY` (generate new, never reuse dev keys)
+5. Run `collectstatic` (WhiteNoise serves in prod)
+6. Check migration `0026_add_tenant_names` applied
+
+**Prod Settings:** `config.settings.prod` (default since Phase 1.2)  
+**Health Check:** `curl https://yourdomain.com/healthz`
+
+---
+
+## 📚 Key Documentation
+
+- `README.md` – Feature matrix, quick start, deployment overview
+- `ROADMAP.md` – M1–M16 status, M17–M20 planned features
+- `docs/DEPLOYMENT.md` – Full production deployment guide
+- `docs/MASTER_ACTION_PLAN_DONE.md` – Refactoring changelog (40h sprint)
+- `docs/codex_executive_summary.md` – Security audit results (90/100)
+
+---
+
+## ✅ Change Workflow
+
+1. Check `docs/MASTER_ACTION_PLAN.md` for current priorities
+2. Create feature branch: `git checkout -b feature/M17-ocr`
+3. Implement with tests (maintain 80%+ coverage)
+4. Update docs (README, ROADMAP if adding features)
+5. Run full test suite + linting (`ruff check .`, `black .`)
+6. Document in `MASTER_ACTION_PLAN_DONE.md` if completing planned task
+7. PR with reference to milestone/issue
+
+**DSGVO Note:** Tenant data changes require audit log + documentation update.
