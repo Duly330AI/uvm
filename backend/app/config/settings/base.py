@@ -274,17 +274,17 @@ SENTRY_DSN = os.getenv("SENTRY_DSN")
 if SENTRY_DSN:
     try:
         import sentry_sdk
-        from sentry_sdk.integrations.django import DjangoIntegration
         from sentry_sdk.integrations.celery import CeleryIntegration
+        from sentry_sdk.integrations.django import DjangoIntegration
         from sentry_sdk.integrations.redis import RedisIntegration
-        
+
         # Determine environment
         sentry_environment = os.getenv("SENTRY_ENVIRONMENT", "production")
-        
+
         # Traces sample rate (0.0 to 1.0)
         # Default 0.1 = 10% of transactions for performance monitoring
         traces_sample_rate = float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1"))
-        
+
         sentry_sdk.init(
             dsn=SENTRY_DSN,
             integrations=[
@@ -293,26 +293,26 @@ if SENTRY_DSN:
                 RedisIntegration(),
             ],
             environment=sentry_environment,
-            
+
             # Performance Monitoring
             traces_sample_rate=traces_sample_rate,
-            
+
             # Send default PII (user IDs, emails) for better error context
             send_default_pii=True,
-            
+
             # Release tracking (use git commit hash in production)
             release=os.getenv("SENTRY_RELEASE", "uvm@dev"),
-            
+
             # Before-send hook to scrub sensitive data if needed
             # before_send=lambda event, hint: event,  # Customize as needed
         )
-        
+
         # Log successful initialization (only in non-DEBUG mode to avoid noise)
         if not DEBUG:
             import logging
             logger = logging.getLogger(__name__)
             logger.info(f"Sentry initialized for environment: {sentry_environment}")
-            
+
     except ImportError:
         # Sentry SDK not installed - log warning
         import warnings

@@ -5,6 +5,7 @@
 ## Overview
 
 UVM includes production-ready Sentry.io integration for:
+
 - **Error Tracking:** Automatic exception capture with full context
 - **Performance Monitoring (APM):** Transaction tracking for slow endpoints
 - **Release Tracking:** Git commit-based release tagging
@@ -15,8 +16,15 @@ UVM includes production-ready Sentry.io integration for:
 ### 1. Sign Up & Create Project
 
 1. Go to [sentry.io](https://sentry.io) and create account
-2. Create new project (select "Django" as platform)
-3. Copy the DSN (Data Source Name) from project settings
+2. **Create TWO projects:**
+   - **"UVM-Production"** for live errors
+   - **"UVM-Development"** for local testing (already done ✅)
+3. Copy the DSN (Data Source Name) from each project settings
+
+**Why separate projects?**
+- Development errors don't pollute production dashboard
+- Different alert rules (dev = silent, prod = notify team)
+- Clear separation of environments
 
 ### 2. Configure Environment Variables
 
@@ -52,7 +60,27 @@ docker compose restart web worker beat
 
 - `0.0` = No performance monitoring (only errors)
 - `0.1` = 10% of transactions (recommended for production)
-- `1.0` = 100% of transactions (useful for staging, expensive in production)
+- `1.0` = 100% of transactions (useful for staging/development, expensive in production)
+
+**Example Performance Insights:**
+
+Sentry will show you:
+```
+Slow Transactions (>2s):
+1. POST /api/payments/csv/upload/  - 8.5s  (2x per day)
+   └─ Cause: Synchronous file processing
+   └─ Fix: Move to async Celery task ✅ (Already done in Phase 2.3!)
+
+2. GET /portal/payments/  - 3.2s  (10x per day)
+   └─ Cause: Loading all payments without pagination
+   └─ Fix: Add pagination ✅ (Already done in Phase 2.2!)
+
+3. GET /portal/issues/  - 1.8s  (50x per day)
+   └─ Cause: N+1 query (loading attachments)
+   └─ Fix: Use select_related() / prefetch_related()
+```
+
+This helps you identify bottlenecks **before users complain**!
 
 ### Environment Tags
 
@@ -77,30 +105,67 @@ export SENTRY_RELEASE=uvm@$(git rev-parse --short HEAD)
 - **Celery:** Background task error tracking
 - **Redis:** Cache operation monitoring
 
-## Testing
+## What You See in Production
 
-### Trigger Test Error
+### Real-World Example
 
-Add a test view to trigger an error:
+When a user encounters an error, Sentry captures:
 
-```python
-# Add to config/urls.py for testing
-def sentry_test(request):
-    division_by_zero = 1 / 0
+**Error Details:**
+- Exception type: `ValueError`, `DoesNotExist`, `IntegrityError`
+- Stack trace with exact line numbers
+- Request URL and method (GET/POST)
+- SQL queries that were executed
 
-urlpatterns = [
-    # ...
-    path('sentry-test/', sentry_test),  # Remove after testing!
-]
+**User Context:**
+- User ID and email (if authenticated)
+- IP address
+- Browser and OS
+- Session data
+
+**Environment:**
+- Release version (git commit hash)
+- Server hostname
+- Django version
+- Database backend
+
+**Timeline:**
+- When the error occurred
+- How many times it happened
+- First seen vs last seen
+- Affected users count
+
+### Example Error in Sentry Dashboard
+
+```
+DoesNotExist: Property matching query does not exist.
+
+File: landlord/views_portal.py, line 142
+  property = Property.objects.get(id=property_id)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+User: admin@example.com (ID: 1)
+URL: /portal/properties/999/
+Request: GET
+Time: 2025-10-23 16:00:00 UTC
+Environment: production
+Release: uvm@a1b2c3d
 ```
 
-Visit `/sentry-test/` - error should appear in Sentry dashboard within seconds.
+This tells you:
+- ✅ What broke (Property DoesNotExist)
+- ✅ Where (views_portal.py line 142)
+- ✅ Who was affected (admin@example.com)
+- ✅ How to reproduce (GET /portal/properties/999/)
+
+**Action:** Add `.get_object_or_404()` or proper error handling
 
 ## Security Notes
 
 ### PII Handling
 
 By default, Sentry captures:
+
 - User IDs
 - User emails
 - Request data (headers, body)
@@ -141,12 +206,14 @@ After activation, verify:
 ## Cost Estimation
 
 Sentry pricing based on:
+
 - **Events:** Errors + Transactions
 - **Data Retention:** 90 days standard
 
 **Free tier:** 5,000 errors/month + 10,000 transactions/month
 
 **Recommended for UVM:**
+
 - Production: Team plan (~$26/month)
 - Staging: Free tier
 - Development: Disabled (local logs sufficient)
@@ -156,6 +223,7 @@ Sentry pricing based on:
 ### Sentry not initializing
 
 Check logs for:
+
 ```
 WARNING: SENTRY_DSN is set but sentry-sdk is not installed.
 ```
@@ -172,6 +240,7 @@ Solution: `pip install sentry-sdk` and rebuild Docker image.
 ### Too many events
 
 Reduce sample rate:
+
 ```bash
 SENTRY_TRACES_SAMPLE_RATE=0.01  # 1% instead of 10%
 ```

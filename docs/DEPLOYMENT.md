@@ -1,18 +1,10 @@
 # UVM - Production Deployment Guide# Production Deployment Guide
 
-
-
 **Phase 4.3 - Complete Production Deployment Checklist (2025-10-23)**## P0 Produktions-Härtung ✅
-
-
 
 ---Dieses Setup verwendet Gunicorn + Uvicorn Workers, WhiteNoise für Static Files, optionales S3/MinIO für Media und Security-Hardening.
 
-
-
 ## Table of Contents---
-
-
 
 1. [Prerequisites](#prerequisites)## Voraussetzungen
 
@@ -38,19 +30,13 @@
 
 12. [Troubleshooting](#troubleshooting)### 1. Secret Key generieren
 
-
-
 ---```bash
 
 python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
 
 ## Prerequisites```
 
-
-
 ### System Requirements### 2. `.env` Datei erstellen
-
-
 
 - **OS:** Linux (Ubuntu 22.04 LTS recommended)```bash
 
@@ -63,8 +49,6 @@ python -c 'from django.core.management.utils import get_random_secret_key; print
 - **Docker:** 24.0+
 
 - **Docker Compose:** 2.20+### 3. Build & Start
-
-
 
 ### Required Accounts```bash
 
@@ -84,7 +68,7 @@ python -c 'from django.core.management.utils import get_random_secret_key; print
 
 ---docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f web
 
-```
+````
 
 ## Pre-Deployment Checklist
 
@@ -148,7 +132,7 @@ docker compose exec web python manage.py collectstatic --dry-run --noinput```
 
 - [ ] Remove default admin credentialsPOSTGRES_PASSWORD=<starkes-passwort>
 
-```
+````
 
 ### Database
 
@@ -172,13 +156,9 @@ DEFAULT_FROM_EMAIL=noreply@yourdomain.com
 
 ## Environment Configuration```
 
-
-
 ### Create Production `.env` File### S3/MinIO (optional)
 
-
-
-```bash```env
+`bash`env
 
 # Copy templateUSE_S3=true
 
@@ -190,7 +170,7 @@ AWS_SECRET_ACCESS_KEY=<minio-secret>
 
 nano .env.productionAWS_S3_ENDPOINT_URL=http://minio:9000
 
-``````
+```````
 
 
 
@@ -456,13 +436,9 @@ docker compose --env-file .env.production run --rm web python manage.py migrate 
 
 docker compose --env-file .env.production run --rm web python manage.py createsuperuser}
 
-``````
-
-
+```````
 
 ### 3. Load Initial Data (Optional)---
-
-
 
 ```bash## Troubleshooting
 
@@ -490,7 +466,7 @@ Create or verify `docker-compose.prod.yml`:
 
 ### CSRF Errors
 
-```yaml
+````yaml
 
 version: '3.8'```bash
 
@@ -633,7 +609,7 @@ volumes:
   redis_data:
   static_volume:
   media_volume:
-```
+````
 
 ### Deploy to Production
 
@@ -728,7 +704,7 @@ http {
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
             proxy_redirect off;
-            
+
             # Timeouts
             proxy_connect_timeout 60s;
             proxy_send_timeout 60s;
@@ -923,6 +899,7 @@ docker compose exec web netstat -tulpn | grep 8000
 ```
 
 **Solution:** Restart web service
+
 ```bash
 docker compose restart web
 ```
@@ -950,6 +927,7 @@ docker compose exec nginx ls -la /app/staticfiles
 ```
 
 **Solution:** Restart nginx
+
 ```bash
 docker compose restart nginx
 ```
@@ -965,6 +943,7 @@ docker compose exec worker python -c "import redis; r=redis.from_url('redis://re
 ```
 
 **Solution:** Restart worker
+
 ```bash
 docker compose restart worker beat
 ```
@@ -980,6 +959,7 @@ openssl s_client -connect yourdomain.com:443 -servername yourdomain.com < /dev/n
 ```
 
 **Solution:** Reload nginx after renewal
+
 ```bash
 docker compose exec nginx nginx -s reload
 ```
@@ -991,16 +971,19 @@ docker compose exec nginx nginx -s reload
 ### Regular Tasks
 
 **Daily:**
+
 - Monitor error logs
 - Check Sentry for new issues
 - Verify backup completion
 
 **Weekly:**
+
 - Review performance metrics
 - Update dependencies (security patches)
 - Test backup restoration
 
 **Monthly:**
+
 - Rotate log files
 - Review and archive old data
 - Security audit
@@ -1030,6 +1013,6 @@ docker compose exec nginx nginx -s reload
 
 ---
 
-**Last Updated:** 2025-10-23  
-**Version:** 1.0.0  
+**Last Updated:** 2025-10-23
+**Version:** 1.0.0
 **Status:** Production-Ready ✅

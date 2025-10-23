@@ -51,14 +51,14 @@
 
 ### Key Components
 
-| Service | Port | Purpose | Resource Limits |
-|---------|------|---------|-----------------|
-| Nginx | 80, 443 | Reverse proxy, SSL termination | 512MB RAM |
-| Web (Gunicorn) | 8000 | Django application | 1GB RAM per worker |
-| Worker (Celery) | - | Background tasks | 512MB RAM per worker |
-| Beat (Celery) | - | Task scheduler | 256MB RAM |
-| PostgreSQL | 5432 | Primary database | 2GB RAM |
-| Redis | 6379 | Cache & message broker | 256MB RAM |
+| Service         | Port    | Purpose                        | Resource Limits      |
+| --------------- | ------- | ------------------------------ | -------------------- |
+| Nginx           | 80, 443 | Reverse proxy, SSL termination | 512MB RAM            |
+| Web (Gunicorn)  | 8000    | Django application             | 1GB RAM per worker   |
+| Worker (Celery) | -       | Background tasks               | 512MB RAM per worker |
+| Beat (Celery)   | -       | Task scheduler                 | 256MB RAM            |
+| PostgreSQL      | 5432    | Primary database               | 2GB RAM              |
+| Redis           | 6379    | Cache & message broker         | 256MB RAM            |
 
 ### Service Dependencies
 
@@ -223,15 +223,15 @@ docker compose exec redis redis-cli llen celery
 
 ### Alerting Thresholds
 
-| Metric | Warning | Critical | Action |
-|--------|---------|----------|--------|
-| CPU Usage | >70% | >90% | Scale horizontally |
-| Memory Usage | >75% | >90% | Restart services / Scale |
-| Disk Usage | >75% | >90% | Clean logs / Expand storage |
-| DB Connections | >50 | >80 | Check connection leaks |
-| Error Rate | >10/min | >50/min | Check logs immediately |
-| Response Time | >2s | >5s | Check slow queries |
-| Queue Length | >100 | >500 | Add workers |
+| Metric         | Warning | Critical | Action                      |
+| -------------- | ------- | -------- | --------------------------- |
+| CPU Usage      | >70%    | >90%     | Scale horizontally          |
+| Memory Usage   | >75%    | >90%     | Restart services / Scale    |
+| Disk Usage     | >75%    | >90%     | Clean logs / Expand storage |
+| DB Connections | >50     | >80      | Check connection leaks      |
+| Error Rate     | >10/min | >50/min  | Check logs immediately      |
+| Response Time  | >2s     | >5s      | Check slow queries          |
+| Queue Length   | >100    | >500     | Add workers                 |
 
 ---
 
@@ -239,12 +239,12 @@ docker compose exec redis redis-cli llen celery
 
 ### Incident Severity Levels
 
-| Level | Description | Response Time | Example |
-|-------|-------------|---------------|---------|
-| P0 (Critical) | Service down, data loss | Immediate | Database corruption |
-| P1 (High) | Major feature broken | <15 min | Login not working |
-| P2 (Medium) | Feature degraded | <1 hour | Slow page loads |
-| P3 (Low) | Minor issue | <24 hours | UI glitch |
+| Level         | Description             | Response Time | Example             |
+| ------------- | ----------------------- | ------------- | ------------------- |
+| P0 (Critical) | Service down, data loss | Immediate     | Database corruption |
+| P1 (High)     | Major feature broken    | <15 min       | Login not working   |
+| P2 (Medium)   | Feature degraded        | <1 hour       | Slow page loads     |
+| P3 (Low)      | Minor issue             | <24 hours     | UI glitch           |
 
 ### P0 - Critical Incident Response
 
@@ -297,6 +297,7 @@ echo "Next steps: Analyze logs and determine root cause"
 **Severity:** [P0/P1/P2/P3]
 
 **Impact:**
+
 - Users affected: [Estimate]
 - Features impacted: [List]
 - Data integrity: [OK/At Risk]
@@ -304,6 +305,7 @@ echo "Next steps: Analyze logs and determine root cause"
 **Status:** [Investigating/Identified/Monitoring/Resolved]
 
 **Timeline:**
+
 - HH:MM - Incident detected
 - HH:MM - Team notified
 - HH:MM - Root cause identified
@@ -317,6 +319,7 @@ echo "Next steps: Analyze logs and determine root cause"
 [Steps taken]
 
 **Action Items:**
+
 - [ ] Post-mortem scheduled
 - [ ] Monitoring alerts updated
 - [ ] Documentation updated
@@ -616,22 +619,22 @@ echo "Verify application functionality manually."
 
 ## Contact Information
 
-| Role | Name | Contact | Availability |
-|------|------|---------|--------------|
-| On-Call Engineer | TBD | +49-XXX | 24/7 |
-| Database Admin | TBD | dba@yourdomain.com | Business hours |
-| Security Team | TBD | security@yourdomain.com | 24/7 |
-| Management | TBD | ops@yourdomain.com | Business hours |
+| Role             | Name | Contact                 | Availability   |
+| ---------------- | ---- | ----------------------- | -------------- |
+| On-Call Engineer | TBD  | +49-XXX                 | 24/7           |
+| Database Admin   | TBD  | dba@yourdomain.com      | Business hours |
+| Security Team    | TBD  | security@yourdomain.com | 24/7           |
+| Management       | TBD  | ops@yourdomain.com      | Business hours |
 
 ---
 
 ## Revision History
 
-| Date | Version | Changes | Author |
-|------|---------|---------|--------|
-| 2025-10-23 | 1.0.0 | Initial runbook | UVM Team |
+| Date       | Version | Changes         | Author   |
+| ---------- | ------- | --------------- | -------- |
+| 2025-10-23 | 1.0.0   | Initial runbook | UVM Team |
 
 ---
 
-**Last Updated:** 2025-10-23  
+**Last Updated:** 2025-10-23
 **Status:** Production-Ready ✅
