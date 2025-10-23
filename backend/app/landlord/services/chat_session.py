@@ -136,14 +136,14 @@ def confirm(session_id, idempotency_key=None, tenant=None) -> Tuple[int, str]:
         if staged:
             from landlord.tasks import finalize_chat_attachments
             from landlord.utils.hmac_signatures import sign_payload
-            
+
             # Sign the payload to prevent tampering
             task_payload = {
                 "issue_id": issue.id,
                 "staged_files": staged
             }
             signature = sign_payload(task_payload)
-            
+
             # Fire-and-forget: Don't wait for file processing
             try:
                 finalize_chat_attachments.delay(issue.id, staged, signature)

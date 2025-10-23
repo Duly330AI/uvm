@@ -303,11 +303,12 @@ def finalize_chat_attachments(self, issue_id: int, staged_files: list, signature
 
     Returns:
         dict with 'attached_count', 'failed_count', 'errors'
-        
+
     Raises:
         ValueError: If signature verification fails
     """
     from django.db import transaction
+
     from landlord.utils.hmac_signatures import verify_payload
 
     # Security: Verify signature BEFORE processing

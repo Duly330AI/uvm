@@ -117,7 +117,7 @@ def payment_csv_upload(request):
         # Max 10,000 rows per upload (prevents CPU exhaustion from malicious files)
         MAX_ROWS = 10_000
         rows = list(csv_reader)
-        
+
         if len(rows) > MAX_ROWS:
             messages.error(
                 request,
