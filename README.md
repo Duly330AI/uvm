@@ -1,371 +1,124 @@
 # 🏢 UVM – Universal Vermieter Management
 
 **Version:** 1.0.0 (Production-Ready)
-**Status:** 🎉 **80% Complete - Core Features 100% Done!** (M1-M16 ✅, M17-M20 📋)
-**Security Score:** 90/100 (All critical issues resolved)
-**Tests:** 358 passing | **Coverage:** 79%
+**Status:** 🚀 **80 % complete – Core Features 100 % live (M1–M16)**
+**Security Score:** 90/100 (Codex re-audit 2025‑10‑23)
+**Test Suite:** 384 passing (7 skipped, documented) · **Coverage:** 79–80 %
 **Repository:** https://github.com/Duly330AI/uvm
 
 ---
 
-## 📊 Projekt-Status
-
-### **Implementierte Features (Production-Ready):**
-
-```
-✅ Phase 1: Dokumente (8h DONE)
-   - M11b: Documents → Units/Properties
-   - M17a: Document Version History (included in M12a)
-
-✅ Phase 2: Verträge & Finanzen (8.25h DONE)
-   - M12a: Contract Management System (4.5h actual)
-   - M12b: Payment CSV Import (2h actual)
-   - M14: Utility Readings & Cost Calculation (1.75h actual!)
-
-✅ Phase 3: Checklisten (12h planned → 0.92h actual!) 🔥
-   - M16: Handover Protocols System
-   - ✓ ChecklistTemplate Model (Vorlagen: Einzug, Auszug, Wartung)
-   - ✓ Checklist Model (Konkrete Checklisten mit Status)
-   - ✓ ChecklistItem Model (Prüfpunkte mit Fotos & Zustandsbewertung)
-   - ✓ 7 Views (Templates, Create, Detail, Item Update, Complete, PDF)
-   - ✓ 6 Templates (List, Create Form, Interactive Detail, PDF Export)
-   - ✓ Inline Editing mit AJAX (Checkbox, Condition, Notes, Photos)
-   - ✓ Completion Percentage Tracking
-   - ✓ Print-to-PDF Export (Browser-native)
-   - ✓ 8 Tests (106 total passed)
-   - ✓ Django Admin mit Inlines
-
-✅ Phase 4: Wartungskalender (12h planned → 0.75h actual!) 🔥🔥🔥
-   - M15: Maintenance Calendar System
-   - ✓ MaintenanceItem Model (Simplified, no recurring)
-   - ✓ 6 Categories (Rauchmelder, Heizung, Aufzug, Feuerlöscher, Begehung, Sonstiges)
-   - ✓ 3 Status (Pending, Completed, Cancelled)
-   - ✓ Property OR Unit Assignment
-   - ✓ Due Date Tracking + Overdue Detection
-   - ✓ Cost Tracking (Estimated vs Actual)
-   - ✓ Staff Assignment + Completion Tracking
-   - ✓ 6 Views (List with Filters, Create, Detail, Complete, Edit, Delete)
-   - ✓ 6 Templates (Responsive UI with Overdue Warnings)
-   - ✓ Django Admin with Custom Display
-   - ✓ 11 Tests (109 total passed)
-   - ✓ Migration 0015
-```
-
-### **Nebenkostenabrechnung (M14) Details:**
-
-```
-✓ Zählerstand-Erfassung (Wasser, Strom, Gas, Heizung)
-✓ Automatische Verbrauchsberechnung
-✓ 4 Umlage-Schlüssel (Fläche, Personen, Verbrauch, Units)
-✓ HeizkostenV-konforme Berechnung (30% Grund + 70% Verbrauch)
-✓ Vorschuss-Berechnung & Nachzahlung/Guthaben
-✓ CSV-Export
-```
-
-### **Nächste Schritte:**
-
-```
-⏳ Security Audit + Performance Testing (12h)
-```
-
-**Siehe:** [ROADMAP.md](./ROADMAP.md) für Details
+## 🗺️ Überblick
+UVM ist eine vollwertige Hausverwaltungsplattform mit Chat-basiertem Ticketing, Vertrags- und Dokumentenverwaltung, Nebenkostenabrechnung, Checklisten, Wartungsplaner und Portalen für Mieter:innen sowie Dienstleister. Der aktuelle Stand deckt alle Kernprozesse für einen Exit-ready MVP ab; optionale Automatisierungen (M17–M20) sind geplant.
 
 ---
 
-## 🚀 Quick Start
+## ✅ Feature-Matrix (M1–M16 abgeschlossen)
+| Modul | Status | Highlights |
+| --- | --- | --- |
+| M1–M4 Ticketing & Kommunikation | ✅ | Chat-FSM v2, Status-Workflow, SLA-Metriken, Audit-Log |
+| M5–M8 Portale | ✅ | Mieter-Magic-Link, Vendor-Auftragsportal, Terminplanung |
+| M9–M11 Dokumente | ✅ | Versionierung (M17a integriert), Property/Unit-Zuordnung, Rollenrechte |
+| M12 Verträge & Zahlungen | ✅ | Vertragsverwaltung, HMAC-signierter CSV-Import (O(N)), Zahlungsjournal |
+| M14 Nebenkosten | ✅ | Utility Calculator (HeizkostenV), Verbrauchserfassung, CSV-Export |
+| M15 Wartungskalender | ✅ | Overdue Detection, Staff Assignment, Celery-Reminder |
+| M16 Checklisten | ✅ | Ein-/Auszug, Wartung, PDF-Export, Inline-Editing |
 
-### **Voraussetzungen:**
-
-- Docker & Docker Compose
-- Ports: 8000, 8025, 5432, 6379
-
-### **1. Repository klonen:**
-
-```powershell
-git clone https://github.com/Duly330AI/uvm.git
-cd uvm
-```
-
-### **2. Environment-Datei erstellen:**
-
-```powershell
-cp .env.example .env
-# Edit .env und setze SECRET_KEY, DATABASE_URL, etc.
-```
-
-### **3. Container starten:**
-
-```powershell
-docker compose up -d
-```
-
-### **4. Datenbank migrieren:**
-
-```powershell
-docker compose exec web python manage.py migrate
-docker compose exec web python manage.py createsuperuser
-```
-
-### **5. Öffnen:**
-
-- **Portal:** http://localhost:8000/portal/
-- **Admin:** http://localhost:8000/admin/
-- **Mailhog:** http://localhost:8025/
+**Kernfunktionen:** 100 % produktionsreif · **Audit Logging:** Immutable, GDPR-konform · **Async Pipelines:** Chat-Anhänge, E-Mail-Tasks · **Monitoring:** Health Checks, Sentry (opt-in)
 
 ---
 
-## 💻 Local Development
+## 📋 Roadmap (M17–M20 geplant)
+- M17b OCR & Dokument-Automation (optional)
+- M18 Finanz-Schnittstellen (Bank-API, FiBu)
+- M19 Analytics & Self-Service Dashboards
+- M20 Premium-Integrationen für Exit-Verhandlungen
 
-**Important:** The project defaults to production settings since Phase 1.2 (2025-10-22).
-
-### **For local development, override with dev settings:**
-
-```powershell
-# Option 1: Set environment variable (recommended)
-$env:DJANGO_SETTINGS_MODULE="config.settings.dev"
-
-# Option 2: Add to .env file
-echo "DJANGO_SETTINGS_MODULE=config.settings.dev" >> .env
-
-# Then restart containers
-docker compose down && docker compose up -d
-```
-
-### **Verify current settings:**
-
-```powershell
-docker compose exec web python manage.py diffsettings | Select-String "SETTINGS_MODULE"
-```
+> Fortschritt: **80 % abgeschlossen** · Rest: optionale Erweiterungen mit Business-Abstimmung
 
 ---
 
-### **1. Repository klonen:**
+## 🧪 Qualität & Tests
+- `pytest -q` → **384 passed, 7 skipped** (siehe `tests/` README)
+- Coverage-Bericht: `htmlcov/index.html` ≈ **79–80 %** (validators & public_link 100 %)
+- Wichtige Testdateien: `test_validators.py`, `test_public_link.py`, `test_checklist_integration.py`
+- Linting: `ruff check .` · Format: `black .`
 
+### Schnellstart Tests
 ```bash
-git clone https://github.com/Duly330AI/uvm.git
-cd uvm
-```
-
-### **2. Environment Setup:**
-
-```powershell
-Copy-Item .env.example .env
-```
-
-### **3. Build & Start:**
-
-```powershell
-docker compose up --build -d
-```
-
-### **4. Datenbank migrieren:**
-
-```powershell
-docker compose exec web python manage.py migrate
-docker compose exec web python manage.py createsuperuser
-```
-
-### **5. Öffnen:**
-
-- **Portal:** http://localhost:8000/portal/
-- **Admin:** http://localhost:8000/admin/
-- **Mailhog:** http://localhost:8025/
-
----
-
-## 🧪 Testing & Quality
-
-### **Tests ausführen:**
-
-```powershell
 docker compose exec web pytest -q
-```
-
-**Aktueller Stand:** 🎉 **358 Tests passing | Coverage 79%** (Production-Ready!)
-
-**Security:** 🔒 Score 90/100 (All P0/P1/P2 issues fixed)
-
-### **Coverage Report:**
-
-```powershell
-docker compose exec web pytest --cov=landlord --cov-report=html
-```
-
-Coverage Report: `backend/app/htmlcov/index.html`
-
-### **Linting:**
-
-```powershell
-# In Container
-docker compose exec web ruff check .
-docker compose exec web black --check .
-
-# Lokal (mit .venv aktiviert)
-ruff check .
-black --check .
+docker compose exec web pytest tests/test_chat_api.py::test_chat_flow_confirm_idempotent -v
 ```
 
 ---
 
-## 📦 Services (Docker Compose)
+## ⚙️ Systemarchitektur
+- **Backend:** Django 5.1, Python 3.12 (Services-Layer, FSM, Celery)
+- **Frontend:** HTMX, TailwindCSS, Alpine.js
+- **Storage:** PostgreSQL 16, Redis 7, optional S3/MinIO
+- **Async:** Celery worker + beat, HMAC-signierte Payloads
+- **Security:** Prod-Settings Default (`config.settings.prod`), SECRET_KEY erzwingt Env, sichere Cookies, DRF-Permissions hart
 
-| Service | Port | Beschreibung      |
-| ------- | ---- | ----------------- |
-| web     | 8000 | Django + Gunicorn |
-| worker  | -    | Celery Worker     |
-| beat    | -    | Celery Beat       |
-| db      | 5432 | PostgreSQL 16     |
-| redis   | 6379 | Redis 7           |
-| mailhog | 8025 | SMTP Dev Server   |
+### Tenant-Modell (Änderung 2025-10-23)
+- Felder: `first_name`, `last_name`, `date_of_birth`, `emergency_contact_*`, `notes`
+- Rechtliche Grundlage: § 550 BGB – Vertragsparteien im Mietvertrag
+- Migration: `0026_add_tenant_names.py` (bereits angewendet)
 
 ---
 
-## 🔧 Development
+## 🚀 Deployment (Kurzfassung)
+1. `.env` aus `.env.prod.example` erstellen (SECRET_KEY, DATABASE_URL, SENTRY_DSN optional)
+2. `docker compose -f docker-compose.yml -f docker-compose.prod.yml build`
+3. `docker compose ... up -d` (web, worker, beat, nginx, redis, db)
+4. `docker compose exec web python manage.py migrate`
+5. `docker compose exec web python manage.py check --deploy`
+6. `docker compose exec web pytest -q` (384 Tests)
 
-### **Feature Branch erstellen:**
+Detailleitfaden: [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)
 
-```bash
-git checkout -b feature/M14-nebenkostenabrechnung
-```
+---
 
-### **Code ändern & committen:**
-
-```bash
-git add .
-git commit -m "feat: Add Nebenkostenabrechnung feature"
-git push -u origin feature/M14-nebenkostenabrechnung
-```
-
-### **Django Shell:**
-
+## 🧑‍💻 Entwicklung & Tooling
 ```powershell
-docker compose exec web python manage.py shell
-```
+# Dev-Settings aktivieren
+$env:DJANGO_SETTINGS_MODULE = "config.settings.dev"
 
-### **Logs ansehen:**
+# Datenbank migrieren
+python manage.py migrate
 
-```powershell
-docker compose logs -f web
-docker compose logs -f worker
+# Server & Worker starten
+python manage.py runserver 0.0.0.0:8000
+celery -A config.celery_app worker -l info
 ```
+- Mailhog: http://localhost:8025
+- Tenant/Vendor Magic-Link Tests via Mailhog UI
 
 ---
 
 ## 📚 Dokumentation
-
-- **[ROADMAP.md](./ROADMAP.md)** - Feature-Roadmap & Priorisierung
-- **[docs/SPEC_v_0_5_19_10.md](./docs/uvm_universal_vermieter_managment_SPEC_v_0_5_19_10.md)** - Technical Specification
-- **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** - Deployment Guide
-
----
-
-## 🔒 Environment-Variablen
-
-Siehe [.env.example](./.env.example) für alle verfügbaren Optionen.
-
-**Wichtige Variablen:**
-
-```bash
-# Django
-SECRET_KEY=your-secret-key
-DEBUG=true
-ALLOWED_HOSTS=localhost,127.0.0.1
-
-# Database
-POSTGRES_DB=landlord
-POSTGRES_USER=landlord
-POSTGRES_PASSWORD=landlord123
-
-# Email (Dev)
-EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-EMAIL_HOST=mailhog
-EMAIL_PORT=1025
-```
+- [ROADMAP.md](./ROADMAP.md) – M1–M20 Status & Timeline
+- [docs/MASTER_ACTION_PLAN.md](./docs/MASTER_ACTION_PLAN.md) – 40 h Refactoring-Plan (100 % abgeschlossen)
+- [docs/MASTER_ACTION_PLAN_DONE.md](./docs/MASTER_ACTION_PLAN_DONE.md) – Detaillog abgeschlossen
+- [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) – Produktionsleitfaden
+- [docs/SENTRY_SETUP.md](./docs/SENTRY_SETUP.md) – Monitoring aktivieren
+- [docs/SECURITY_ENV_VARS.md](./docs/SECURITY_ENV_VARS.md) – Hardening & Secrets
 
 ---
 
-## 🎯 Features
-
-### **✅ Implementiert:**
-
-- Chat-basierte Anliegen-Meldung
-- Ticket-Verwaltung (Status-Workflow)
-- Mieter-Portal (Magic-Link Auth)
-- Vendor-Portal (Handwerker)
-- Dokumenten-Management mit Versionshistorie
-- Vertrags-Verwaltung
-- Zahlungen CSV-Import
-- Reports & KPIs
-
-### **⏳ In Entwicklung:**
-
-- Nebenkostenabrechnung
-- Checklisten (Wohnungsübergabe)
-- Wartungskalender
+## 📈 Kennzahlen & Audits
+- Codex Performance Audit Score: **90/100** (Security, Performance, Code Quality, Monitoring)
+- CSV-Import O(N) · Payment-Views paginiert · Chat-Anhänge async
+- Audit-Log & HMAC-Signaturen verhindern Manipulationen
 
 ---
 
-## 📞 Health Checks
-
-```bash
-# API Health
-GET http://localhost:8000/healthz
-→ { "status": "ok", "db": true, "redis": true }
-
-# API Ping
-GET http://localhost:8000/api/ping/
-→ { "pong": true }
-```
+## 🤝 Mitwirken
+1. Repo forken & Branch erstellen (`git checkout -b feature/<name>`)
+2. Tests & Lints ausführen
+3. Änderungen dokumentieren (`README`, `ROADMAP`, relevante docs)
+4. Pull Request mit Kontext (Link zu Master Action Plan / Issue)
 
 ---
 
-## 🛠️ Tech Stack
-
-- **Backend:** Django 5.1, Python 3.12
-- **Frontend:** HTMX, TailwindCSS, Alpine.js
-- **Database:** PostgreSQL 16
-- **Cache/Queue:** Redis 7 + Celery
-- **Storage:** Local FileSystem (S3-ready)
-- **Email:** Mailhog (Dev) / SMTP (Prod)
-
----
-
-## 📈 Projektfortschritt
-
-```
-Total bis Go-Live: 76h (10 Arbeitstage)
-Fertig: 14.5h (19%)
-Verbleibend: 61.5h (8 Tage)
-
-Features:
-✅ M11b: Dokumente → Units (5.5h)
-✅ M17a: Versionshistorie (2.5h)
-✅ M12a: Vertrags-System (4.5h)
-✅ M12b: Zahlungen CSV (2h)
-✅ M14: Nebenkostenabrechnung (6h)
-✅ M15: Wartungskalender (12h)
-✅ M16: Checklisten (12h)
-
-```
-
----
-
-## 🤝 Contributing
-
-1. Fork das Repository
-2. Feature Branch erstellen (`git checkout -b feature/AmazingFeature`)
-3. Änderungen committen (`git commit -m 'feat: Add AmazingFeature'`)
-4. Branch pushen (`git push origin feature/AmazingFeature`)
-5. Pull Request öffnen
-
----
-
-## 📄 License
-
-Private Repository - All Rights Reserved
-
----
-
-**Erstellt von:** AI Assistant
-**Letzte Aktualisierung:** 19.10.2025 03:00 Uhr
-**Version:** 0.8.0 (M12a + M12b Complete)
+## © Lizenz & Kontakt
+Privates Repository · Alle Rechte vorbehalten · Maintained by Duly330AI
