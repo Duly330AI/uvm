@@ -288,14 +288,14 @@ if SENTRY_DSN:
         def before_send(event, hint):
             """
             Scrub sensitive data before sending to Sentry (GDPR/DSGVO compliance).
-            
+
             Security Fix (2025-10-23): Prevent PII exposure in Sentry.
             Removes sensitive fields while keeping useful debug context.
             """
             # Remove sensitive cookies
             if 'request' in event and 'cookies' in event['request']:
                 event['request']['cookies'] = {'[Filtered]': '[Sensitive data removed]'}
-            
+
             # Remove authorization headers
             if 'request' in event and 'headers' in event['request']:
                 headers = event['request']['headers']
@@ -303,7 +303,7 @@ if SENTRY_DSN:
                 for header in sensitive_headers:
                     if header in headers:
                         headers[header] = '[Filtered]'
-            
+
             # Remove POST data (may contain passwords, personal data)
             if 'request' in event and 'data' in event['request']:
                 # Keep structure but filter values
@@ -313,7 +313,7 @@ if SENTRY_DSN:
                     }
                 else:
                     event['request']['data'] = '[Filtered]'
-            
+
             return event
 
         sentry_sdk.init(

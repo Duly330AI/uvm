@@ -129,16 +129,34 @@ def confirm(session_id, idempotency_key=None, tenant=None) -> Tuple[int, str]:
 
         # Phase 2.3 - Async file processing (2025-10-23):
         # Dispatch file processing to background task instead of blocking HTTP thread
+        #
+        # Security Fix (2025-10-23 P1-2): HMAC signature to prevent payload tampering
+        # If Redis/broker is compromised, attacker can't inject arbitrary file paths
         staged = payload.get("temp_files") or []
         if staged:
             from landlord.tasks import finalize_chat_attachments
+            from landlord.utils.hmac_signatures import sign_payload
+            
+            # Sign the payload to prevent tampering
+            task_payload = {
+                "issue_id": issue.id,
+                "staged_files": staged
+            }
+            signature = sign_payload(task_payload)
+            
             # Fire-and-forget: Don't wait for file processing
             try:
-                finalize_chat_attachments.delay(issue.id, staged)
-            except Exception:
-                # If task dispatch fails, log but don't block issue creation
+                finalize_chat_attachments.delay(issue.id, staged, signature)
+            except Exception as e:
+                # If task dispatch fails, log to Sentry and audit
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(
+                    f"Failed to dispatch chat attachment task for issue {issue.id}: {e}",
+                    exc_info=True,
+                    extra={"issue_id": issue.id, "file_count": len(staged)}
+                )
                 # Files remain in temp storage for manual recovery
-                pass
 
         session.issue = issue
         session.state = "DONE"

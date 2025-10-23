@@ -7,7 +7,6 @@ from __future__ import annotations
 import pytest
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.test import RequestFactory
 from landlord.models import Property, Tenant, Unit
 from landlord.models_audit import AuditLog
 from landlord.services.audit import (
@@ -124,7 +123,7 @@ class TestAuditLogModel:
     def test_bulk_delete_raises_error(self, admin_user):
         """
         Bulk deletion via QuerySet.delete() is prevented.
-        
+
         Security Fix (2025-10-23): Prevents admin from using "Delete selected"
         to bypass model.delete() immutability guard.
         """
@@ -141,11 +140,11 @@ class TestAuditLogModel:
             action=AuditLog.ACTION_CREATE,
             resource_repr="Test 2"
         )
-        
+
         # Attempt bulk delete
         with pytest.raises(ValueError, match="cannot be bulk deleted"):
             AuditLog.objects.all().delete()
-        
+
         # Verify logs still exist
         assert AuditLog.objects.count() >= 2
 

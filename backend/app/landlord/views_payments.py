@@ -113,6 +113,19 @@ def payment_csv_upload(request):
         decoded_file = csv_file.read().decode('utf-8-sig')  # Handle BOM
         csv_reader = csv.DictReader(io.StringIO(decoded_file), delimiter=';')
 
+        # Security Fix (2025-10-23): Row limit to prevent DoS attacks
+        # Max 10,000 rows per upload (prevents CPU exhaustion from malicious files)
+        MAX_ROWS = 10_000
+        rows = list(csv_reader)
+        
+        if len(rows) > MAX_ROWS:
+            messages.error(
+                request,
+                f"CSV zu groß: {len(rows):,} Zeilen. Maximum: {MAX_ROWS:,} Zeilen. "
+                f"Bitte Datei aufteilen."
+            )
+            return redirect('portal_payments')
+
         # Phase 2.1: Preload all active contracts ONCE (single DB query)
         active_contracts = list(
             Contract.objects.filter(
@@ -127,7 +140,7 @@ def payment_csv_upload(request):
         skipped_count = 0
         errors = []
 
-        for row_num, row in enumerate(csv_reader, start=2):  # Start at 2 (after header)
+        for row_num, row in enumerate(rows, start=2):  # Start at 2 (after header)
             try:
                 # Extract data (flexible column names)
                 transaction_date = _parse_date(row)

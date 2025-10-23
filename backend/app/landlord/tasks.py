@@ -286,21 +286,49 @@ def send_vendor_assignment_email(appointment_id: int) -> None:
     acks_late=True,
     time_limit=120,
 )
-def finalize_chat_attachments(self, issue_id: int, staged_files: list) -> dict:
+def finalize_chat_attachments(self, issue_id: int, staged_files: list, signature: str) -> dict:
     """
     Phase 2.3 - Async file processing (2025-10-23):
     Move staged chat files to issue storage asynchronously.
+
+    Security Fix (2025-10-23 P1-2): HMAC signature verification
+    Prevents compromised broker from injecting arbitrary file paths.
 
     This prevents blocking the HTTP thread with large file uploads (3×10MB = 30MB).
 
     Args:
         issue_id: Issue ID to attach files to
         staged_files: List of dicts with 'name', 'mime', 'size' keys
+        signature: HMAC signature of payload (prevents tampering)
 
     Returns:
         dict with 'attached_count', 'failed_count', 'errors'
+        
+    Raises:
+        ValueError: If signature verification fails
     """
     from django.db import transaction
+    from landlord.utils.hmac_signatures import verify_payload
+
+    # Security: Verify signature BEFORE processing
+    task_payload = {
+        "issue_id": issue_id,
+        "staged_files": staged_files
+    }
+    try:
+        verify_payload(task_payload, signature)
+    except ValueError as e:
+        # Log to Sentry for security monitoring
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(
+            f"SECURITY: HMAC verification failed for finalize_chat_attachments! "
+            f"Issue: {issue_id}, Files: {len(staged_files)}. "
+            f"Possible broker compromise or task replay attack.",
+            exc_info=True,
+            extra={"issue_id": issue_id, "file_count": len(staged_files)}
+        )
+        raise  # Re-raise to fail task and alert operators
 
     attached_count = 0
     failed_count = 0

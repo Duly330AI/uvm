@@ -20,7 +20,7 @@ from django.utils import timezone
 class AuditLogQuerySet(models.QuerySet):
     """
     Custom QuerySet to prevent bulk deletion/update of audit logs.
-    
+
     Security Fix (2025-10-23): Prevents admin bulk actions from bypassing
     the model's delete()/save() guards. Critical for GDPR compliance.
     """
@@ -30,7 +30,7 @@ class AuditLogQuerySet(models.QuerySet):
             "Audit logs cannot be bulk deleted. Each log is immutable for compliance. "
             "If you need to clear old logs, contact system administrator."
         )
-    
+
     def update(self, **kwargs):
         """Prevent bulk updates via QuerySet."""
         raise ValueError(
@@ -40,7 +40,7 @@ class AuditLogQuerySet(models.QuerySet):
 
 class AuditLogManager(models.Manager):
     """Custom manager for AuditLog with immutability enforcement."""
-    
+
     def get_queryset(self):
         return AuditLogQuerySet(self.model, using=self._db)
 
