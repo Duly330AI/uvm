@@ -163,13 +163,69 @@ class Unit(TimeStampedModel):
 
 
 class Tenant(TimeStampedModel):
+    """
+    Mieter-Modell
+    
+    KRITISCH (2025-10-23): Erweitert um Namensfelder für rechtlich gültige Mietverträge.
+    - Rechtliche Grundlage: § 550 BGB (Mietvertrag braucht Vertragsparteien)
+    - DSGVO-konform: Art. 6 Abs. 1 lit. b (Vertragserfüllung)
+    """
+    # User-Account (optional - für Tenant Portal Login)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # Persönliche Daten (KRITISCH - für Mietvertrag erforderlich!)
+    first_name = models.CharField(
+        max_length=100,
+        blank=True,  # Temporary: Allow empty for migration, make required in forms
+        default='',
+        verbose_name="Vorname",
+        help_text="Vorname des Mieters (§ 550 BGB erforderlich)"
+    )
+    last_name = models.CharField(
+        max_length=100,
+        blank=True,  # Temporary: Allow empty for migration, make required in forms
+        default='',
+        verbose_name="Nachname",
+        help_text="Nachname des Mieters (§ 550 BGB erforderlich)"
+    )
+    date_of_birth = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Geburtsdatum",
+        help_text="Optional - für SCHUFA, Altersverifikation"
+    )
+    
+    # Kontaktdaten
     primary_email = models.EmailField()
     phone = models.CharField(max_length=50, blank=True)
+    
+    # Wohneinheit
     unit = models.ForeignKey(Unit, on_delete=models.PROTECT, related_name="tenants", db_index=True)
+    
+    # Einzug/Auszug
     moved_in_at = models.DateField(null=True, blank=True)
     moved_out_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    
+    # Notfallkontakt (Best Practice)
+    emergency_contact_name = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name="Notfallkontakt Name",
+        help_text="Kontaktperson im Notfall"
+    )
+    emergency_contact_phone = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name="Notfallkontakt Telefon"
+    )
+    
+    # Zusätzliche Informationen
+    notes = models.TextField(
+        blank=True,
+        verbose_name="Notizen",
+        help_text="Interne Notizen (nicht für Mieter sichtbar)"
+    )
 
     class Meta:
         constraints = [
@@ -179,9 +235,20 @@ class Tenant(TimeStampedModel):
                 name="uq_active_tenant_per_unit",
             )
         ]
+        verbose_name = "Mieter"
+        verbose_name_plural = "Mieter"
+        ordering = ["last_name", "first_name"]
 
     def __str__(self) -> str:  # pragma: no cover
+        """String representation mit Namen statt nur E-Mail."""
+        if self.first_name or self.last_name:
+            return f"{self.first_name} {self.last_name}".strip()
         return self.primary_email
+    
+    @property
+    def full_name(self) -> str:
+        """Vollständiger Name für Templates/Exports."""
+        return f"{self.first_name} {self.last_name}".strip() or self.primary_email
 
 
 class Vendor(TimeStampedModel):

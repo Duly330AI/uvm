@@ -13,6 +13,7 @@ UVM uses environment variables for configuration, including sensitive secrets (S
 ## Critical Secrets
 
 ### Must NEVER appear in:
+
 - ✅ Git commits (.gitignore protects `.env`)
 - ✅ Error messages (DEBUG=False hides details)
 - ✅ Logs (Sentry PII scrubbing enabled)
@@ -21,13 +22,13 @@ UVM uses environment variables for configuration, including sensitive secrets (S
 
 ### Secrets List:
 
-| Variable | Risk Level | Description |
-|----------|-----------|-------------|
-| `SECRET_KEY` | 🔴 Critical | Django cryptographic key - rotate if exposed |
-| `DATABASE_URL` | 🔴 Critical | Contains DB password |
-| `SENTRY_DSN` | 🟡 High | Contains project ID (not private key, but sensitive) |
-| `EMAIL_HOST_PASSWORD` | 🔴 Critical | SMTP credentials |
-| `AWS_SECRET_ACCESS_KEY` | 🔴 Critical | S3 credentials (if using S3) |
+| Variable                | Risk Level  | Description                                          |
+| ----------------------- | ----------- | ---------------------------------------------------- |
+| `SECRET_KEY`            | 🔴 Critical | Django cryptographic key - rotate if exposed         |
+| `DATABASE_URL`          | 🔴 Critical | Contains DB password                                 |
+| `SENTRY_DSN`            | 🟡 High     | Contains project ID (not private key, but sensitive) |
+| `EMAIL_HOST_PASSWORD`   | 🔴 Critical | SMTP credentials                                     |
+| `AWS_SECRET_ACCESS_KEY` | 🔴 Critical | S3 credentials (if using S3)                         |
 
 ---
 
@@ -67,7 +68,7 @@ print(safe_env)
 
 ```yaml
 # docker-compose.prod.yml
-version: '3.8'
+version: "3.8"
 
 services:
   web:
@@ -78,7 +79,7 @@ services:
 
 secrets:
   secret_key:
-    file: ./secrets/secret_key.txt  # NOT in git!
+    file: ./secrets/secret_key.txt # NOT in git!
 ```
 
 ### Environment Variable Injection
@@ -100,6 +101,7 @@ environment:
 ### Risk Assessment
 
 **Sentry DSN Format:**
+
 ```
 https://PUBLIC_KEY@o4510239025594368.ingest.de.sentry.io/PROJECT_ID
 ```
@@ -155,11 +157,13 @@ fi
 ### If SECRET_KEY is Leaked:
 
 1. **Rotate immediately:**
+
    ```bash
    python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
    ```
 
 2. **Update production:**
+
    ```bash
    # Update .env or secrets manager
    export SECRET_KEY="new-value-here"
@@ -167,6 +171,7 @@ fi
    ```
 
 3. **Force logout all users:**
+
    ```python
    from django.contrib.sessions.models import Session
    Session.objects.all().delete()
@@ -182,12 +187,14 @@ fi
 ## Checklist
 
 ### Development
+
 - [ ] `.env` in `.gitignore`
 - [ ] `.env.example` has placeholder values only
 - [ ] No secrets in `docker-compose.yml`
 - [ ] `DEBUG=True` only in local development
 
 ### Production
+
 - [ ] `DEBUG=False` enforced
 - [ ] Secrets in environment or secrets manager
 - [ ] Sentry DSN in env, not hardcoded
@@ -195,6 +202,7 @@ fi
 - [ ] Error pages don't show environment vars
 
 ### CI/CD
+
 - [ ] Encrypted secrets in GitHub Actions
 - [ ] No secrets in workflow files
 - [ ] Pre-commit hook installed (optional)
@@ -234,5 +242,5 @@ git ls-files
 
 ---
 
-**Last Updated:** 2025-10-23  
+**Last Updated:** 2025-10-23
 **Status:** Production Security Policy ✅

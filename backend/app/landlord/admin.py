@@ -99,9 +99,55 @@ class UnitAdmin(admin.ModelAdmin):
 
 @admin.register(models.Tenant)
 class TenantAdmin(admin.ModelAdmin):
-	list_display = ("id", "primary_email", "phone", "unit", "is_active", "created_at")
-	search_fields = ("primary_email", "phone", "unit__unit_label")
-	list_filter = ("is_active",)
+	"""
+	Admin für Mieter mit Namen (2025-10-23 erweitert).
+	"""
+	list_display = (
+		"id",
+		"full_name_display",
+		"primary_email",
+		"phone",
+		"unit",
+		"is_active",
+		"moved_in_at",
+		"created_at"
+	)
+	list_filter = ("is_active", "moved_in_at")
+	search_fields = (
+		"first_name",
+		"last_name",
+		"primary_email",
+		"phone",
+		"unit__unit_label",
+		"unit__property__name"
+	)
+	readonly_fields = ("created_at", "updated_at")
+	
+	fieldsets = (
+		("Persönliche Daten", {
+			"fields": ("first_name", "last_name", "date_of_birth", "user")
+		}),
+		("Kontaktdaten", {
+			"fields": ("primary_email", "phone")
+		}),
+		("Wohnung & Status", {
+			"fields": ("unit", "is_active", "moved_in_at", "moved_out_at")
+		}),
+		("Notfallkontakt", {
+			"fields": ("emergency_contact_name", "emergency_contact_phone"),
+			"classes": ("collapse",)
+		}),
+		("Zusatzinformationen", {
+			"fields": ("notes", "created_at", "updated_at"),
+			"classes": ("collapse",)
+		}),
+	)
+	
+	def full_name_display(self, obj):
+		"""Zeige vollständigen Namen."""
+		return f"{obj.first_name} {obj.last_name}".strip() or "(Kein Name)"
+	full_name_display.short_description = "Name"
+	full_name_display.admin_order_field = "last_name"
 
 
 @admin.register(models.Vendor)

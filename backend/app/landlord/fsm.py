@@ -51,7 +51,7 @@ class ChatFSM:
         # Security Fix (2025-10-23 P2-1): Payload size limits to prevent log flooding
         MAX_TEXT_LENGTH = 5000  # Max chars per text field
         MAX_PAYLOAD_SIZE = 50_000  # Max total payload size in chars
-        
+
         # Validate message text length
         user_text = message.get("text", "")
         if len(str(user_text)) > MAX_TEXT_LENGTH:
@@ -59,7 +59,7 @@ class ChatFSM:
                 f"VALIDATION:text:too_long - Maximum {MAX_TEXT_LENGTH:,} characters allowed. "
                 f"Received {len(str(user_text)):,} characters."
             )
-        
+
         # Validate total payload size (prevent memory exhaustion)
         import json
         payload_str = json.dumps(payload, default=str)
@@ -68,7 +68,7 @@ class ChatFSM:
                 f"VALIDATION:payload:too_large - Session payload too large. "
                 f"Maximum {MAX_PAYLOAD_SIZE:,} bytes. Please start a new session."
             )
-        
+
         # Get handler for current state
         handler = STATE_HANDLERS.get(state)
 

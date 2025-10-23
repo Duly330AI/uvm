@@ -39,7 +39,7 @@ Das UVM-System ist eine **produktionsreife webbasierte Hausverwaltungssoftware**
 
 **Aktueller Fortschritt:** 🎉 **80% Complete (M1-M16 done, M17-M20 planned)**
 
-**Core Features:** ✅ **100% Production-Ready!** (M1-M16)  
+**Core Features:** ✅ **100% Production-Ready!** (M1-M16)
 **Verbleibend:** M17-M20 (Optional Features + Integrations)
 
 **Zeit-Effizienz:** 📈 **94% Zeitersparnis durch AI-Unterstützung!** 🔥
@@ -50,7 +50,7 @@ Das UVM-System ist eine **produktionsreife webbasierte Hausverwaltungssoftware**
 
 ### 🎫 **M1-M8: Ticketing & Kommunikation** ✅ **100% DONE**
 
-| Feature | Status | Details |
+| Feature                        | Status  | Details                                                                   |
 | ------------------------------ | ------- | ------------------------------------------------------------------------- |
 | Chat-basierte Anliegen-Meldung | ✅ 100% | Strukturierter Dialog: Problem → Kategorie → Schwere → Foto → Bestätigung |
 

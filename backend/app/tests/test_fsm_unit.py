@@ -40,10 +40,10 @@ def test_fsm_text_too_long():
     Security Fix (2025-10-23 P2-1): Prevent log flooding with huge messages.
     """
     fsm = ChatFSM()
-    
+
     # Text over 5000 chars should raise
     huge_text = "A" * 5001
-    
+
     with pytest.raises(ValueError, match="too_long"):
         fsm.next("CAPTURE_SUMMARY", {"text": huge_text}, {})
 
@@ -53,10 +53,10 @@ def test_fsm_payload_too_large():
     Security Fix (2025-10-23 P2-1): Prevent memory exhaustion with huge payloads.
     """
     fsm = ChatFSM()
-    
+
     # Build a payload >50KB
     huge_payload = {f"key_{i}": "X" * 1000 for i in range(60)}  # ~60KB
-    
+
     with pytest.raises(ValueError, match="too_large"):
         fsm.next("CAPTURE_SUMMARY", {"text": "Test"}, huge_payload)
 
@@ -64,10 +64,10 @@ def test_fsm_payload_too_large():
 def test_fsm_normal_length_accepted():
     """Verify normal-sized messages are accepted."""
     fsm = ChatFSM()
-    
+
     # 4999 chars should be OK
     normal_text = "A" * 4999
     state, _, _, _ = fsm.next("CAPTURE_SUMMARY", {"text": normal_text}, {})
-    
+
     assert state == "CAPTURE_OCCURRED_AT"
 

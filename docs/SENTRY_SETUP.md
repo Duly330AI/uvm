@@ -30,11 +30,13 @@ UVM includes production-ready Sentry.io integration for:
 ### Security Note: DSN Exposure
 
 **Sentry DSN Format:**
+
 ```
 https://PUBLIC_KEY@o4510239025594368.ingest.de.sentry.io/PROJECT_ID
 ```
 
 **What's in a DSN:**
+
 - **Public Key:** Not a secret (used in client-side JavaScript)
 - **Project ID:** Not sensitive
 - **No authentication secret** (Sentry uses rate limiting instead)
@@ -42,6 +44,7 @@ https://PUBLIC_KEY@o4510239025594368.ingest.de.sentry.io/PROJECT_ID
 **Risk if leaked:** Attacker can send fake errors to your Sentry project
 
 **Mitigation:**
+
 1. ✅ **Rate Limiting:** Sentry has built-in abuse protection (10k events/month free tier)
 2. ✅ **IP Allowlist:** Configure in Sentry project settings (Enterprise plan)
 3. ✅ **Separate DSNs:** dev vs prod (recommended above)

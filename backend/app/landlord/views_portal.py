@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.db import transaction
@@ -202,23 +203,40 @@ def tenants_list(request):
 
 @staff_member_required
 def tenant_create(request):
-    """Create new tenant"""
+    """
+    Create new tenant.
+    
+    Updated 2025-10-23: Supports first_name, last_name fields.
+    """
     if request.method == "POST":
         unit_id = request.POST.get("unit")
+        first_name = request.POST.get("first_name", "").strip()
+        last_name = request.POST.get("last_name", "").strip()
         email = request.POST.get("primary_email")
         phone = request.POST.get("phone", "")
+        date_of_birth = request.POST.get("date_of_birth") or None
         moved_in = request.POST.get("moved_in_at")
+        emergency_contact_name = request.POST.get("emergency_contact_name", "")
+        emergency_contact_phone = request.POST.get("emergency_contact_phone", "")
+        notes = request.POST.get("notes", "")
 
         if not unit_id or not email:
-            return HttpResponseBadRequest("Unit and email required")
+            messages.error(request, "Wohneinheit und E-Mail sind erforderlich.")
+            return redirect("portal_tenant_create")
 
         unit = get_object_or_404(Unit, id=unit_id)
 
         tenant = Tenant.objects.create(
             unit=unit,
+            first_name=first_name,
+            last_name=last_name,
             primary_email=email,
             phone=phone,
+            date_of_birth=date_of_birth,
             moved_in_at=moved_in if moved_in else None,
+            emergency_contact_name=emergency_contact_name,
+            emergency_contact_phone=emergency_contact_phone,
+            notes=notes,
             is_active=True
         )
 
@@ -227,6 +245,7 @@ def tenant_create(request):
             from landlord.tasks import send_tenant_welcome
             send_tenant_welcome.delay(tenant.id)
 
+        messages.success(request, f"Mieter {tenant} erfolgreich angelegt.")
         return redirect("portal_tenants")
 
     # GET: Show form
@@ -239,17 +258,28 @@ def tenant_create(request):
 
 @staff_member_required
 def tenant_edit(request, pk: int):
-    """Edit existing tenant"""
+    """
+    Edit existing tenant.
+    
+    Updated 2025-10-23: Supports first_name, last_name fields.
+    """
     tenant = get_object_or_404(Tenant, pk=pk)
 
     if request.method == "POST":
+        tenant.first_name = request.POST.get("first_name", "").strip()
+        tenant.last_name = request.POST.get("last_name", "").strip()
         tenant.primary_email = request.POST.get("primary_email", tenant.primary_email)
         tenant.phone = request.POST.get("phone", "")
+        tenant.date_of_birth = request.POST.get("date_of_birth") or None
         moved_in = request.POST.get("moved_in_at")
         tenant.moved_in_at = moved_in if moved_in else None
+        tenant.emergency_contact_name = request.POST.get("emergency_contact_name", "")
+        tenant.emergency_contact_phone = request.POST.get("emergency_contact_phone", "")
+        tenant.notes = request.POST.get("notes", "")
         tenant.is_active = request.POST.get("is_active") == "on"
         tenant.save()
 
+        messages.success(request, f"Mieter {tenant} erfolgreich aktualisiert.")
         return redirect("portal_tenants")
 
     # GET: Show form
