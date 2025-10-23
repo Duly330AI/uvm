@@ -62,10 +62,21 @@ def test_tenant(db, test_unit):
 
 
 @pytest.fixture
-def mock_request(admin_user):
-    """Create mock request."""
-    factory = RequestFactory()
-    request = factory.get('/')
+def test_log(db, admin_user, test_tenant):
+    """Create test audit log."""
+    return AuditLog.objects.create(
+        user=admin_user,
+        user_email=admin_user.email,
+        action=AuditLog.ACTION_CREATE,
+        resource=test_tenant,
+        resource_repr=str(test_tenant)
+    )
+
+
+@pytest.fixture
+def mock_request(rf, admin_user):
+    """Create mock request with user."""
+    request = rf.get('/')
     request.user = admin_user
     request.META['REMOTE_ADDR'] = '127.0.0.1'
     request.META['HTTP_USER_AGENT'] = 'TestAgent/1.0'
@@ -105,17 +116,38 @@ class TestAuditLogModel:
         with pytest.raises(ValueError, match="cannot be modified"):
             log.save()
 
-    def test_audit_log_cannot_be_deleted(self, admin_user):
-        """Audit logs cannot be deleted."""
-        log = AuditLog.objects.create(
+    def test_delete_raises_error(self, test_log):
+        """Deleting an audit log raises ValueError."""
+        with pytest.raises(ValueError, match="cannot be deleted"):
+            test_log.delete()
+
+    def test_bulk_delete_raises_error(self, admin_user):
+        """
+        Bulk deletion via QuerySet.delete() is prevented.
+        
+        Security Fix (2025-10-23): Prevents admin from using "Delete selected"
+        to bypass model.delete() immutability guard.
+        """
+        # Create multiple logs
+        AuditLog.objects.create(
             user=admin_user,
             user_email=admin_user.email,
             action=AuditLog.ACTION_CREATE,
-            resource_repr="Test"
+            resource_repr="Test 1"
         )
-
-        with pytest.raises(ValueError, match="cannot be deleted"):
-            log.delete()
+        AuditLog.objects.create(
+            user=admin_user,
+            user_email=admin_user.email,
+            action=AuditLog.ACTION_CREATE,
+            resource_repr="Test 2"
+        )
+        
+        # Attempt bulk delete
+        with pytest.raises(ValueError, match="cannot be bulk deleted"):
+            AuditLog.objects.all().delete()
+        
+        # Verify logs still exist
+        assert AuditLog.objects.count() >= 2
 
     def test_audit_log_string_representation(self, admin_user):
         """Audit log has readable string representation."""

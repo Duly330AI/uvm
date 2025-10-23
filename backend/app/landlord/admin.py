@@ -734,6 +734,9 @@ class AuditLogAdmin(admin.ModelAdmin):
 	date_hierarchy = 'timestamp'
 	ordering = ('-timestamp',)
 
+	# Security Fix (2025-10-23): Disable bulk actions to prevent QuerySet.delete() bypass
+	actions = None  # Disables "Delete selected" and all bulk actions
+
 	def has_add_permission(self, request):
 		"""Prevent manual creation - only via audit service."""
 		return False

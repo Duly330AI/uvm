@@ -285,6 +285,37 @@ if SENTRY_DSN:
         # Default 0.1 = 10% of transactions for performance monitoring
         traces_sample_rate = float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1"))
 
+        def before_send(event, hint):
+            """
+            Scrub sensitive data before sending to Sentry (GDPR/DSGVO compliance).
+            
+            Security Fix (2025-10-23): Prevent PII exposure in Sentry.
+            Removes sensitive fields while keeping useful debug context.
+            """
+            # Remove sensitive cookies
+            if 'request' in event and 'cookies' in event['request']:
+                event['request']['cookies'] = {'[Filtered]': '[Sensitive data removed]'}
+            
+            # Remove authorization headers
+            if 'request' in event and 'headers' in event['request']:
+                headers = event['request']['headers']
+                sensitive_headers = ['Authorization', 'Cookie', 'X-Csrftoken']
+                for header in sensitive_headers:
+                    if header in headers:
+                        headers[header] = '[Filtered]'
+            
+            # Remove POST data (may contain passwords, personal data)
+            if 'request' in event and 'data' in event['request']:
+                # Keep structure but filter values
+                if isinstance(event['request']['data'], dict):
+                    event['request']['data'] = {
+                        key: '[Filtered]' for key in event['request']['data'].keys()
+                    }
+                else:
+                    event['request']['data'] = '[Filtered]'
+            
+            return event
+
         sentry_sdk.init(
             dsn=SENTRY_DSN,
             integrations=[
@@ -297,14 +328,14 @@ if SENTRY_DSN:
             # Performance Monitoring
             traces_sample_rate=traces_sample_rate,
 
-            # Send default PII (user IDs, emails) for better error context
-            send_default_pii=True,
+            # Security Fix (2025-10-23): Disable default PII - use before_send instead
+            send_default_pii=False,
 
             # Release tracking (use git commit hash in production)
             release=os.getenv("SENTRY_RELEASE", "uvm@dev"),
 
-            # Before-send hook to scrub sensitive data if needed
-            # before_send=lambda event, hint: event,  # Customize as needed
+            # Before-send hook to scrub sensitive data (GDPR compliance)
+            before_send=before_send,
         )
 
         # Log successful initialization (only in non-DEBUG mode to avoid noise)

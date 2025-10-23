@@ -22,6 +22,7 @@ UVM includes production-ready Sentry.io integration for:
 3. Copy the DSN (Data Source Name) from each project settings
 
 **Why separate projects?**
+
 - Development errors don't pollute production dashboard
 - Different alert rules (dev = silent, prod = notify team)
 - Clear separation of environments
@@ -65,6 +66,7 @@ docker compose restart web worker beat
 **Example Performance Insights:**
 
 Sentry will show you:
+
 ```
 Slow Transactions (>2s):
 1. POST /api/payments/csv/upload/  - 8.5s  (2x per day)
@@ -112,24 +114,28 @@ export SENTRY_RELEASE=uvm@$(git rev-parse --short HEAD)
 When a user encounters an error, Sentry captures:
 
 **Error Details:**
+
 - Exception type: `ValueError`, `DoesNotExist`, `IntegrityError`
 - Stack trace with exact line numbers
 - Request URL and method (GET/POST)
 - SQL queries that were executed
 
 **User Context:**
+
 - User ID and email (if authenticated)
 - IP address
 - Browser and OS
 - Session data
 
 **Environment:**
+
 - Release version (git commit hash)
 - Server hostname
 - Django version
 - Database backend
 
 **Timeline:**
+
 - When the error occurred
 - How many times it happened
 - First seen vs last seen
@@ -153,6 +159,7 @@ Release: uvm@a1b2c3d
 ```
 
 This tells you:
+
 - ✅ What broke (Property DoesNotExist)
 - ✅ Where (views_portal.py line 142)
 - ✅ Who was affected (admin@example.com)
