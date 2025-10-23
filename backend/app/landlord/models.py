@@ -1437,3 +1437,6 @@ class MaintenanceItem(TimeStampedModel):
         location = str(self.property) if self.property else (str(self.unit) if self.unit else "Allgemein")
         return f"{self.title} - {location} ({self.due_date})"
 
+
+# Import AuditLog model
+from landlord.models_audit import AuditLog  # noqa: E402, F401
