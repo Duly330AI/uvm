@@ -6,6 +6,10 @@
 **Test snapshot:** 384 passing (7 skipped, documented) · coverage around 79–80% at the time of the internal review
 **Repository:** https://github.com/Duly330AI/uvm
 
+UVM is a Django-based property management MVP for landlord operations.
+
+It models German rental-management workflows such as properties, units, tenants, contracts, maintenance tickets, documents, utility readings, vendor assignments, and operating-cost preparation. Some domain terms are intentionally German because the original workflow was designed around German property-management processes.
+
 > This project is a portfolio prototype. It is not a certified legal, tax, accounting, or property-management product. It must not be used in production without a full security, privacy, and legal review.
 
 ---
