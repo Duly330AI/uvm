@@ -121,11 +121,11 @@ class TestPropertyListAPI:
         """Test filtering by city"""
         api_client.force_authenticate(user=regular_user)
         url = reverse('portal-properties-list')
-        response = api_client.get(url, {'city': 'Berlin'})
+        response = api_client.get(url, {'city': 'Beispielstadt'})
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 1
-        assert response.data['results'][0]['city'] == 'Berlin'
+        assert response.data['results'][0]['city'] == 'Beispielstadt'
 
     def test_list_filter_by_country(self, api_client, regular_user, sample_properties):
         """Test filtering by country"""
@@ -168,21 +168,21 @@ class TestPropertyListAPI:
         """Test search query in name field"""
         api_client.force_authenticate(user=regular_user)
         url = reverse('portal-properties-list')
-        response = api_client.get(url, {'query': 'Berlin'})
+        response = api_client.get(url, {'query': 'Example Office'})
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 1
-        assert 'Berlin' in response.data['results'][0]['name']
+        assert 'Example Office' in response.data['results'][0]['name']
 
     def test_list_search_query_city(self, api_client, regular_user, sample_properties):
         """Test search query in city field"""
         api_client.force_authenticate(user=regular_user)
         url = reverse('portal-properties-list')
-        response = api_client.get(url, {'query': 'München'})
+        response = api_client.get(url, {'query': 'Musterstadt'})
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 1
-        assert response.data['results'][0]['city'] == 'München'
+        assert response.data['results'][0]['city'] == 'Musterstadt'
 
     def test_list_sort_by_city_asc(self, api_client, regular_user, sample_properties):
         """Test sorting by city ascending"""
