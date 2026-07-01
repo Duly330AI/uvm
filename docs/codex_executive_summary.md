@@ -1,10 +1,10 @@
-# UVM Performance & Security Audit – Executive Summary (2025-10-23)
+# UVM Internal Performance & Security Review – Executive Summary (2025-10-23)
 
-**Gesamt-Score:** 90/100 · **Codebase:** `backend/app/landlord`, `backend/app/config`
+**Internal review score:** 90/100 · **Codebase:** `backend/app/landlord`, `backend/app/config`
 
 ## ✅ Highlights
 - P0/P1-Fixes umgesetzt (Gunicorn, Settings, SECRET_KEY, CSV, FSM)
-- Security Hardened: Prod-Defaults aktiv, immutable Audit-Logs, Sentry opt-in
+- Security-conscious defaults: immutable Audit-Logs, Sentry opt-in
 - Performance: CSV-Import O(N), paginierte Zahlungen, async Uploads, KPI-Caches
 - Code Quality: FSM Handler Pattern, Chat View modular, Coverage 79–80 %
 - Monitoring & Ops: Deployment Guide, Runbook, Health Checks, Sentry Hooks
@@ -17,7 +17,7 @@
 ## 📈 Kennzahlen
 | Bereich | Ergebnis |
 | --- | --- |
-| Security | 90/100 (0 offene P0/P1) |
+| Security | Internal review: 90/100 (0 offene P0/P1) |
 | Performance | Kritische Pfade <250 ms (CSV-Import 60× schneller) |
 | Code Quality | CC < 15 (FSM 3), Maintainability Index A |
 | Tests | 384 passed / 7 skipped, Coverage 79–80 % |
@@ -27,4 +27,4 @@
 - Regelmäßige Deploy Checks + Coverage Gate (≥80 %) in CI
 - Beobachten: Sentry DSN Handling, Audit-Log Rotation, Backup Validierung
 
-Vergleich zur Vorversion (62/100 → 90/100): Security, Performance und Code Quality wurden vollständig adressiert – Projekt ist produktionsreif, verbleibende Arbeit sind optionale Premium-Features.
+Vergleich zur Vorversion (62/100 → 90/100): Security, Performance und Code Quality wurden im Prototyp adressiert. Das Projekt ist nicht produktionszertifiziert; verbleibende Arbeit umfasst manuelle Reviews und optionale Erweiterungen.

@@ -5,11 +5,11 @@
     "fields": {
       "created_at": "2025-10-16T10:40:00Z",
       "updated_at": "2025-10-16T10:40:00Z",
-      "name": "Hauptstr. 12",
-      "street": "Hauptstr. 12",
-      "postal_code": "46485",
-      "city": "Wesel",
-      "country": "Deutschland",
+      "name": "Beispielstrasse 1",
+      "street": "Beispielstrasse 1",
+      "postal_code": "00000",
+      "city": "Beispielstadt",
+      "country": "DE",
       "notes": "Demo Liegenschaft"
     }
   },
@@ -42,7 +42,7 @@
       "created_at": "2025-10-16T10:40:00Z",
       "updated_at": "2025-10-16T10:40:00Z",
       "primary_email": "mieter@example.com",
-      "phone": "+49 151 1234567",
+      "phone": "+49 000 0000000",
       "unit": 1,
       "is_active": true
     }

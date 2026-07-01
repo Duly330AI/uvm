@@ -2,7 +2,7 @@
 # "UVM" Universal Vermieter Managment v0.1
 
 **Datum:** 16.10.2025  
-**Autor:** ChatGPT (Assistenz für Matthias Buchalik)  
+**Autor:** ChatGPT-assisted draft
 **Zielgruppe:** Product Owner, Entwicklung, QA, DevOps  
 **Status:** Entwurf (reviewfähig)
 

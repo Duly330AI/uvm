@@ -9,6 +9,8 @@
 
 ## 📊 Executive Summary
 
+This is an internal prototype security review, not an external audit or certification. UVM should not be used with real tenant, landlord, vendor, or payment data without a full security, privacy, and legal review.
+
 **Overall Security Status:** ✅ **GOOD**
 
 The UVM application follows Django security best practices and implements appropriate security controls for a development/pre-production system. No critical vulnerabilities were found.

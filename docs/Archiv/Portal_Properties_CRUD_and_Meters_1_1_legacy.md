@@ -1,6 +1,6 @@
 # UVM – Gebäude (Properties) : Portal-CRUD + Zähler (Stammdaten)
 
-Version: **1.3 (Final Spec - Production Ready)**
+Version: **1.3 (Final Spec - prototype snapshot)**
 Datum: **2025-10-20**
 Owner: **Landlord / Property Management**
 Scope: **Portal-Modul „Gebäude"** mit Property-CRUD und Zählerverwaltung.
@@ -480,7 +480,7 @@ Hinweis: „Keine Code-Snippets" – daher nur Endpunkte, Parameter und Semantik
 
 ---
 
-### v1.3 (2025-10-20) - Final Spec - Production Ready ✅
+### v1.3 (2025-10-20) - Final Spec - prototype snapshot
 
 **Technical Clarifications:**
 

@@ -67,11 +67,13 @@ celerybeat.pid
 htmlcov/
 .coverage
 .coverage.*
+coverage.json
 coverage.xml
 
 # Logs
 *.log
 logs/
+error.txt
 
 # Cookies & Session files (dev tools)
 cookies.txt

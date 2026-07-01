@@ -4,12 +4,12 @@
 
 ## Overview
 
-UVM includes production-ready Sentry.io integration for:
+UVM includes ready-to-activate Sentry.io integration for:
 
 - **Error Tracking:** Automatic exception capture with full context
 - **Performance Monitoring (APM):** Transaction tracking for slow endpoints
 - **Release Tracking:** Git commit-based release tagging
-- **User Context:** PII included for better debugging (user IDs, emails)
+- **User Context:** review PII handling before enabling in any real environment
 
 ## Activation
 

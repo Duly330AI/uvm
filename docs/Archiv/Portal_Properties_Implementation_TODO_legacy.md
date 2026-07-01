@@ -1,6 +1,6 @@
 # Portal Properties CRUD + Meters - Implementation TODO List
 
-**Spec Version:** v1.3 (Final - Production Ready)
+**Spec Version:** v1.3 (Final - prototype snapshot)
 **Total Tasks:** 75 (broken down into 200+ subtasks)
 **Estimated Effort:** 8.1 PT
 **Started:** 2025-10-20

@@ -1,13 +1,13 @@
-# 🚀 UVM Production Deployment Guide (2025-10-23)
+# UVM Deployment Notes (2025-10-23)
 
-This guide reflects the post-refactoring state (Security Score 90/100, 384 Tests, Tenant name fields, async pipelines). Follow the checklist to promote a stable release.
+These notes reflect the post-refactoring prototype state, including tenant name fields and async pipelines. They are not a production certification; run a full security, privacy, legal, and operations review before any real deployment.
 
 ---
 
 ## ✅ Preflight Checklist
-1. `docker compose exec web python manage.py check --deploy` → 0 warnings
-2. `docker compose exec web pytest -q` → **384 passed**, 7 skipped
-3. Coverage report (`pytest --cov`) ≥ 79 %
+1. `docker compose exec web python manage.py check --deploy` with deployment-specific settings reviewed
+2. `docker compose exec web pytest -q`
+3. Coverage report (`pytest --cov`) reviewed for the touched scope
 4. Confirm migration `0026_add_tenant_names.py` applied
 5. Update `.env` with prod secrets (see [docs/SECURITY_ENV_VARS.md](./SECURITY_ENV_VARS.md))
 
@@ -32,7 +32,7 @@ ALLOWED_HOSTS=app.example.com
 SECURE_SSL_REDIRECT=1
 
 # Database
-DATABASE_URL=postgres://uvm_user:password@db:5432/uvm_prod
+DATABASE_URL=postgres://uvm_user:<change-me>@db:5432/uvm_prod
 
 # Redis / Celery
 REDIS_URL=redis://redis:6379/0
@@ -47,7 +47,7 @@ EMAIL_HOST_PASSWORD=<password>
 DEFAULT_FROM_EMAIL=noreply@example.com
 
 # Monitoring (optional)
-SENTRY_DSN=https://public@o0.ingest.sentry.io/0
+SENTRY_DSN=https://examplePublicKey@o0.ingest.sentry.io/0
 SENTRY_ENVIRONMENT=production
 SENTRY_TRACES_SAMPLE_RATE=0.1
 ```

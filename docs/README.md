@@ -1,8 +1,10 @@
 # Documentation Index (2025-10-21)
 
+These files are internal implementation notes and historical project records. They are not external certifications, legal advice, or a statement that the project is fit for live operational use.
+
 | Document | Last touched | Status | Notes |
 | --- | --- | --- | --- |
-| `DEPLOYMENT.md` | 2025-10-21 | ✅ Current | Production deployment guide reflecting `SECRET_KEY` env usage. |
+| `DEPLOYMENT.md` | 2025-10-21 | ✅ Current | Deployment notes reflecting `SECRET_KEY` env usage. |
 | `LOCAL_VENV_SETUP.md` | 2025-10-21 | ✅ Current | VS Code / Pylance helper instructions. |
 | `M8_ACCEPTANCE_TESTS.md` | 2025-10-21 | ✅ Current | Manual acceptance checklist for the tenant portal. |
 | `Portal_Properties_CRUD_and_Meters_1_1.md` | 2025-10-21 | ✅ Current | Implementation snapshot for property CRUD + meters. |

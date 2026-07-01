@@ -1,4 +1,4 @@
-# Production Deployment Guide
+# Legacy Deployment Notes
 
 ## P0 Produktions-Härtung ✅
 
@@ -70,9 +70,9 @@ open http://localhost:8000/portal/
 
 ```env
 SECRET_KEY=<dein-generierter-key>
-DJANGO_ALLOWED_HOSTS=yourdomain.com
-DJANGO_CSRF_TRUSTED_ORIGINS=https://yourdomain.com
-POSTGRES_PASSWORD=<starkes-passwort>
+DJANGO_ALLOWED_HOSTS=example.com
+DJANGO_CSRF_TRUSTED_ORIGINS=https://example.com
+POSTGRES_PASSWORD=<change-me>
 ```
 
 ### Email (SMTP)

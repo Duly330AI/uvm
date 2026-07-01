@@ -1,6 +1,6 @@
-# 🧭 UVM Production-Ready Master Action Plan (Update 2025-10-23)
+# UVM Prototype Hardening Master Action Plan (Update 2025-10-23)
 
-**Status:** ✅ Phase 1–4 abgeschlossen · **Gesamtaufwand:** 40 h / 40 h · **Audit Score:** 90/100
+**Status:** Phase 1–4 abgeschlossen · **Gesamtaufwand:** 40 h / 40 h · **Internal review score:** 90/100
 
 ---
 
@@ -13,7 +13,7 @@
 **Key Deliverables:**
 - Immutable Audit Trail (`models_audit.py`) & HMAC-Signaturen
 - Tenant-Modell erweitert (Migration `0026_add_tenant_names.py`)
-- 384 Tests · Coverage 79–80 % · Security Score 90/100
+- 384 Tests · Coverage 79–80 % · Internal security review score 90/100
 
 ---
 
@@ -28,7 +28,7 @@
 
 ## 🗂️ Dokumentation
 - Detail-Log aller erledigten Aufgaben: [docs/MASTER_ACTION_PLAN_DONE.md](./MASTER_ACTION_PLAN_DONE.md)
-- Audit Reports: `docs/codex_executive_summary.md` (Ausgang 62/100) + Security Re-Audit (90/100)
+- Review notes: `docs/codex_executive_summary.md` (Ausgang 62/100) + internal security review (90/100)
 - Deployment & Ops: `docs/DEPLOYMENT.md`, `docs/OPERATIONS_RUNBOOK.md`
 
 ---

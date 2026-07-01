@@ -1,6 +1,6 @@
 # 🗺️ UVM Roadmap (Stand 2025-10-23)
 
-**Projektstatus:** 80 % abgeschlossen · **Core Features:** 100 % live (M1–M16) · **Rest:** Optionale Erweiterungen (M17–M20)
+**Projektstatus:** Advanced MVP / portfolio prototype · **MVP-Module:** M1–M16 implementiert · **Rest:** optionale Erweiterungen (M17–M20)
 
 ---
 
@@ -9,7 +9,7 @@
 | --- | --- | --- | --- |
 | M1 | Chat-Erfassung | ✅ | FSM v2, Validierung, Severity-Heuristik |
 | M2 | Ticket-Workflow | ✅ | SLA-Tracking, Audit-Logs, Portal-Badges |
-| M3 | Tenant-Portal | ✅ | Magic-Link Login, DSGVO-konforme Namensfelder |
+| M3 | Tenant-Portal | ✅ | Magic-Link Login, DSGVO-orientierte Namensfelder |
 | M4 | Vendor-Portal | ✅ | Auftragszuweisung, Token-Handling |
 | M5 | Issue Notes/Attachments | ✅ | Async Uploads, Finalize Task |
 | M6 | Reporting & KPIs | ✅ | 30‑Tage Dashboard mit Cache |
@@ -17,7 +17,7 @@
 | M8 | Document Versioning (M17a) | ✅ | DocumentVersion, Timeline |
 | M9 | Contract Management | ✅ | Vertrags-CRUD, Tenant Binding |
 | M10 | Payment CSV Import | ✅ | HMAC-Signatur, O(N)-Matching |
-| M11 | Utility Meter & Billing | ✅ | HeizkostenV-konformer Calculator |
+| M11 | Utility Meter & Billing | ✅ | HeizkostenV-orientierter Calculator |
 | M12 | Nebenkostenabrechnung | ✅ | Verbrauchs-/Vorschuss-Berechnung |
 | M13 | Checklisten | ✅ | Ein-/Auszug, Wartung, PDF-Export |
 | M14 | Wartungskalender | ✅ | Overdue Detection, Staff Assignment |
@@ -34,9 +34,9 @@
 | M17b | OCR & Dokument-Automation | 📋 | Belegerkennung, Smart Tags |
 | M18 | Bank-/Buchhaltungs-APIs | 📋 | Kontoabgleich, DATEV-Export |
 | M19 | Analytics & Self-Service Dashboards | 📋 | KPIs für Eigentümer:innen |
-| M20 | Premium/Exit Integrationen | 📋 | Drittsysteme, SSO |
+| M20 | Optionale Integrationen | 📋 | Drittsysteme, SSO |
 
-> Priorität nach Go-Live, abhängig von Käufer-Anforderungen.
+> Priorität abhängig von fachlicher Prüfung und Projektziel.
 
 ---
 
@@ -44,7 +44,7 @@
 - **T0 (2025-10-20):** Codex-Audit, 62/100 → Maßnahmenplan
 - **T1 (2025-10-22):** Phase 1 & 2 abgeschlossen (Security, Performance)
 - **T2 (2025-10-23):** Phase 3 & 4 abgeschlossen (Code Quality, Monitoring)
-- **Heute:** 80 % Feature-Completion, Security Score 90/100, Coverage ~80 %
+- **Heute:** fortgeschrittener MVP-Snapshot, interner Review-Score 90/100, Coverage ~80 %
 - **Nächste Meilensteine:** Entscheidung über M17–M20 Umfang & Budget
 
 ---

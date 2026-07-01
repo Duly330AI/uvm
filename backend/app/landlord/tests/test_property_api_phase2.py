@@ -47,24 +47,24 @@ def sample_properties(db):
     """Create sample properties for testing"""
     props = []
     props.append(Property.objects.create(
-        name="Berlin Office",
-        street="Hauptstraße 123",
-        postal_code="10115",
-        city="Berlin",
+        name="Example Office",
+        street="Beispielstrasse 1",
+        postal_code="00000",
+        city="Beispielstadt",
         country="DE"
     ))
     props.append(Property.objects.create(
-        name="Munich Apartment",
-        street="Bahnhofstraße 456",
-        postal_code="80331",
-        city="München",
+        name="Example Apartment",
+        street="Musterweg 2",
+        postal_code="00000",
+        city="Musterstadt",
         country="DE"
     ))
     props.append(Property.objects.create(
-        name="Vienna House",
-        street="Ringstraße 789",
-        postal_code="1010",
-        city="Wien",
+        name="Example House",
+        street="Demoallee 3",
+        postal_code="0000",
+        city="Demostadt",
         country="AT"
     ))
     return props

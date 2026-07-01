@@ -1,7 +1,7 @@
 # UVM – AI Agent Playbook
 
 **Project:** Property Management Platform (Django 5.1, Python 3.12)  
-**Status:** Production-Ready (80% complete, M1–M16 ✅) · Security 90/100 · Tests 384 passed · Coverage 79–80%
+**Status:** Advanced MVP / portfolio prototype (M1–M16 implemented) · Internal review 90/100 · Tests 384 passed · Coverage 79–80%
 
 ---
 
@@ -126,7 +126,7 @@ log_audit(
     request=request  # Captures IP, User-Agent
 )
 ```
-**Why:** GDPR compliance. Logs cannot be edited/deleted after creation.
+**Why:** privacy/audit accountability. Logs cannot be edited/deleted after creation.
 
 ### 3. Tenant Data (§ 550 BGB)
 ```python

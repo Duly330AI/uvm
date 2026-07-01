@@ -545,9 +545,9 @@ A: Run: `docker compose exec web python manage.py create_building_units`
 
 ---
 
-## ✅ **PRODUCTION READY**
+## ✅ **FEATURE-COMPLETE PROTOTYPE SNAPSHOT**
 
-**Status:** Das M14-Modul ist vollständig funktional und produktionsbereit!
+**Status:** Das M14-Modul ist als Prototyp-Snapshot funktional und benötigt vor echter Nutzung eine fachliche Prüfung.
 
 **Getestet:**
 
@@ -558,10 +558,10 @@ A: Run: `docker compose exec web python manage.py create_building_units`
 - ✅ CSV-Export
 - ✅ Live reload
 
-**Compliance:**
+**Regulatory-oriented checks:**
 
 - ✅ HeizkostenV (30/70 Regelung)
-- ✅ DSGVO-konform
+- ✅ DSGVO-orientierte Audit-Unterstützung
 - ✅ Audit-Logs (recorded_by)
 
 ---

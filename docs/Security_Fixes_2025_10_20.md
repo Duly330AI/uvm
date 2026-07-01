@@ -43,7 +43,7 @@ Inconsistent environment variable naming across development and production confi
 
 ```bash
 # ALL environments (.env.example, .env.prod.example, etc.)
-SECRET_KEY=your-secret-key-here
+SECRET_KEY=example-secret-key-change-me
 ```
 
 #### 1.2 Settings Validation
@@ -290,7 +290,7 @@ S3_SECRET_KEY=  # REQUIRED
 
 ### Finding
 
-`docker-compose.yml` uses `python manage.py runserver 0.0.0.0:8000` which is not production-ready.
+`docker-compose.yml` uses `python manage.py runserver 0.0.0.0:8000`, which is suitable only for local development.
 
 ### Assessment
 

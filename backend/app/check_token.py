@@ -9,7 +9,7 @@ django.setup()
 from django.utils import timezone
 from landlord.models import TenantAuthToken
 
-token_id = '8c82df58-4982-4223-acd2-183cf83b11ee'
+token_id = '00000000-0000-0000-0000-000000000000'
 
 try:
     token = TenantAuthToken.objects.get(id=token_id)

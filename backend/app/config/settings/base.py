@@ -73,7 +73,7 @@ ASGI_APPLICATION = "config.asgi.application"
 
 
 # Database
-DATABASE_URL = os.getenv("DATABASE_URL", "postgres://landlord:landlord@localhost:5432/landlord")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgres://landlord:change-me@localhost:5432/landlord")
 DATABASES = {
     "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=False)
 }

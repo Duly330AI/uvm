@@ -1,4 +1,4 @@
-# 🚀 Codex Performance Audit - UVM Project
+# Codex Performance Review Notes - UVM Project
 
 **Datum:** 2025-10-22
 **Projekt:** Universal Vermieter Management (UVM)
@@ -11,7 +11,7 @@
 
 Führe ein **automatisiertes Performance & Code-Quality Audit** durch für das UVM-Projekt.
 
-**Ziel:** Produktionsreife erreichen für Exit (Verkauf an PropTech-Firma)
+**Ziel:** Prototype hardening und ehrliche Review-Notizen für ein Portfolio-Projekt
 
 ---
 
@@ -332,7 +332,7 @@ Erstelle am Ende eine **Executive Summary**:
 2. Performance Optimization (Est. Yh)
 3. Test Coverage auf 80% (Est. Zh)
 
-**Estimated Total Effort:** ~Xh bis Production-Ready
+**Estimated Total Effort:** ~Xh bis zum nächsten manuellen Review
 ```
 
 ---

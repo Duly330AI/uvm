@@ -1,4 +1,4 @@
-# 🔒 Security & DSGVO Audit - UVM Project (Copilot Chat)
+# Security & Privacy Review Notes - UVM Project (Copilot Chat)
 
 **Datum:** 2025-10-22
 **Projekt:** Universal Vermieter Management (UVM)
@@ -9,12 +9,12 @@
 
 ## 🎯 MEINE AUFGABE (Copilot Chat):
 
-Führe **kontext-basiertes Security & Compliance Audit** durch.
+Führe **kontext-basiertes Security- und Privacy-Review** durch.
 
 **Was Codex NICHT kann:**
 
 - ❌ Business-Logic Security (FSM, Payment-Flow)
-- ❌ DSGVO Compliance (Daten-Löschung, Audit-Logs)
+- ❌ DSGVO-orientierte Privacy Controls (Daten-Löschung, Audit-Logs)
 - ❌ Infrastruktur-Security (Docker, Redis, PostgreSQL)
 - ❌ Rechtliche Einschätzungen
 
@@ -22,7 +22,7 @@ Führe **kontext-basiertes Security & Compliance Audit** durch.
 
 - ✅ Django Security Settings Review
 - ✅ Authentication & Authorization Audit
-- ✅ DSGVO Compliance Check
+- ✅ DSGVO-orientierter Privacy Check
 - ✅ API Security (DRF Throttling, Permissions)
 - ✅ File Upload Security
 - ✅ Session Management
@@ -351,12 +351,12 @@ sentry_sdk.init(
 ## 🎯 ERFOLGSKRITERIEN:
 
 ✅ **Keine Critical Security Issues**
-✅ **DSGVO-konform** (Tenant-Löschung, Audit-Logs)
-✅ **Monitoring aktiv** (Sentry.io)
+✅ **DSGVO-orientierte Controls geprüft** (Tenant-Löschung, Audit-Logs)
+✅ **Monitoring vorbereitet** (Sentry.io)
 ✅ **Alle Tests grün** (Security-Tests hinzugefügt)
 ✅ **Dokumentation vollständig**
 
-**Dann:** Production-Ready für Exit! 🚀
+**Dann:** bereit für manuelle Security-/Privacy-Prüfung.
 
 ---
 
