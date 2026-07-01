@@ -1,4 +1,4 @@
-# UVM — Universal Vermieter Management
+# UVM — Universal Vermieter Management (Property Management MVP)
 
 **Status:** Advanced MVP / portfolio prototype
 **Scope:** Django-based property-management MVP for landlord operations
