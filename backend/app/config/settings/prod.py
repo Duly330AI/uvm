@@ -7,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 DEBUG = False
 
 # Security Fix 2025-10-20: Enforce secure SECRET_KEY in production
-if SECRET_KEY == "change-me":
+if SECRET_KEY == "change-me":  # noqa: F405
     raise ImproperlyConfigured(
         "SECRET_KEY is set to the insecure default value 'change-me'. "
         "This is not allowed in production. Generate a secure key with: "
@@ -74,7 +74,7 @@ CACHES = {
 }
 
 # Static files via WhiteNoise (prod)
-MIDDLEWARE = list(MIDDLEWARE)
+MIDDLEWARE = list(MIDDLEWARE)  # noqa: F405
 try:
     sec_idx = MIDDLEWARE.index("django.middleware.security.SecurityMiddleware")
 except ValueError:

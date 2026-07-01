@@ -2,8 +2,8 @@
 
 **Version:** 1.0 FINAL
 **Datum:** 19.10.2025
-**Status:** ✅ PRODUKTIONSBEREIT
-**Autor:** AI Assistant + Matthias Buchalik
+**Status:** prototype snapshot
+**Autor:** AI Assistant + Example Person
 
 ---
 

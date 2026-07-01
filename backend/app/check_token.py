@@ -6,8 +6,8 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
 django.setup()
 
-from django.utils import timezone
-from landlord.models import TenantAuthToken
+from django.utils import timezone  # noqa: E402
+from landlord.models import TenantAuthToken  # noqa: E402
 
 token_id = '00000000-0000-0000-0000-000000000000'
 

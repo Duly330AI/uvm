@@ -304,8 +304,8 @@ Property 1---* Unit 1---* Tenant 1---* Issue *---* IssueAttachment
 {
   "id": 123,
   "ticket_no": "TCK-2025-00123",
-  "tenant": { "name": "Max Mustermann", "email": "max@example.com" },
-  "unit": { "id": 9, "label": "WE 1. OG links", "property": "Hauptstr. 12, 46485 Wesel" },
+  "tenant": { "name": "Example Tenant", "email": "example@example.com" },
+  "unit": { "id": 9, "label": "WE 1. OG links", "property": "Example Street 1, 12345 Example City" },
   "category": "water",
   "severity": 4,
   "status": "IN_PROGRESS",
@@ -321,10 +321,10 @@ Property 1---* Unit 1---* Tenant 1---* Issue *---* IssueAttachment
     { "id": 56, "mime": "image/jpeg", "url": "/media/issues/123/2.jpg" }
   ],
   "notes": [
-    { "id": 77, "author": "Admin", "visibility": "internal", "text": "Sanitär Felix Krach beauftragt", "created_at": "2025-10-16T09:20:00Z" }
+    { "id": 77, "author": "Admin", "visibility": "internal", "text": "Example Vendor beauftragt", "created_at": "2025-10-16T09:20:00Z" }
   ],
   "appointments": [
-    { "id": 11, "vendor": "Sanitär Krach", "start": "2025-10-20T10:00:00Z", "end": "2025-10-20T11:00:00Z", "status": "invited" }
+    { "id": 11, "vendor": "Example Vendor", "start": "2025-10-20T10:00:00Z", "end": "2025-10-20T11:00:00Z", "status": "invited" }
   ],
   "created_at": "2025-10-16T08:00:00Z",
   "updated_at": "2025-10-16T09:25:00Z"
@@ -360,7 +360,7 @@ services:
     environment:
       POSTGRES_DB: landlord
       POSTGRES_USER: landlord
-      POSTGRES_PASSWORD: landlord
+      POSTGRES_PASSWORD: change-me
     volumes:
       - dbdata:/var/lib/postgresql/data
 
@@ -370,8 +370,8 @@ services:
   minio:
     image: minio/minio
     environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: minio123
+      MINIO_ROOT_USER: change-me
+      MINIO_ROOT_PASSWORD: change-me
     command: server /data --console-address :9001
     ports: ["9000:9000", "9001:9001"]
     volumes:

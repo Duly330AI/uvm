@@ -213,9 +213,9 @@ services:
 `.env.example` contains hardcoded credentials:
 
 ```bash
-S3_ACCESS_KEY=minio
-S3_SECRET_KEY=minio123
-DATABASE_URL=postgres://landlord:landlord@db:5432/landlord
+S3_ACCESS_KEY=change-me
+S3_SECRET_KEY=change-me
+DATABASE_URL=postgres://landlord:change-me@db:5432/landlord
 ```
 
 ### Root Cause
@@ -241,8 +241,8 @@ SECRET_KEY=CHANGE_ME_IN_PRODUCTION_GENERATE_SECURE_KEY
 DATABASE_URL=postgres://USER:PASSWORD@db:5432/landlord
 
 # S3/MinIO (Development only - use AWS credentials in production)
-S3_ACCESS_KEY=minio
-S3_SECRET_KEY=minio123  # ⚠️ CHANGE IN PRODUCTION
+S3_ACCESS_KEY=change-me
+S3_SECRET_KEY=change-me  # ⚠️ CHANGE BEFORE USE
 
 # ⚠️ PRODUCTION CHECKLIST:
 # [ ] Generate new SECRET_KEY (python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())")
@@ -348,7 +348,7 @@ All 5 findings were manually validated:
 1. SECRET_KEY inconsistency: ✅ Confirmed
 2. Test deps in runtime: ✅ Confirmed (`pytest` in `dependencies`)
 3. Mixed settings (beat=prod): ✅ Confirmed (line 66 in docker-compose.yml)
-4. Hardcoded secrets: ✅ Confirmed (`.env.example` has `minio123`)
+4. Hardcoded secrets: ✅ Confirmed (`.env.example` had unsafe placeholder credentials)
 5. runserver usage: ✅ Confirmed (acceptable for dev)
 
 ---

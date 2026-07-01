@@ -78,12 +78,12 @@ POSTGRES_PASSWORD=<change-me>
 ### Email (SMTP)
 
 ```env
-EMAIL_HOST=smtp.gmail.com
+EMAIL_HOST=smtp.example.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=1
-EMAIL_HOST_USER=your-email@gmail.com
-EMAIL_HOST_PASSWORD=your-app-password
-DEFAULT_FROM_EMAIL=noreply@yourdomain.com
+EMAIL_HOST_USER=example@example.com
+EMAIL_HOST_PASSWORD=change-me
+DEFAULT_FROM_EMAIL=noreply@example.com
 ```
 
 ### S3/MinIO (optional)
@@ -202,10 +202,10 @@ mc mirror minio/uvm-uploads ./backups/media/
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name yourdomain.com;
+    server_name example.com;
 
-    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
 
     client_max_body_size 50M;
 

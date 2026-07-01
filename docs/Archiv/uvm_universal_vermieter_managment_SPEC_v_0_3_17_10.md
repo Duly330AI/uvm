@@ -3,7 +3,7 @@
 # "UVM" Universal Vermieter Management v0.3
 
 **Datum:** 17.10.2025
-**Autor:** ChatGPT (Assistenz für Matthias Buchalik)
+**Autor:** ChatGPT-assisted draft for Example Person
 **Zielgruppe:** Product Owner, Entwicklung, QA, DevOps
 **Status:** Implementiert & Testbereit (M1-M7)
 
@@ -407,7 +407,7 @@ docker compose exec db pg_dump -U landlord landlord > backup.sql
 
 ## 14. Support & Kontakt
 
-**Development Contact**: Matthias Buchalik
+**Development Contact**: Example Person
 **Assistant**: ChatGPT (Code-Generation & Architecture)
 **Repository**: (Internal)
 **Issues**: (Django Admin oder GitHub Issues)

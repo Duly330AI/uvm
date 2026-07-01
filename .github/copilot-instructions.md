@@ -172,7 +172,7 @@ Before deploying:
 6. Check migration `0026_add_tenant_names` applied
 
 **Prod Settings:** `config.settings.prod` (default since Phase 1.2)  
-**Health Check:** `curl https://yourdomain.com/healthz`
+**Health Check:** `curl https://example.com/healthz`
 
 ---
 

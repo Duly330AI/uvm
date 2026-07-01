@@ -114,7 +114,7 @@ echo "\n=== Check Complete ==="
 Save as `/opt/uvm/daily_check.sh` and schedule:
 
 ```cron
-0 9 * * * /opt/uvm/daily_check.sh | mail -s "UVM Daily Check" ops@yourdomain.com
+0 9 * * * /opt/uvm/daily_check.sh | mail -s "UVM Daily Check" example@example.com
 ```
 
 ### Evening Checklist (18:00)
@@ -414,20 +414,20 @@ df -h
 
 ```bash
 # 1. Check certificate expiry
-openssl s_client -connect yourdomain.com:443 -servername yourdomain.com < /dev/null 2>/dev/null | openssl x509 -noout -dates
+openssl s_client -connect example.com:443 -servername example.com < /dev/null 2>/dev/null | openssl x509 -noout -dates
 
 # 2. Renew certificate
 sudo certbot renew
 
 # 3. Copy new certificates to nginx volume
-sudo cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem nginx/ssl/
-sudo cp /etc/letsencrypt/live/yourdomain.com/privkey.pem nginx/ssl/
+sudo cp /etc/letsencrypt/live/example.com/fullchain.pem nginx/ssl/
+sudo cp /etc/letsencrypt/live/example.com/privkey.pem nginx/ssl/
 
 # 4. Reload nginx
 docker compose exec nginx nginx -s reload
 
 # 5. Verify
-curl -I https://yourdomain.com
+curl -I https://example.com
 ```
 
 ---
@@ -609,7 +609,7 @@ docker compose up -d
 # 5. Verify
 sleep 30
 docker compose ps
-curl -f https://yourdomain.com/healthz
+curl -f https://example.com/healthz
 
 echo "=== Recovery Complete ==="
 echo "Verify application functionality manually."
@@ -621,10 +621,10 @@ echo "Verify application functionality manually."
 
 | Role             | Name | Contact                 | Availability   |
 | ---------------- | ---- | ----------------------- | -------------- |
-| On-Call Engineer | TBD  | +49-XXX                 | 24/7           |
-| Database Admin   | TBD  | dba@yourdomain.com      | Business hours |
-| Security Team    | TBD  | security@yourdomain.com | 24/7           |
-| Management       | TBD  | ops@yourdomain.com      | Business hours |
+| On-Call Engineer | TBD  | example@example.com     | 24/7           |
+| Database Admin   | TBD  | example@example.com     | Business hours |
+| Security Team    | TBD  | example@example.com     | 24/7           |
+| Management       | TBD  | example@example.com     | Business hours |
 
 ---
 
